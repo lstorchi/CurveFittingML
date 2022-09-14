@@ -1,6 +1,5 @@
-from cProfile import label
 import sys
-from tabnanny import verbose
+import random
 
 import pandas as pd
 import numpy as np
@@ -9,6 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 import sklearn.gaussian_process as gp
+from sklearn.model_selection import train_test_split
 
 from sklearn.ensemble import RandomForestRegressor
 
@@ -40,15 +40,6 @@ for t in df.columns[1:]:
 X = np.array(x)
 Y = np.array(y)
 
-Xtrain = X
-Ytrain = Y
-
-Xtest = X
-Ytest = Y
-
-print("Training set shapes: ", Ytrain.shape, Xtrain.shape)
-print("    Test set shapes: ", Ytest.shape, Xtest.shape)
-
 xdim = len(df.columns)-1
 ydim = len(vib)
 
@@ -64,9 +55,54 @@ for xidx in range(xdim):
         Yp[xidx, yidx] = v
         Zp[xidx, yidx] = df[t].values[yidx]
 
-fig = plt.figure(figsize=(10,8))
-ax = fig.add_subplot(111, projection='3d')
+#fig = plt.figure(figsize=(10,8))
+fig = plt.figure(figsize=plt.figaspect(2.))
+ax = fig.add_subplot(2,1,1, projection='3d')
 surf = ax.plot_surface(Xp, Yp, Zp, rstride=1, cstride=1, cmap='jet', linewidth=0, antialiased=False)
+
+# same set
+Xtrain = X
+Ytrain = Y
+
+Xtest = X
+Ytest = Y
+
+#random split
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, Y, test_size=0.33, random_state=42)
+
+# split using random with v
+xtrain = []
+xtest = []
+ytrain = []
+ytest = []
+
+vintestset = []
+
+for idx in range(len(vib)):
+    ridx = random.randint(0, 10)
+    if ridx <= 1:
+        vintestset.append(vib[idx])
+        for t in df.columns[1:]:
+            T = float(t)
+            xtest.append([T, vib[idx]])
+            ytest.append(df[t].values[idx])
+    else:
+        for t in df.columns[1:]:
+            T = float(t)
+            xtrain.append([T, vib[idx]])
+            ytrain.append(df[t].values[idx])
+
+Xtrain = np.array(xtrain)
+Ytrain = np.array(ytrain)
+
+Xtest = np.array(xtest)
+Ytest = np.array(ytest)
+
+#for v in Xtest:
+#    print(v)
+
+print("Training set shapes: ", Ytrain.shape, Xtrain.shape)
+print("    Test set shapes: ", Ytest.shape, Xtest.shape)
 
 """
 for xidx in range(xdim):
@@ -77,7 +113,7 @@ for xidx in range(xdim):
         ax.scatter(xs, ys, zs)
 """
 
-plt.show()
+#plt.show()
 
 kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
 model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=15)
@@ -95,6 +131,7 @@ vsvib = False
 xtest = []
 ytest = []
 columnidx = -1
+vtest = vintestset[-1]
 
 if vsvib:
     t = 1000
@@ -103,10 +140,10 @@ if vsvib:
         ytest.append(df[t].values[idx])
     columnidx = 1 
 else:
-    v = 14
+    vtest = vintestset[-1]
     vidx = -1
     for idx in range(len(vib)):
-        if vib[idx] == v:
+        if vib[idx] == vtest:
             vidx = idx
             break
     for t in df.columns[1:]:
@@ -120,14 +157,15 @@ Ytest_single = np.array(ytest)
 
 y_pred, std = model.predict(Xtest_single, return_std=True)
 
-for idx in range(len(y_pred)):
-    print("%10.5e %10.5e"%(y_pred[idx], std[idx]))
+#for idx in range(len(y_pred)):
+#    print("%10.5e %10.5e"%(y_pred[idx], std[idx]))
 
-plt.plot(Xtest_single[:,columnidx], Ytest_single, label="True values")
-plt.plot(Xtest_single[:,columnidx], y_pred, label="Predicted values")
+ax = fig.add_subplot(2,1,2)
+ax.plot(Xtest_single[:,columnidx], Ytest_single, label="True values")
+ax.plot(Xtest_single[:,columnidx], y_pred, label="Predicted values")
 #plt.errorbar(Xtest_single[:,columnidx], y_pred, std, label="Predicted values")
-plt.xlabel("T")
-plt.ylabel("Rate")
-plt.legend()
+ax.set_xlabel("T")
+ax.set_ylabel("Rate fo v = %3d"%(vtest))
+ax.legend()
 
 plt.show()
