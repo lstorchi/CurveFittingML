@@ -1,5 +1,6 @@
 from cProfile import label
 import sys
+from tabnanny import verbose
 
 import pandas as pd
 import numpy as np
@@ -39,7 +40,14 @@ for t in df.columns[1:]:
 X = np.array(x)
 Y = np.array(y)
 
-print(Y.shape, X.shape)
+Xtrain = X
+Ytrain = Y
+
+Xtest = X
+Ytest = Y
+
+print("Training set shapes: ", Ytrain.shape, Xtrain.shape)
+print("    Test set shapes: ", Ytest.shape, Xtest.shape)
 
 xdim = len(df.columns)-1
 ydim = len(vib)
@@ -73,54 +81,51 @@ plt.show()
 
 kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
 model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=15)
+#, normalize_y=False)
 
 #model = RandomForestRegressor()
 
-model.fit(X, Y)
+model.fit(Xtrain, Ytrain)
 
+y_pred = model.predict(Xtest)
+MSE = ((y_pred-Ytest)**2).mean()
+print ("MSE: ", MSE)
+
+vsvib = False
 xtest = []
 ytest = []
-t = 1000
-for idx in range(len(vib)):
-    xtest.append([t, vib[idx]])
-    ytest.append(df[t].values[idx])
+columnidx = -1
 
-xtest = []
-ytest = []
-v = 14
-vidx = -1
-for idx in range(len(vib)):
-    if vib[idx] == v:
-        vidx = idx
-        break
+if vsvib:
+    t = 1000
+    for idx in range(len(vib)):
+        xtest.append([t, vib[idx]])
+        ytest.append(df[t].values[idx])
+    columnidx = 1 
+else:
+    v = 14
+    vidx = -1
+    for idx in range(len(vib)):
+        if vib[idx] == v:
+            vidx = idx
+            break
+    for t in df.columns[1:]:
+        T = float(t)
+        xtest.append([T, v])
+        ytest.append(df[t].values[vidx])
+    columnidx = 0
 
-for t in df.columns[1:]:
-    T = float(t)
-    xtest.append([T, v])
-    ytest.append(df[t].values[vidx])
+Xtest_single = np.array(xtest)
+Ytest_single = np.array(ytest)
 
-#y_pred, std = model.predict(X, return_std=True)
-y_pred = model.predict(X)
+y_pred, std = model.predict(Xtest_single, return_std=True)
 
-MSE = ((y_pred-Y)**2).mean()
+for idx in range(len(y_pred)):
+    print("%10.5e %10.5e"%(y_pred[idx], std[idx]))
 
-#for i in range(Y.shape[0]):
-#    print(y_pred[i], Y[i])
-
-#print("MSE: ", MSE)
-Xtest = np.array(xtest)
-Ytest = np.array(ytest)
-#plt.scatter(y_pred*10**20, Y*10**20)
-#plt.show()
-
-y_pred, std = model.predict(Xtest, return_std=True)
-#y_pred = model.predict(Xtest)
-
-print(len(y_pred), len(std))
-
-plt.plot(Xtest[:,0], Ytest, label="True values")
-#plt.errorbar(Xtest[:,1], y_pred, std, linestyle='None', marker='^')
-plt.plot(Xtest[:,0], y_pred, label="Predicted values")
+plt.plot(Xtest_single[:,columnidx], Ytest_single, label="True values")
+plt.plot(Xtest_single[:,columnidx], y_pred, label="Predicted values")
+#plt.errorbar(Xtest_single[:,columnidx], y_pred, std, label="Predicted values")
 plt.xlabel("T")
 plt.ylabel("Rate")
 plt.legend()
