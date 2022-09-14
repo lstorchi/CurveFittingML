@@ -77,7 +77,7 @@ ytrain = []
 ytest = []
 
 vintestset = []
-
+random.seed(42)
 for idx in range(len(vib)):
     ridx = random.randint(0, 10)
     if ridx <= 1:
@@ -98,6 +98,10 @@ Ytrain = np.array(ytrain)
 Xtest = np.array(xtest)
 Ytest = np.array(ytest)
 
+print("V in testset")
+for v in vintestset:
+    print("V: %3d"%v)
+
 #for v in Xtest:
 #    print(v)
 
@@ -115,9 +119,11 @@ for xidx in range(xdim):
 
 #plt.show()
 
-kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
+kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([10,10], (1e-2, 1e2))
+# *  gp.kernels.ExpSineSquared(length_scale=1, periodicity=2)
 model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=15)
 #, normalize_y=False)
+print(model.kernel)
 
 #model = RandomForestRegressor()
 
