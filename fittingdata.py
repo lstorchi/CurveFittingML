@@ -1,3 +1,4 @@
+from cProfile import label
 import sys
 
 import pandas as pd
@@ -59,6 +60,15 @@ fig = plt.figure(figsize=(10,8))
 ax = fig.add_subplot(111, projection='3d')
 surf = ax.plot_surface(Xp, Yp, Zp, rstride=1, cstride=1, cmap='jet', linewidth=0, antialiased=False)
 
+"""
+for xidx in range(xdim):
+    for yidx in range(ydim):
+        xs = Xp[xidx, yidx]
+        ys = Yp[xidx, yidx]
+        zs = Zp[xidx, yidx]
+        ax.scatter(xs, ys, zs)
+"""
+
 plt.show()
 
 kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
@@ -75,6 +85,20 @@ for idx in range(len(vib)):
     xtest.append([t, vib[idx]])
     ytest.append(df[t].values[idx])
 
+xtest = []
+ytest = []
+v = 14
+vidx = -1
+for idx in range(len(vib)):
+    if vib[idx] == v:
+        vidx = idx
+        break
+
+for t in df.columns[1:]:
+    T = float(t)
+    xtest.append([T, v])
+    ytest.append(df[t].values[vidx])
+
 #y_pred, std = model.predict(X, return_std=True)
 y_pred = model.predict(X)
 
@@ -83,16 +107,22 @@ MSE = ((y_pred-Y)**2).mean()
 #for i in range(Y.shape[0]):
 #    print(y_pred[i], Y[i])
 
-print("MSE: ", MSE)
+#print("MSE: ", MSE)
 Xtest = np.array(xtest)
 Ytest = np.array(ytest)
 #plt.scatter(y_pred*10**20, Y*10**20)
 #plt.show()
 
-#y_pred, std = model.predict(Xtest, return_std=True)
-y_pred = model.predict(Xtest)
+y_pred, std = model.predict(Xtest, return_std=True)
+#y_pred = model.predict(Xtest)
 
-plt.plot(Xtest[:,1], Ytest)
-plt.plot(Xtest[:,1], y_pred)
+print(len(y_pred), len(std))
+
+plt.plot(Xtest[:,0], Ytest, label="True values")
+#plt.errorbar(Xtest[:,1], y_pred, std, linestyle='None', marker='^')
+plt.plot(Xtest[:,0], y_pred, label="Predicted values")
+plt.xlabel("T")
+plt.ylabel("Rate")
+plt.legend()
+
 plt.show()
-
