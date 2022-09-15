@@ -12,6 +12,8 @@ from sklearn.model_selection import train_test_split
 
 from sklearn.ensemble import RandomForestRegressor
 
+import GPy
+
 filename = ""
 
 if len(sys.argv) != 2:
@@ -80,6 +82,21 @@ vintestset = []
 random.seed(42)
 for idx in range(len(vib)):
     ridx = random.randint(0, 10)
+
+    vibval = vib[idx]
+    if vibval == 14:
+        vintestset.append(vibval)
+        for t in df.columns[1:]:
+            T = float(t)
+            xtest.append([T, vib[idx]])
+            ytest.append(df[t].values[idx])
+    else:
+        for t in df.columns[1:]:
+            T = float(t)
+            xtrain.append([T, vib[idx]])
+            ytrain.append(df[t].values[idx])
+
+    """
     if ridx <= 1:
         vintestset.append(vib[idx])
         for t in df.columns[1:]:
@@ -91,6 +108,7 @@ for idx in range(len(vib)):
             T = float(t)
             xtrain.append([T, vib[idx]])
             ytrain.append(df[t].values[idx])
+    """
 
 Xtrain = np.array(xtrain)
 Ytrain = np.array(ytrain)
@@ -119,10 +137,19 @@ for xidx in range(xdim):
 
 #plt.show()
 
-kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([10,10], (1e-2, 1e2))
+kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
+
+#l = 0.1
+#sigma_f = 2
+#kernel = gp.kernels.ConstantKernel(constant_value=sigma_f,constant_value_bounds=(1e-3, 1e3)) \
+#            * gp.kernels.RBF(length_scale=l, length_scale_bounds=(1e-3, 1e3))
 # *  gp.kernels.ExpSineSquared(length_scale=1, periodicity=2)
-model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=15)
-#, normalize_y=False)
+
+#kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.PairwiseKernel(metric='rbf')
+#maternParams = {'length_scale': 1.0, 'nu': 1.5}
+#kernel = gp.kernels.Matern(**maternParams)
+model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, \
+    normalize_y=True)
 print(model.kernel)
 
 #model = RandomForestRegressor()
@@ -163,8 +190,8 @@ Ytest_single = np.array(ytest)
 
 y_pred, std = model.predict(Xtest_single, return_std=True)
 
-#for idx in range(len(y_pred)):
-#    print("%10.5e %10.5e"%(y_pred[idx], std[idx]))
+for idx in range(len(y_pred)):
+    print("%10.5e %10.5e"%(y_pred[idx], std[idx]))
 
 ax = fig.add_subplot(2,1,2)
 ax.plot(Xtest_single[:,columnidx], Ytest_single, label="True values")
