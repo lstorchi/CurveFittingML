@@ -22,6 +22,7 @@ if len(sys.argv) != 2:
 else:
     filename = sys.argv[1]
 
+FACTOR = 1.0
 df = pd.read_excel(filename)
 
 vib= []
@@ -37,7 +38,7 @@ for t in df.columns[1:]:
     for idx in range(len(vib)):
         #print(T, vib[idx])
         x.append([T, vib[idx]])
-        y.append(df[t].values[idx])
+        y.append(df[t].values[idx]*FACTOR)
 
 X = np.array(x)
 Y = np.array(y)
@@ -55,7 +56,7 @@ for xidx in range(xdim):
         v =  vib[yidx]
         Xp[xidx, yidx] = T
         Yp[xidx, yidx] = v
-        Zp[xidx, yidx] = df[t].values[yidx]
+        Zp[xidx, yidx] = df[t].values[yidx]*FACTOR
 
 #fig = plt.figure(figsize=(10,8))
 fig = plt.figure(figsize=plt.figaspect(2.))
@@ -89,12 +90,12 @@ for idx in range(len(vib)):
         for t in df.columns[1:]:
             T = float(t)
             xtest.append([T, vib[idx]])
-            ytest.append(df[t].values[idx])
+            ytest.append(df[t].values[idx]*FACTOR)
     else:
         for t in df.columns[1:]:
             T = float(t)
             xtrain.append([T, vib[idx]])
-            ytrain.append(df[t].values[idx])
+            ytrain.append(df[t].values[idx]*FACTOR)
 
     """
     if ridx <= 1:
@@ -102,12 +103,12 @@ for idx in range(len(vib)):
         for t in df.columns[1:]:
             T = float(t)
             xtest.append([T, vib[idx]])
-            ytest.append(df[t].values[idx])
+            ytest.append(df[t].values[idx]*FACTOR)
     else:
         for t in df.columns[1:]:
             T = float(t)
             xtrain.append([T, vib[idx]])
-            ytrain.append(df[t].values[idx])
+            ytrain.append(df[t].values[idx]*FACTOR)
     """
 
 Xtrain = np.array(xtrain)
@@ -149,7 +150,7 @@ kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e
 #maternParams = {'length_scale': 1.0, 'nu': 1.5}
 #kernel = gp.kernels.Matern(**maternParams)
 model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, \
-    normalize_y=True)
+    normalize_y=False)
 print(model.kernel)
 
 #model = RandomForestRegressor()
@@ -170,7 +171,7 @@ if vsvib:
     t = 1000
     for idx in range(len(vib)):
         xtest.append([t, vib[idx]])
-        ytest.append(df[t].values[idx])
+        ytest.append(df[t].values[idx]*FACTOR)
     columnidx = 1 
 else:
     vtest = vintestset[-1]
@@ -182,7 +183,7 @@ else:
     for t in df.columns[1:]:
         T = float(t)
         xtest.append([T, v])
-        ytest.append(df[t].values[vidx])
+        ytest.append(df[t].values[vidx]*FACTOR)
     columnidx = 0
 
 Xtest_single = np.array(xtest)
