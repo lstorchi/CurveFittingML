@@ -1,8 +1,11 @@
 import sys
 import random
+from tkinter.tix import COLUMN
 
 import pandas as pd
 import numpy as np
+
+from sklearn import preprocessing
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -23,7 +26,34 @@ else:
     filename = sys.argv[1]
 
 FACTOR = 1.0
-df = pd.read_excel(filename)
+dfin = pd.read_excel(filename)
+
+dfdict = {}
+min = float("inf")
+max = float("-inf")
+for c in dfin.columns:
+    dfdict[c] = []
+    if c == "vibrational level v\Temperature(K)":
+        dfdict[c] = list(dfin[c].values)
+    else:
+        for v in dfin[c].values:
+            val = FACTOR*v
+            if val > max:
+                max = val
+            if val < min:
+                min = val
+
+for c in dfin.columns:
+    if c != "vibrational level v\Temperature(K)":
+        for v in dfin[c].values:
+            val = FACTOR*v
+            valp = (val - min) / (max - min)
+            # non normalize
+            dfdict[c].append(val)
+            # normalize
+            #dfdict[c].append(valp)
+
+df = pd.DataFrame.from_dict(dfdict)
 
 vib= []
 for v in df["vibrational level v\Temperature(K)"].values:
@@ -38,10 +68,16 @@ for t in df.columns[1:]:
     for idx in range(len(vib)):
         #print(T, vib[idx])
         x.append([T, vib[idx]])
-        y.append(df[t].values[idx]*FACTOR)
+        y.append(df[t].values[idx])
 
 X = np.array(x)
 Y = np.array(y)
+
+#scaler = preprocessing.StandardScaler().fit(X)
+#X = scaler.transform(X)
+
+#min_max_scaler = preprocessing.MinMaxScaler()
+#X = min_max_scaler.fit_transform(X)
 
 xdim = len(df.columns)-1
 ydim = len(vib)
@@ -56,7 +92,7 @@ for xidx in range(xdim):
         v =  vib[yidx]
         Xp[xidx, yidx] = T
         Yp[xidx, yidx] = v
-        Zp[xidx, yidx] = df[t].values[yidx]*FACTOR
+        Zp[xidx, yidx] = df[t].values[yidx]
 
 #fig = plt.figure(figsize=(10,8))
 fig = plt.figure(figsize=plt.figaspect(2.))
@@ -90,12 +126,12 @@ for idx in range(len(vib)):
         for t in df.columns[1:]:
             T = float(t)
             xtest.append([T, vib[idx]])
-            ytest.append(df[t].values[idx]*FACTOR)
+            ytest.append(df[t].values[idx])
     else:
         for t in df.columns[1:]:
             T = float(t)
             xtrain.append([T, vib[idx]])
-            ytrain.append(df[t].values[idx]*FACTOR)
+            ytrain.append(df[t].values[idx])
 
     """
     if ridx <= 1:
@@ -103,12 +139,12 @@ for idx in range(len(vib)):
         for t in df.columns[1:]:
             T = float(t)
             xtest.append([T, vib[idx]])
-            ytest.append(df[t].values[idx]*FACTOR)
+            ytest.append(df[t].values[idx])
     else:
         for t in df.columns[1:]:
             T = float(t)
             xtrain.append([T, vib[idx]])
-            ytrain.append(df[t].values[idx]*FACTOR)
+            ytrain.append(df[t].values[idx])
     """
 
 Xtrain = np.array(xtrain)
@@ -139,6 +175,8 @@ for xidx in range(xdim):
 #plt.show()
 
 kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
+#kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * \
+#    gp.kernels.RBF(length_scale=1.0, length_scale_bounds=(1e-3, 1e3))
 
 #l = 0.1
 #sigma_f = 2
@@ -151,11 +189,11 @@ kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e
 #kernel = gp.kernels.Matern(**maternParams)
 model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, \
     normalize_y=False)
-print(model.kernel)
-
+print("Start training ")
 #model = RandomForestRegressor()
-
 model.fit(Xtrain, Ytrain)
+print("Done ")
+print(model.kernel)
 
 y_pred = model.predict(Xtest)
 MSE = ((y_pred-Ytest)**2).mean()
@@ -171,7 +209,7 @@ if vsvib:
     t = 1000
     for idx in range(len(vib)):
         xtest.append([t, vib[idx]])
-        ytest.append(df[t].values[idx]*FACTOR)
+        ytest.append(df[t].values[idx])
     columnidx = 1 
 else:
     vtest = vintestset[-1]
@@ -183,7 +221,7 @@ else:
     for t in df.columns[1:]:
         T = float(t)
         xtest.append([T, v])
-        ytest.append(df[t].values[vidx]*FACTOR)
+        ytest.append(df[t].values[vidx])
     columnidx = 0
 
 Xtest_single = np.array(xtest)
