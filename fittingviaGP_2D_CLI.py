@@ -160,8 +160,6 @@ plt.gcf().set_size_inches(40, 30)
 
 plt.show()
 
-exit(1)
-
 model = fitusingscikitl (train_xy, train_z)
 
 test_xy = []
