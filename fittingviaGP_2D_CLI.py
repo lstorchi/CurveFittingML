@@ -222,6 +222,7 @@ df, vib_values , temp_values = filterinitialset (filename)
 overallmse = 0.0
 tot = 0
 for trm in temp_values:
+    print("Removing TEMP ", trm)
     temp_torm = [trm]
 
     train_xy, train_z, test_xy, test_z = get_train_and_test_rmt (temp_values, vib_values, \
@@ -245,14 +246,15 @@ for trm in temp_values:
 
         print("%10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
 
-    print("Removed ", trm, " MSE ", mse/float(i))
+    print("Removed TEMP ", trm, " MSE ", mse/float(i))
 
-print("Overall MSE ", overallmse/float(tot))
+print("Overall MSE TEMP ", overallmse/float(tot))
 
 overallmse = 0.0
 tot = 0
 for vrm in vib_values:
     vib_torm = [vrm]
+    print("Removed VIB ", vrm)
 
     train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
         df, vib_torm)
@@ -275,6 +277,6 @@ for vrm in vib_values:
     
         print("%10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
 
-    print("Removed ", vrm, " ", mse/float(i))
+    print("Removed VIB ", vrm, " ", mse/float(i))
 
-print("Overall MSE ", overallmse/float(tot))
+print("Overall MSE VIB ", overallmse/float(tot))
