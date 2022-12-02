@@ -100,73 +100,181 @@ def fitusingscikitl (train_x, train_y):
 
 ##########################################################################################################
 
+def get_train_and_test_rmt (temp_values, vib_values, df, \
+    removetemps=[]):
+
+    maxt = max(temp_values)
+    mint = min(temp_values)
+
+    minv = min(vib_values)
+    maxv = max(vib_values)
+
+    train_xy = []
+    train_z = []
+
+    test_xy = []
+    test_z = []
+
+    maxz = float("-inf")
+    minz = float("+inf")
+
+    for tidx, t in enumerate(temp_values):
+        for vidx, v in enumerate(vib_values):
+            zval = df[t].values[vidx]
+
+            if zval < minz:
+                minz = zval
+            elif zval > maxz:
+                maxz = zval
+
+    for t in temp_values:
+        if t not in removetemps:
+            tnorm = (t - mint)/(maxt - mint)
+
+            for vidx, v in enumerate(vib_values):
+                vnorm  = (v - minv)/(maxv - minv)
+                train_xy.append([tnorm, vnorm])
+        
+                z = df[t].values[vidx]
+                znorm = (z - minz)/(maxz - minz)
+                train_z.append(znorm)
+        else:
+            tnorm = (t - mint)/(maxt - mint)
+            for vidx, v in enumerate(vib_values):
+                vnorm  = (v - minv)/(maxv - minv)
+                test_xy.append([tnorm, vnorm])
+
+                z = df[t].values[vidx]
+                znorm = (z - minz)/(maxz - minz)
+                test_z.append(znorm)
+
+
+    train_xy = np.asarray(train_xy)
+    train_z = np.asarray(train_z)
+
+    test_xy = np.asarray(test_xy)
+    test_z = np.asarray(test_z)
+
+    return train_xy, train_z, test_xy, test_z
+
+##########################################################################################################
+
+def get_train_and_test_rmv (temp_values, vib_values, df, \
+    removevibs=[]):
+
+    maxt = max(temp_values)
+    mint = min(temp_values)
+
+    minv = min(vib_values)
+    maxv = max(vib_values)
+
+    train_xy = []
+    train_z = []
+
+    test_xy = []
+    test_z = []
+
+    maxz = float("-inf")
+    minz = float("+inf")
+
+    for tidx, t in enumerate(temp_values):
+        for vidx, v in enumerate(vib_values):
+            zval = df[t].values[vidx]
+
+            if zval < minz:
+                minz = zval
+            elif zval > maxz:
+                maxz = zval
+
+    for t in temp_values:
+        tnorm = (t - mint)/(maxt - mint)
+
+        for vidx, v in enumerate(vib_values):
+            if v not in removevibs:
+                vnorm  = (v - minv)/(maxv - minv)
+                train_xy.append([tnorm, vnorm])
+        
+                z = df[t].values[vidx]
+                znorm = (z - minz)/(maxz - minz)
+                train_z.append(znorm)
+            else:
+                vnorm  = (v - minv)/(maxv - minv)
+                test_xy.append([tnorm, vnorm])
+
+                z = df[t].values[vidx]
+                znorm = (z - minz)/(maxz - minz)
+                test_z.append(znorm)
+
+    train_xy = np.asarray(train_xy)
+    train_z = np.asarray(train_z)
+
+    test_xy = np.asarray(test_xy)
+    test_z = np.asarray(test_z)
+
+    return train_xy, train_z, test_xy, test_z
+
+##########################################################################################################
+
 filename = "N2N2_dataset.xls"
 df, vib_values , temp_values = filterinitialset (filename)
 #plotfull3dcurve (df, vib_values, temp_values)
 
-maxt = max(temp_values)
-mint = min(temp_values)
+overallmse = 0.0
+tot = 0
+for trm in temp_values:
+    temp_torm = [trm]
 
-minv = min(vib_values)
-maxv = max(vib_values)
+    train_xy, train_z, test_xy, test_z = get_train_and_test_rmt (temp_values, vib_values, \
+        df, temp_torm)
 
-train_xy = []
-train_z = []
+    model = fitusingscikitl (train_xy, train_z)
 
-maxz = float("-inf")
-minz = float("+inf")
+    z_pred, std = model.predict(test_xy, return_std=True)
 
-for tidx, t in enumerate(temp_values):
-    for vidx, v in enumerate(vib_values):
-        zval = df[t].values[vidx]
+    mse = 0.0
+    for i in range(test_z.shape[0]):
+        x = test_xy[i,0]
+        y = test_xy[i,1]
+        z = test_z[i]
+        zpred = z_pred[i]
+        zstd = std[i]
 
-        if zval < minz:
-            minz = zval
-        elif zval > maxz:
-            maxz = zval
+        mse += (zpred-z)**2
+        overallmse += (zpred-z)**2
+        tot += 1
 
-for tidx, t in enumerate(temp_values):
-    tnorm = (t - mint)/(maxt - mint)
-    print(t, " ", tnorm)
+        print("%10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
 
-    for vidx, v in enumerate(vib_values):
-        vnorm  = (v - minv)/(maxv - minv)
-    
-        train_xy.append([tnorm, vnorm])
+    print("Removed ", trm, " MSE ", mse/float(i))
+
+print("Overall MSE ", overallmse/float(tot))
+
+overallmse = 0.0
+tot = 0
+for vrm in vib_values:
+    vib_torm = [vrm]
+
+    train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
+        df, vib_torm)
+
+    model = fitusingscikitl (train_xy, train_z)
+
+    z_pred, std = model.predict(test_xy, return_std=True)
+
+    mse = 0.0
+    for i in range(test_z.shape[0]):
+        x = test_xy[i,0]
+        y = test_xy[i,1]
+        z = test_z[i]
+        zpred = z_pred[i]
+        zstd = std[i]
         
-        z = df[t].values[vidx]
-        znorm = (z - minz)/(maxz - minz)
-        train_z.append(znorm)
+        mse += (zpred-z)**2
+        overallmse += (zpred-z)**2
+        tot += 1
+    
+        print("%10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
 
-        print("  %10.2f %10.7f ==> %10.7e %10.7f"%(v, vnorm, z, znorm ))
+    print("Removed ", vrm, " ", mse/float(i))
 
-
-train_xy = np.asarray(train_xy)
-train_z = np.asarray(train_z)
-
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
-
-for i in range(train_z.shape[0]):
-    x = train_xy[i,0]
-    y = train_xy[i,1]
-    z = train_z[i]
-    ax.scatter(x, y, z, marker="o", color="b")
-
-ax.set_xlabel('X Label')
-ax.set_ylabel('Y Label')
-ax.set_zlabel('Z Label')
-plt.gcf().set_size_inches(40, 30)
-
-plt.show()
-
-model = fitusingscikitl (train_xy, train_z)
-
-test_xy = []
-for x in np.linspace(minv, maxv, 150):
-    for y in np.linspace(mint, maxt, 150):
-        train_xy.append([x, t])
-
-test_xy = np.asarray(test_xy)
-z_pred, std = model.predict(test_xy, return_std=True)
-
+print("Overall MSE ", overallmse/float(tot))
