@@ -19,8 +19,7 @@ if __name__ == "__main__":
         df, vib_values , temp_values = cm.filterinitialset (filename)
         #plotfull3dcurve (df, vib_values, temp_values)
     
-        nepochs = 100
-        epochs = 10
+        epochs = 50
         batch_size = 50
         model = None
         history = None
