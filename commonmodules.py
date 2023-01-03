@@ -44,6 +44,20 @@ def build_new_model_NN(hidden_layers_layout, activation_functions):
    
     return model
 
+def build_model_NN_new ():
+
+    hidden_layers_layout = [100, 100]
+    activation_functions = ["relu", "relu"]
+    inoptimizer = "SGD(decay=1e-6, momentum=0.9, nesterov=True)"
+    loss = 'MeanSquaredError()'
+
+    model = build_new_model_NN(hidden_layers_layout, activation_functions)
+    optimizer = build_optimizer(inoptimizer)
+    model.compile(loss=build_loss(loss), optimizer=optimizer)
+    #model.summary()
+
+    return model
+
 ##########################################################################################################
 
 def filterinitialset (filename, headername = "vibrational level v\Temperature(K)",  \
