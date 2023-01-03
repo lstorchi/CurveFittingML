@@ -9,7 +9,7 @@ import commonmodules as cm
 
 if __name__ == "__main__":
 
-    ofp = open("results.csv", "w")
+    ofp = open("results_GP.csv", "w")
 
     filename = "testdv1.xlsx"
     df, vib_values , temp_values = cm.filterinitialset (filename)
