@@ -12,6 +12,8 @@ if __name__ == "__main__":
     for modelname in ["model1", "model2", "model3"]:
 
         ofp = open("results_NN_"+modelname+".csv", "w")
+
+        print("Type , Index , Testset MSE , Trainingset MSE", flush=True, file=ofp)
     
         filename = "testdv1.xlsx"
         df, vib_values , temp_values = cm.filterinitialset (filename)

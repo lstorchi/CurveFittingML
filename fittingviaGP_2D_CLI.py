@@ -11,6 +11,8 @@ if __name__ == "__main__":
 
     ofp = open("results_GP.csv", "w")
 
+    print("Type , Index , Testset MSE , Trainingset MSE", flush=True, file=ofp)
+
     filename = "testdv1.xlsx"
     df, vib_values , temp_values = cm.filterinitialset (filename)
     #plotfull3dcurve (df, vib_values, temp_values)
@@ -66,7 +68,7 @@ if __name__ == "__main__":
     
         mse = mse/cont
 
-        print("Removed TEMP , ", trm, " ,", mse[0], " ,", trainmse[0], flush=True, file=ofp)
+        print("Removed TEMP , ", trm, " ,", mse, " ,", trainmse, flush=True, file=ofp)
     
         print("Removed TEMP , ", trm, " , MSE , ", mse, " , TrainMSE ,", trainmse, flush=True)
     
@@ -124,7 +126,7 @@ if __name__ == "__main__":
     
         mse = mse/cont
     
-        print("Removed VIB  , ", vrm, " ,", mse[0], " ,", trainmse[0], flush=True, file=ofp)
+        print("Removed VIB  , ", vrm, " ,", mse, " ,", trainmse, flush=True, file=ofp)
 
         print("Removed VIB  , ", vrm, " , MSE , ", mse, " , TrainMSE ,", trainmse, flush=True)
     
@@ -172,7 +174,7 @@ if __name__ == "__main__":
     
         mse = mse/cont
 
-        print("Removed RND  , ", perc, " ,", mse[0], " ,", trainmse[0], flush=True, file=ofp)
+        print("Removed RND  , ", perc, " ,", mse, " ,", trainmse, flush=True, file=ofp)
     
         print("Removed random values ", perc ,"  MSE ", mse, " , TrainMSE ,", \
             trainmse, flush=True) 
