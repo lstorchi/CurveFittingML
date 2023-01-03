@@ -9,7 +9,7 @@ import commonmodules as cm
 
 if __name__ == "__main__":
 
-    for modelname in ["model1", "model2"]:
+    for modelname in ["model1", "model2", "model3"]:
 
         ofp = open("results_NN_"+modelname+".csv", "w")
     
@@ -36,10 +36,15 @@ if __name__ == "__main__":
                 df, temp_torm)
 
             if modelname == "model1":
-                model = cm.build_model_NN()
-                history = model.fit(train_xy, train_z, epochs=nepochs, verbose=1)
+                model = cm.build_model_NN_1()
+                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
+                        verbose=1)
             elif modelname == "model2":
-                model = cm.build_model_NN_new()
+                model = cm.build_model_NN_2()
+                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
+                     verbose=1)
+            elif modelname == "model3":
+                model = cm.build_model_NN_3()
                 history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
                      verbose=1)
         
@@ -98,13 +103,18 @@ if __name__ == "__main__":
                 df, vib_torm)
         
             if modelname == "model1":
-                model = cm.build_model_NN()
-                history = model.fit(train_xy, train_z, epochs=nepochs, verbose=1)
+                model = cm.build_model_NN_1()
+                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
+                        verbose=1)
             elif modelname == "model2":
-                model = cm.build_model_NN_new()
+                model = cm.build_model_NN_2()
                 history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
                      verbose=1)
-        
+            elif modelname == "model3":
+                model = cm.build_model_NN_3()
+                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
+                     verbose=1)
+ 
             z_pred = model.predict(train_xy)
             trainmse = 0.0
             cont = 0.0
@@ -154,10 +164,15 @@ if __name__ == "__main__":
                 df, perc)
 
             if modelname == "model1":
-                model = cm.build_model_NN()
-                history = model.fit(train_xy, train_z, epochs=nepochs, verbose=1)
+                model = cm.build_model_NN_1()
+                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
+                        verbose=1)
             elif modelname == "model2":
-                model = cm.build_model_NN_new()
+                model = cm.build_model_NN_2()
+                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
+                     verbose=1)
+            elif modelname == "model3":
+                model = cm.build_model_NN_3()
                 history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
                      verbose=1)
         

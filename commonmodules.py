@@ -18,42 +18,78 @@ from tensorflow.keras.models import Model
 
 ##########################################################################################################
 
-def build_activation_function(af):
+def __build_activation_function(af):
     if af.lower() == 'none':
         return None
     exp_af = 'lambda _ : tka.' + af
     return eval(exp_af)(None)
 
-def build_optimizer(optimizer):
+def __build_optimizer(optimizer):
     opt_init = optimizer
     exp_po = 'lambda _ : tko.' + opt_init
     optimizer = eval(exp_po)(None)
     return optimizer
 
-def build_loss(loss):
+def __build_loss(loss):
     exp_loss = 'lambda _ : tkl.' + loss
     return eval(exp_loss)(None)
 
-def build_new_model_NN(hidden_layers_layout, activation_functions):
+def __build_model (hidden_layers_layout, activation_functions):
     inputs = Input(shape=(2,))
     hidden = inputs
     for i in range(0, len(hidden_layers_layout)):
-        hidden = Dense(hidden_layers_layout[i], activation=build_activation_function(activation_functions[i]))(hidden)
+        hidden = Dense(hidden_layers_layout[i], \
+                activation= __build_activation_function(activation_functions[i]))(hidden)
     outputs = Dense(1)(hidden)
     model = Model(inputs=inputs, outputs=outputs)
    
     return model
 
-def build_model_NN_new ():
+##########################################################################################################
+
+def build_model_NN_2 ():
 
     hidden_layers_layout = [100, 100]
     activation_functions = ["relu", "relu"]
     inoptimizer = "SGD(decay=1e-6, momentum=0.9, nesterov=True)"
     loss = 'MeanSquaredError()'
 
-    model = build_new_model_NN(hidden_layers_layout, activation_functions)
-    optimizer = build_optimizer(inoptimizer)
-    model.compile(loss=build_loss(loss), optimizer=optimizer)
+    model = __build_model (hidden_layers_layout, activation_functions)
+    optimizer = __build_optimizer(inoptimizer)
+    model.compile(loss= __build_loss(loss), optimizer=optimizer)
+    #model.summary()
+
+    return model
+
+##########################################################################################################
+
+def build_model_NN_3 ():
+
+    hidden_layers_layout = [100, 100]
+    activation_functions = ["relu", "relu"]
+    inoptimizer = "SGD(decay=1e-6, momentum=0.9, nesterov=True)"
+    loss = 'MeanSquaredError()'
+
+    model = __build_model(hidden_layers_layout, activation_functions)
+    optimizer = __build_optimizer(inoptimizer)
+    model.compile(loss= __build_loss(loss), optimizer=optimizer)
+    #model.summary()
+
+    return model
+
+##########################################################################################################
+
+def build_model_NN_1 ():
+
+    model = keras.Sequential()
+    model.add(keras.layers.Dense(units = 2, activation = 'linear', input_shape=[2]))
+    model.add(keras.layers.Dense(units = 32, activation = 'relu'))
+    model.add(keras.layers.Dense(units = 64, activation = 'relu'))
+    model.add(keras.layers.Dense(units = 128, activation = 'relu'))
+    model.add(keras.layers.Dense(units = 32, activation = 'relu'))
+    #model.add(keras.layers.Dense(units = 16, activation = 'relu'))
+    model.add(keras.layers.Dense(units = 1, activation = 'linear'))
+    model.compile(loss='mse', optimizer="adam", metrics='mse')
     #model.summary()
 
     return model
@@ -326,18 +362,4 @@ def get_train_and_test_rmv (temp_values, vib_values, df, \
 
 ##########################################################################################################
 
-def build_model_NN ():
-    model = keras.Sequential()
-    model.add(keras.layers.Dense(units = 2, activation = 'linear', input_shape=[2]))
-    model.add(keras.layers.Dense(units = 32, activation = 'relu'))
-    model.add(keras.layers.Dense(units = 64, activation = 'relu'))
-    model.add(keras.layers.Dense(units = 128, activation = 'relu'))
-    model.add(keras.layers.Dense(units = 32, activation = 'relu'))
-    #model.add(keras.layers.Dense(units = 16, activation = 'relu'))
-    model.add(keras.layers.Dense(units = 1, activation = 'linear'))
-    model.compile(loss='mse', optimizer="adam", metrics='mse')
-    #model.summary()
 
-    return model
-
-##########################################################################################################
