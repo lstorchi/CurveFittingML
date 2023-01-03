@@ -31,7 +31,8 @@ if __name__ == "__main__":
             print("Removing TEMP ", trm, flush=True)
             temp_torm = [trm]
         
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmt (temp_values, vib_values, \
+            train_xy, train_z, test_xy, test_z = \
+                cm.get_train_and_test_rmt (temp_values, vib_values, \
                 df, temp_torm)
 
             if modelname == "model1":
@@ -77,8 +78,8 @@ if __name__ == "__main__":
                 print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred))
         
             mse = mse/cont
-    
-            print("Removed TEMP , ", trm, " ,", mse, " ,", trainmse, flush=True, file=ofp)
+
+            print("Removed TEMP , ", trm, " ,", mse[0], " ,", trainmse[0], flush=True, file=ofp)
         
             print("Removed TEMP , ", trm, " , MSE , ", mse, " , TrainMSE ,", trainmse, flush=True)
         
@@ -140,7 +141,7 @@ if __name__ == "__main__":
         
             mse = mse/cont
         
-            print("Removed VIB  , ", vrm, " ,", mse, " ,", trainmse, flush=True, file=ofp)
+            print("Removed VIB  , ", vrm, " ,", mse[0], " ,", trainmse[0], flush=True, file=ofp)
     
             print("Removed VIB  , ", vrm, " , MSE , ", mse, " , TrainMSE ,", trainmse, flush=True)
         
@@ -192,7 +193,7 @@ if __name__ == "__main__":
         
             mse = mse/cont
     
-            print("Removed RND  , ", perc, " ,", mse, " ,", trainmse, flush=True, file=ofp)
+            print("Removed RND  , ", perc, " ,", mse[0], " ,", trainmse[0], flush=True, file=ofp)
         
             print("Removed random values ", perc ,"  MSE ", mse, " , TrainMSE ,", \
                 trainmse, flush=True) 
