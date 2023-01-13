@@ -138,67 +138,6 @@ def filterinitialset (filename, headername = "vibrational level v\Temperature(K)
 
 ##############################################################################
 
-def get_train_and_test_random (temp_values, vib_values, df, \
-    perc):
-
-    maxt = max(temp_values)
-    mint = min(temp_values)
-
-    minv = min(vib_values)
-    maxv = max(vib_values)
-
-    train_xy = []
-    train_z = []
-
-    test_xy = []
-    test_z = []
-
-    maxz = float("-inf")
-    minz = float("+inf")
-
-    totnumber = 0;
-    for t in temp_values:
-        for vidx, v in enumerate(vib_values):
-            zval = df[t].values[vidx]
-
-            totnumber += 1
-
-            if zval < minz:
-                minz = zval
-            elif zval > maxz:
-                maxz = zval
-
-    for t in temp_values:
-        tnorm = (t - mint)/(maxt - mint)
-        for vidx, v in enumerate(vib_values):
-            rv = random.uniform(0.0, float(totnumber))
-            #print(rv, perc*float(totnumber))
-            if rv > (perc*float(totnumber)):
-                vnorm  = (v - minv)/(maxv - minv)
-                train_xy.append([tnorm, vnorm])
-        
-                z = df[t].values[vidx]
-                znorm = (z - minz)/(maxz - minz)
-                train_z.append(znorm)
-            else:
-                vnorm  = (v - minv)/(maxv - minv)
-                test_xy.append([tnorm, vnorm])
-
-                z = df[t].values[vidx]
-                znorm = (z - minz)/(maxz - minz)
-                test_z.append(znorm)
-
-
-    train_xy = np.asarray(train_xy)
-    train_z = np.asarray(train_z)
-
-    test_xy = np.asarray(test_xy)
-    test_z = np.asarray(test_z)
-
-    return train_xy, train_z, test_xy, test_z
-
-##############################################################################
-
 def plotfull3dcurve (df, vib_values, temp_values):
 
     y = []
@@ -362,4 +301,63 @@ def get_train_and_test_rmv (temp_values, vib_values, df, \
 
 ##########################################################################################################
 
+def get_train_and_test_random (temp_values, vib_values, df, \
+    perc):
 
+    maxt = max(temp_values)
+    mint = min(temp_values)
+
+    minv = min(vib_values)
+    maxv = max(vib_values)
+
+    train_xy = []
+    train_z = []
+
+    test_xy = []
+    test_z = []
+
+    maxz = float("-inf")
+    minz = float("+inf")
+
+    totnumber = 0;
+    for t in temp_values:
+        for vidx, v in enumerate(vib_values):
+            zval = df[t].values[vidx]
+
+            totnumber += 1
+
+            if zval < minz:
+                minz = zval
+            elif zval > maxz:
+                maxz = zval
+
+    for t in temp_values:
+        tnorm = (t - mint)/(maxt - mint)
+        for vidx, v in enumerate(vib_values):
+            rv = random.uniform(0.0, float(totnumber))
+            #print(rv, perc*float(totnumber))
+            if rv > (perc*float(totnumber)):
+                vnorm  = (v - minv)/(maxv - minv)
+                train_xy.append([tnorm, vnorm])
+        
+                z = df[t].values[vidx]
+                znorm = (z - minz)/(maxz - minz)
+                train_z.append(znorm)
+            else:
+                vnorm  = (v - minv)/(maxv - minv)
+                test_xy.append([tnorm, vnorm])
+
+                z = df[t].values[vidx]
+                znorm = (z - minz)/(maxz - minz)
+                test_z.append(znorm)
+
+
+    train_xy = np.asarray(train_xy)
+    train_z = np.asarray(train_z)
+
+    test_xy = np.asarray(test_xy)
+    test_z = np.asarray(test_z)
+
+    return train_xy, train_z, test_xy, test_z
+
+##############################################################################
