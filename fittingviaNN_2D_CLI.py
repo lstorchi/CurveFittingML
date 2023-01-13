@@ -16,9 +16,11 @@ if __name__ == "__main__":
     if (len(sys.argv) == 2):
         filename = sys.argv[1]
 
+    basename = filename.split(".")[0]
+
     for modelname in ["model1", "model2", "model3"]:
 
-        ofp = open("results_NN_"+modelname+".csv", "w")
+        ofp = open(basename+"_results_NN_"+modelname+".csv", "w")
 
         print("Type , Index , Testset MSE , Trainingset MSE", flush=True, file=ofp)
     

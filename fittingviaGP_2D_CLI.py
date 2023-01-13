@@ -14,7 +14,9 @@ if __name__ == "__main__":
     if (len(sys.argv) == 2):
         filename = sys.argv[1]
 
-    ofp = open("results_GP.csv", "w")
+    basename = filename.split(".")[0]
+
+    ofp = open(basename+"_results_GP.csv", "w")
 
     print("Type , Index , Testset MSE , Trainingset MSE", flush=True, file=ofp)
 
