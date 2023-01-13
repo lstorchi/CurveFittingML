@@ -39,7 +39,7 @@ if __name__ == "__main__":
                 print("Removing VIB ", vrm, flush=True)
             
                 train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
-                    df, vib_torm)
+                    df, vrm)
             
                 if modelname == "model1":
                     model = cm.build_model_NN_1()
