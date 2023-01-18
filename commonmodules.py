@@ -94,6 +94,33 @@ def build_model_NN_1 ():
 
     return model
 
+##########################################################################################################3
+
+def build_model_GP_1 (train_x, train_y):
+    #kernel = gp.kernels.ConstantKernel(1.0, (1e-5, 1e5))* gp.kernels.RBF(length_scale=1)
+    kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
+    model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
+        normalize_y=False)
+    print("Start training ")
+    model.fit(train_x, train_y)
+    print("Done ")
+
+    return model
+
+##########################################################################################################3
+
+def build_model_GP_2 (train_x, train_y):
+    #kernel = gp.kernels.ConstantKernel(1.0, (1e-5, 1e5))* gp.kernels.RBF(length_scale=1)
+    nuval = 5.0/2.0
+    kernel = 1.0 * gp.kernels.Matern(length_scale=1.0, nu=nuval)
+    model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
+        normalize_y=False)
+    print("Start training ")
+    model.fit(train_x, train_y)
+    print("Done ")
+
+    return model
+
 ##########################################################################################################
 
 def filterinitialset (filename, headername = "vibrational level v\Temperature(K)",  \
@@ -170,19 +197,6 @@ def plotfull3dcurve (df, vib_values, temp_values):
     ax = fig.add_subplot(2,1,1, projection='3d')
     surf = ax.plot_surface(Xp, Yp, Zp, rstride=1, cstride=1, cmap='jet', linewidth=0, antialiased=False)
     plt.show()
-
-##########################################################################################################3
-
-def fitusingscikitl (train_x, train_y):
-    #kernel = gp.kernels.ConstantKernel(1.0, (1e-5, 1e5))* gp.kernels.RBF(length_scale=1)
-    kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
-    model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
-        normalize_y=False)
-    print("Start training ")
-    model.fit(train_x, train_y)
-    print("Done ")
-
-    return model
 
 ##########################################################################################################
 
