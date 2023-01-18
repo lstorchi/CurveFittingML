@@ -55,9 +55,9 @@ if __name__ == "__main__":
                 df, vrm)
  
             model = None
-            if modelname == "model1"
+            if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model12"
+            elif modelname == "model12":
                 model = cm.build_model_GP_2 (train_xy, train_z)
 
             z_pred, std = model.predict(train_xy, return_std=True)
@@ -117,9 +117,9 @@ if __name__ == "__main__":
                 df, temp_torm)
 
             model = None
-            if modelname == "model1"
+            if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model12"
+            elif modelname == "model12":
                 model = cm.build_model_GP_2 (train_xy, train_z)
 
             z_pred, std = model.predict(train_xy, return_std=True)
@@ -179,9 +179,9 @@ if __name__ == "__main__":
                 df, vib_torm)
 
             model = None
-            if modelname == "model1"
+            if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model12"
+            elif modelname == "model12":
                 model = cm.build_model_GP_2 (train_xy, train_z)
                 
             z_pred, std = model.predict(train_xy, return_std=True)
@@ -235,9 +235,9 @@ if __name__ == "__main__":
                 df, perc)
 
             model = None
-            if modelname == "model1"
+            if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model12"
+            elif modelname == "model12":
                 model = cm.build_model_GP_2 (train_xy, train_z)
                         
             z_pred, std = model.predict(train_xy, return_std=True)
