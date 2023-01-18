@@ -57,7 +57,7 @@ if __name__ == "__main__":
             model = None
             if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model12":
+            elif modelname == "model2":
                 model = cm.build_model_GP_2 (train_xy, train_z)
 
             z_pred, std = model.predict(train_xy, return_std=True)
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             model = None
             if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model12":
+            elif modelname == "model2":
                 model = cm.build_model_GP_2 (train_xy, train_z)
 
             z_pred, std = model.predict(train_xy, return_std=True)
@@ -181,7 +181,7 @@ if __name__ == "__main__":
             model = None
             if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model12":
+            elif modelname == "model2":
                 model = cm.build_model_GP_2 (train_xy, train_z)
                 
             z_pred, std = model.predict(train_xy, return_std=True)
@@ -237,7 +237,7 @@ if __name__ == "__main__":
             model = None
             if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model12":
+            elif modelname == "model2":
                 model = cm.build_model_GP_2 (train_xy, train_z)
                         
             z_pred, std = model.predict(train_xy, return_std=True)
