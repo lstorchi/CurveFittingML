@@ -23,7 +23,7 @@ if __name__ == "__main__":
     
         print("Type , Index , Testset MSE , Trainingset MSE", flush=True, file=ofp)
     
-        df, vib_values , temp_values = cm.filterinitialset (filename)
+        df, vib_values , temp_values, minvalue, maxvalue = cm.filterinitialset (filename)
         #plotfull3dcurve (df, vib_values, temp_values)
     
         overallmse = 0.0

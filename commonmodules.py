@@ -162,7 +162,7 @@ def filterinitialset (filename, headername = "vibrational level v\Temperature(K)
 
     df = pd.DataFrame.from_dict(dfdict)
 
-    return df, vibvalues, tempvalues
+    return df, vibvalues, tempvalues, min, max
 
 ##############################################################################
 
