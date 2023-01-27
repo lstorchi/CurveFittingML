@@ -77,12 +77,12 @@ def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_
     mse = mse/cont
     denorm_mse = denorm_mse/cont
     
-    print(initialstring, " ,", mse, " ,", trainmse, " ,", denorm_mse , \
-        " ,",  denorm_trainmse, flush=True, file=ofp)
+    print(initialstring, " ,", mse[0], " ,", trainmse[0], " ,", denorm_mse[0] , \
+        " ,",  denorm_trainmse[0], flush=True, file=ofp)
     
-    print(initialstring, " , MSE , ", mse, " , TrainMSE ,", trainmse, \
-        " , Denorm. MSE , ", denorm_mse, " , Denorm. TrainMSE ,", \
-            denorm_trainmse, flush=True)
+    print(initialstring, " , MSE , ", mse[0], " , TrainMSE ,", trainmse[0], \
+        " , Denorm. MSE , ", denorm_mse[0], " , Denorm. TrainMSE ,", \
+            denorm_trainmse[0], flush=True)
 
     return overallmse, denorm_overallmse, overalltrainmse, \
         denorm_overalltrainmse, tot, traintot
