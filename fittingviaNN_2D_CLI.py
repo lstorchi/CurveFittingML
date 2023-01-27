@@ -77,7 +77,7 @@ def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_
     mse = mse/cont
     denorm_mse = denorm_mse/cont
     
-    print(initialstring " ,", mse, " ,", trainmse, " ,", denorm_mse , \
+    print(initialstring, " ,", mse, " ,", trainmse, " ,", denorm_mse , \
         " ,",  denorm_trainmse, flush=True, file=ofp)
     
     print(initialstring, " , MSE , ", mse, " , TrainMSE ,", trainmse, \
