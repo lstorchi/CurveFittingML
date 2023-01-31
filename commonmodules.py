@@ -144,7 +144,7 @@ def filterinitialset (filename, headername = "vibrational level v\Temperature(K)
             dfdict[c] = list(dfin[c].values)
         else:
             for v in dfin[c].values:
-                val = math.log(factor*v)
+                val = math.log10(factor*v)
                 if val > max:
                     max = val
                 if val < min:
@@ -153,7 +153,7 @@ def filterinitialset (filename, headername = "vibrational level v\Temperature(K)
     for c in dfin.columns:
         if c != headername:
             for v in dfin[c].values:
-                val = math.log(factor*v)
+                val = math.log10(factor*v)
                 valp = (val - min) / (max - min)
                 if normalize:
                     dfdict[c].append(valp)
