@@ -96,7 +96,7 @@ if __name__ == "__main__":
     if (len(sys.argv) == 3):
         filename = sys.argv[1]
         setofv = int(sys.argv[2])
-        
+
     basename = filename.split(".")[0]
 
     for modelname in ["model2", "model1"]:
@@ -107,6 +107,41 @@ if __name__ == "__main__":
     
         df, vib_values , temp_values, minvalue, maxvalue = cm.filterinitialset (filename)
         #plotfull3dcurve (df, vib_values, temp_values)
+
+        overallmse = 0.0
+        overalltrainmse = 0.0
+        denorm_overalltrainmse = 0.0
+        denorm_overallmse = 0.0
+        tot = 0
+        traintot = 0
+        for vrm in vib_values:
+            vib_torm = [vrm]
+            print("Removing VIB ", vrm, flush=True)
+        
+            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
+                df, vib_torm)
+
+            model = None
+            if modelname == "model1":
+                model = cm.build_model_GP_1 (train_xy, train_z)
+            elif modelname == "model2":
+                model = cm.build_model_GP_2 (train_xy, train_z)
+
+            initialstring = "Removed VIB  , " + str(vrm)
+            l_overallmse, l_denorm_overallmse, \
+                l_overalltrainmse, l_denorm_overalltrainmse, \
+                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
+                    train_xy, train_z, test_xy, test_z)
+
+            overallmse += l_overallmse
+            overalltrainmse += l_overalltrainmse
+            tot += l_tot
+            traintot += l_traintot
+
+        print("Overall VIB MSE , ", overallmse/float(tot), \
+            ", Train MSE , ", overalltrainmse/float(traintot), \
+            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
+            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))    
     
         overallmse = 0.0
         overalltrainmse = 0.0
@@ -198,42 +233,7 @@ if __name__ == "__main__":
         print("Overall TEMP MSE , ", overallmse/float(tot), \
             ", Train MSE , ", overalltrainmse/float(traintot), \
             ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))                
-        
-        overallmse = 0.0
-        overalltrainmse = 0.0
-        denorm_overalltrainmse = 0.0
-        denorm_overallmse = 0.0
-        tot = 0
-        traintot = 0
-        for vrm in vib_values:
-            vib_torm = [vrm]
-            print("Removing VIB ", vrm, flush=True)
-        
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
-                df, vib_torm)
-
-            model = None
-            if modelname == "model1":
-                model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model2":
-                model = cm.build_model_GP_2 (train_xy, train_z)
-
-            initialstring = "Removed VIB  , " + str(vrm)
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
-
-            overallmse += l_overallmse
-            overalltrainmse += l_overalltrainmse
-            tot += l_tot
-            traintot += l_traintot
-
-        print("Overall VIB MSE , ", overallmse/float(tot), \
-            ", Train MSE , ", overalltrainmse/float(traintot), \
-            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))                
+            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))                            
         
         for perc in [0.05, 0.10, 0.20, 0.30, 0.40, 0.50]:
         

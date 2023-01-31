@@ -122,6 +122,48 @@ if __name__ == "__main__":
         denorm_overallmse = 0.0
         tot = 0
         traintot = 0
+        for vrm in vib_values:
+            vib_torm = [vrm]
+            print("Removing VIB ", vrm, flush=True)
+        
+            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
+                df, vib_torm)
+        
+            if modelname == "model1":
+                model = cm.build_model_NN_1()
+                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
+                        verbose=1)
+            elif modelname == "model2":
+                model = cm.build_model_NN_2()
+                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
+                     verbose=1)
+            elif modelname == "model3":
+                model = cm.build_model_NN_3()
+                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
+                     verbose=1)
+            
+            initialstring = "Removed VIB  , " + str(vrm)
+            l_overallmse, l_denorm_overallmse, \
+                l_overalltrainmse, l_denorm_overalltrainmse, \
+                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
+                    train_xy, train_z, test_xy, test_z)
+
+            overallmse += l_overallmse
+            overalltrainmse += l_overalltrainmse
+            tot += l_tot
+            traintot += l_traintot
+
+        print("Overall VIB MSE , ", overallmse/float(tot), \
+            ", Train MSE , ", overalltrainmse/float(traintot), \
+            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
+            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))
+
+        overallmse = 0.0
+        overalltrainmse = 0.0
+        denorm_overalltrainmse = 0.0
+        denorm_overallmse = 0.0
+        tot = 0
+        traintot = 0
 
         vib_values_torm = []
 
@@ -217,49 +259,6 @@ if __name__ == "__main__":
             traintot += l_traintot
 
         print("Overall TEMP MSE , ", overallmse/float(tot), \
-            ", Train MSE , ", overalltrainmse/float(traintot), \
-            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))
-
-
-        overallmse = 0.0
-        overalltrainmse = 0.0
-        denorm_overalltrainmse = 0.0
-        denorm_overallmse = 0.0
-        tot = 0
-        traintot = 0
-        for vrm in vib_values:
-            vib_torm = [vrm]
-            print("Removing VIB ", vrm, flush=True)
-        
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
-                df, vib_torm)
-        
-            if modelname == "model1":
-                model = cm.build_model_NN_1()
-                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
-                        verbose=1)
-            elif modelname == "model2":
-                model = cm.build_model_NN_2()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            elif modelname == "model3":
-                model = cm.build_model_NN_3()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            
-            initialstring = "Removed VIB  , " + str(vrm)
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
-
-            overallmse += l_overallmse
-            overalltrainmse += l_overalltrainmse
-            tot += l_tot
-            traintot += l_traintot
-
-        print("Overall VIB MSE , ", overallmse/float(tot), \
             ", Train MSE , ", overalltrainmse/float(traintot), \
             ", Denorm. MSE , ", denorm_overallmse/float(tot), \
             ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))
