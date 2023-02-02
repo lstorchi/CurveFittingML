@@ -346,6 +346,8 @@ def get_train_and_test_random (temp_values, vib_values, df, \
             elif zval > maxz:
                 maxz = zval
 
+    random.seed(1)
+
     for t in temp_values:
         tnorm = (t - mint)/(maxt - mint)
         for vidx, v in enumerate(vib_values):
