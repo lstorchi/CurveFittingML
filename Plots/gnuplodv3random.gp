@@ -11,10 +11,10 @@ set key left top
 set terminal pdf color enhanced 
 #set term tikz standalone size 20cm, 14cm font ",14"
 #set term cairolatex standalone size 10cm, 7cm
-set output "dv1rndplot.pdf"
-plot "Test2D dv=1 - Remove Randm points.tsv" u 8:xtic(1) lw 2 ti "GP", \
-  "Test2D dv=1 - Remove Randm points.tsv" u 12:xtic(1) lw 2 ti "NN1", \
-  "Test2D dv=1 - Remove Randm points.tsv" u 16:xtic(1) lw 2 ti "NN2", \
-  "Test2D dv=1 - Remove Randm points.tsv" u 20:xtic(1) lw 2 ti "NN3"
+set output "dv3rndplot.pdf"
+plot "Test2D dv=3 - Remove Randm points.tsv" u 8:xtic(1) lw 2 ti "GP", \
+  "Test2D dv=3 - Remove Randm points.tsv" u 12:xtic(1) lw 2 ti "NN1", \
+  "Test2D dv=3 - Remove Randm points.tsv" u 16:xtic(1) lw 2 ti "NN2", \
+  "Test2D dv=3 - Remove Randm points.tsv" u 20:xtic(1) lw 2 ti "NN3"
 #unset output
-#system("pdflatex dv1rndplot")
+#system("pdflatex dv3rndplot")
