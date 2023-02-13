@@ -1,6 +1,19 @@
-for name in gnuplodv1random.gp gnuplodv1temp.gp gnuplodv1vib34.gp gnuplodv1vib36.gp gnuplodv1vib.gp gnuplodv1vibsets.gp \
-	gnuplodv2random.gp gnuplodv2temp.gp gnuplodv2vib34.gp gnuplodv2vib36.gp gnuplodv2vib.gp gnuplodv2vibsets.gp \
-	gnuplodv3random.gp gnuplodv3temp.gp gnuplodv3vib34.gp gnuplodv3vib36.gp gnuplodv3vib.gp gnuplodv3vibsets.gp
+
+
+for name in gnuplot_random.gp gnuplot_temp.gp gnuplot_vib34.gp gnuplot_vib36.gp gnuplot_vib.gp gnuplot_vibsets.gp 
 do 
-   gnuplot < $name 
+  sed s/dvN/dv1/ $name > /tmp/scritta
+  sed s/dv=N/dv=1/ /tmp/scritta > torun.gp
+  gnuplot < torun.gp
+  rm -f torun.gp
+
+  sed s/dvN/dv2/ $name > /tmp/scritta
+  sed s/dv=N/dv=2/ /tmp/scritta > torun.gp
+  gnuplot < torun.gp
+  rm -f torun.gp
+
+  sed s/dvN/dv3/ $name > /tmp/scritta
+  sed s/dv=N/dv=3/ /tmp/scritta > torun.gp
+  gnuplot < torun.gp
+  rm -f torun.gp
 done
