@@ -19,7 +19,6 @@ set output "dvNtempplot.pdf"
 #  "Test2D dv=N - Remove TEMP.tsv" u 20:xtic(1) lw 2 ti "NN3"
 plot "Test2D dv=1 - Remove TEMP.tsv" u 1:8 lw 2 ti "GP", \
   "Test2D dv=N - Remove TEMP.tsv" u 1:12 lw 2 ti "NN1", \
-  "Test2D dv=N - Remove TEMP.tsv" u 1:16 lw 2 ti "NN2", \
-  "Test2D dv=N - Remove TEMP.tsv" u 1:20 lw 2 ti "NN3"
+  "Test2D dv=N - Remove TEMP.tsv" u 1:20 lw 2 ti "NN2"
 unset output
 #system("pdflatex dvNtempplot")

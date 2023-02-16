@@ -14,7 +14,6 @@ set terminal pdf color enhanced
 set output "dvNvibsetplot.pdf"
 plot "Test2D dv=N - Removing set of VIBs.tsv" u 8:xtic(1) lw 2 ti "GP", \
   "Test2D dv=N - Removing set of VIBs.tsv" u 12:xtic(1) lw 2 ti "NN1", \
-  "Test2D dv=N - Removing set of VIBs.tsv" u 16:xtic(1) lw 2 ti "NN2", \
-  "Test2D dv=N - Removing set of VIBs.tsv" u 20:xtic(1) lw 2 ti "NN3"
+  "Test2D dv=N - Removing set of VIBs.tsv" u 20:xtic(1) lw 2 ti "NN2"
 #unset output
 #system("pdflatex dvNrndplot")

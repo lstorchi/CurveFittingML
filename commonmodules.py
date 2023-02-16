@@ -66,15 +66,12 @@ def build_model_NN_2 ():
 
 def build_model_NN_3 ():
 
-    hidden_layers_layout = [100, 100]
-    activation_functions = ["relu", "relu"]
-    inoptimizer = "SGD(decay=1e-6, momentum=0.9, nesterov=True)"
-    loss = 'MeanSquaredError()'
-
-    model = __build_model(hidden_layers_layout, activation_functions)
-    optimizer = __build_optimizer(inoptimizer)
-    model.compile(loss= __build_loss(loss), optimizer=optimizer)
-    #model.summary()
+    model = keras.Sequential()
+    model.add(keras.layers.Dense(units = 2, activation = 'linear', input_shape=[2]))
+    model.add(keras.layers.Dense(units = 100, activation = 'relu'))
+    model.add(keras.layers.Dense(units = 100, activation = 'relu'))
+    model.add(keras.layers.Dense(units = 1, activation = 'linear'))
+    model.compile(loss='mse', optimizer="adam", metrics='mse')
 
     return model
 
