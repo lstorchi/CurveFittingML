@@ -64,3 +64,6 @@ if __name__ == "__main__":
                 print("%10.2f , %10.2f , %10.7e "%(t, v, denorm_zpred), file=ofp)
     
     ofp.close()
+
+    model.save(basename+"_NN1")
+    
