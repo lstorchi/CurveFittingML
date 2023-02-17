@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     basename = filename.split(".")[0]
 
-    ofp = open(basename+"_results_NN1.csv", "w")
+    ofp = open(basename+"_results_GP2.csv", "w")
 
     df, vib_values, temp_values, minvalue, maxvalue = cm.filterinitialset (filename)
     
