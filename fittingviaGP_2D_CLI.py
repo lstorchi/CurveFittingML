@@ -71,7 +71,7 @@ def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_
         tot += 1
         cont += 1.0
     
-        print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred))
+        print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(x, y, z, zpred))
     
     mse = mse/cont
     denorm_mse = denorm_mse/cont

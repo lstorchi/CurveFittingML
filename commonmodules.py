@@ -375,3 +375,54 @@ def get_train_and_test_random (temp_values, vib_values, df, \
     return train_xy, train_z, test_xy, test_z
 
 ##############################################################################
+
+def get_train_full (temp_values, vib_values, df, vtopredict):
+
+    maxt = max(temp_values)
+    mint = min(temp_values)
+
+    train_xy = []
+    train_z = []
+
+    maxz = float("-inf")
+    minz = float("+inf")
+
+    minv = min(vib_values)
+    maxv = max(vib_values)
+
+    totnumber = 0;
+    for t in temp_values:
+        for vidx, v in enumerate(vib_values):
+            zval = df[t].values[vidx]
+
+            totnumber += 1
+
+            if zval < minz:
+                minz = zval
+            elif zval > maxz:
+                maxz = zval
+
+    for t in temp_values:
+        tnorm = (t - mint)/(maxt - mint)
+        for vidx, v in enumerate(vib_values):
+            vnorm  = (v - minv)/(maxv - minv)
+            train_xy.append([tnorm, vnorm])
+            z = df[t].values[vidx]
+            znorm = (z - minz)/(maxz - minz)
+            train_z.append(znorm)
+
+    test_xy = []
+    for t in temp_values:
+        tnorm = (t - mint)/(maxt - mint)
+        for v in vtopredict:
+            vnorm  = (v - minv)/(maxv - minv)
+            test_xy.append([tnorm, vnorm])
+
+    train_xy = np.asarray(train_xy)
+    train_z = np.asarray(train_z)
+    test_xy = np.asarray(test_xy)
+
+    return train_xy, train_z, test_xy
+
+##############################################################################
+
