@@ -1,6 +1,7 @@
 set key autotitle columnhead
-set xlabel "T"
-set ylabel "Rate Coefficient"
+set xlabel "T (K)"
+#set ylabel "Rate Coefficient"
+set ylabel "log_{10}(k(36,0|35,0))"
 set grid
 set key left top
 set terminal pdf color enhanced 

@@ -2,7 +2,7 @@ set key autotitle columnhead
 #set key noenhanced
 #set style data linespoints
 set style data lines
-set xlabel "v"
+set xlabel "v.quantum number"
 set ylabel "Test Set MSE"
 set grid
 set terminal pdf color enhanced 

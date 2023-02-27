@@ -7,7 +7,7 @@ set style data lines
 #set style fill solid border -1
 #set boxwidth 0.9
 set xtic rotate by -45 scale 0
-set xlabel "T"
+set xlabel "T (K)"
 set ylabel "Test Set MSE"
 set grid
 set terminal pdf color enhanced 
