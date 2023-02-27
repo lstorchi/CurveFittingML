@@ -18,7 +18,6 @@ do
   sed s/dv=N/dv=3/ /tmp/scritta > /tmp/torun1.gp
   sed s/\|33\,0/\|31\,0/ /tmp/torun1.gp > /tmp/torun2.gp
   sed s/\|35\,0/\|33\,0/ /tmp/torun2.gp > torun.gp
- 
   gnuplot < torun.gp
   rm -f torun.gp
 done
