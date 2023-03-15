@@ -128,6 +128,20 @@ if __name__ == "__main__":
             model = None
             st = time.time()
             stp = time.process_time()
+            # note to test limits in thread number 
+            #from threadpoolctl import threadpool_limits
+            #import os 
+            
+            #tf.config.threading.set_inter_op_parallelism_threads(8)
+            #tf.config.threading.set_intra_op_parallelism_threads(8)
+
+            #with threadpool_limits(limits=4):
+            #    os.environ["OMP_NUM_THREADS"] = "4"
+            #    os.environ["BLIS_NUM_THREADS"] = "4"
+            #    os.environ["MKL_NUM_THREADS"] = "4"
+            #    os.environ["OPENBLAS_NUM_THREADS"] = "4"
+            #    os.environ["NUMEXPR_NUM_THREADS"] = "4"
+            
             if modelname == "model1":
                 model = cm.build_model_GP_1 (train_xy, train_z)
             elif modelname == "model2":
