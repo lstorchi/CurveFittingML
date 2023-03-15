@@ -1,4 +1,5 @@
 import sys
+import time
 
 import numpy as np
 import pandas as pd
@@ -11,7 +12,7 @@ import commonmodules as cm
 
 #################################################################################################
 
-def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_z):
+def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_z, verbose=False):
 
     overallmse = 0.0 
     denorm_overallmse = 0.0 
@@ -46,7 +47,8 @@ def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_
         traintot += 1
         cont += 1.0
     
-        print("Train, %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred))
+        if verbose:
+            print("Train, %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred))
     
     trainmse = trainmse/cont
     denorm_trainmse = denorm_trainmse/cont
@@ -72,7 +74,8 @@ def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_
         tot += 1
         cont += 1.0
     
-        print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(x, y, z, zpred))
+        if verbose:
+            print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(x, y, z, zpred))
     
     mse = mse/cont
     denorm_mse = denorm_mse/cont
@@ -80,9 +83,10 @@ def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_
     print(initialstring, " ,", mse[0], " ,", trainmse[0], " ,", denorm_mse[0] , \
         " ,",  denorm_trainmse[0], flush=True, file=ofp)
     
-    print(initialstring, " , MSE , ", mse[0], " , TrainMSE ,", trainmse[0], \
-        " , Denorm. MSE , ", denorm_mse[0], " , Denorm. TrainMSE ,", \
-            denorm_trainmse[0], flush=True)
+    if verbose:
+        print(initialstring, " , MSE , ", mse[0], " , TrainMSE ,", trainmse[0], \
+            " , Denorm. MSE , ", denorm_mse[0], " , Denorm. TrainMSE ,", \
+                denorm_trainmse[0], flush=True)
 
     return overallmse, denorm_overallmse, overalltrainmse, \
         denorm_overalltrainmse, tot, traintot
@@ -129,6 +133,8 @@ if __name__ == "__main__":
             train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
                 df, vib_torm)
         
+            st = time.time()
+            stp = time.process_time()
             if modelname == "model1":
                 model = cm.build_model_NN_1()
                 history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
@@ -141,7 +147,14 @@ if __name__ == "__main__":
                 model = cm.build_model_NN_3()
                 history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
                      verbose=1)
-            
+            etp = time.process_time()
+            et = time.time()
+
+            elapsed_time = et - st
+            res = etp - stp
+            print('Execution time: ', elapsed_time, ' seconds', flush = True)
+            print('CPU Execution time: ', res, ' seconds')
+
             initialstring = "Removed VIB  , " + str(vrm)
             l_overallmse, l_denorm_overallmse, \
                 l_overalltrainmse, l_denorm_overalltrainmse, \
@@ -190,7 +203,9 @@ if __name__ == "__main__":
         
             train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
                 df, vrm)
-        
+            
+            st = time.time()
+            stp = time.process_time()
             if modelname == "model1":
                 model = cm.build_model_NN_1()
                 history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
@@ -203,7 +218,14 @@ if __name__ == "__main__":
                 model = cm.build_model_NN_3()
                 history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
                      verbose=1)
-        
+            etp = time.process_time()
+            et = time.time()
+
+            elapsed_time = et - st
+            res = etp - stp
+            print('Execution time: ', elapsed_time, ' seconds', flush = True)
+            print('CPU Execution time: ', res, ' seconds')     
+
             initialstring = "Removed VIB  , " + str(vrm).replace(",", ";")
             l_overallmse, l_denorm_overallmse, \
                 l_overalltrainmse, l_denorm_overalltrainmse, \
@@ -233,7 +255,9 @@ if __name__ == "__main__":
             train_xy, train_z, test_xy, test_z = \
                 cm.get_train_and_test_rmt (temp_values, vib_values, \
                 df, temp_torm)
-        
+
+            st = time.time()
+            stp = time.process_time()     
             if modelname == "model1":
                 model = cm.build_model_NN_1()
                 history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
@@ -246,6 +270,13 @@ if __name__ == "__main__":
                 model = cm.build_model_NN_3()
                 history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
                      verbose=1)
+            etp = time.process_time()
+            et = time.time()
+
+            elapsed_time = et - st
+            res = etp - stp
+            print('Execution time: ', elapsed_time, ' seconds', flush = True)
+            print('CPU Execution time: ', res, ' seconds')     
 
             initialstring = "Removed TEMP  , " + str(trm)
             l_overallmse, l_denorm_overallmse, \
@@ -263,11 +294,14 @@ if __name__ == "__main__":
             ", Denorm. MSE , ", denorm_overallmse/float(tot), \
             ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))
         
-        for perc in [0.05, 0.10, 0.20, 0.30, 0.40, 0.50]:
+        perclist = [0.05, 0.10, 0.20, 0.30, 0.40, 0.50]
+        for perc in perclist:
         
             train_xy, train_z, test_xy, test_z = cm.get_train_and_test_random (temp_values, vib_values, \
                 df, perc)
-        
+            
+            st = time.time()
+            stp = time.process_time()     
             if modelname == "model1":
                 model = cm.build_model_NN_1()
                 history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
@@ -280,6 +314,13 @@ if __name__ == "__main__":
                 model = cm.build_model_NN_3()
                 history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
                      verbose=1)
+            etp = time.process_time()
+            et = time.time()
+
+            elapsed_time = et - st
+            res = etp - stp
+            print('Execution time: ', elapsed_time, ' seconds', flush = True)
+            print('CPU Execution time: ', res, ' seconds')     
 
             initialstring = "Removed RND  , " + str(perc)
             l_overallmse, l_denorm_overallmse, \
