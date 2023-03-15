@@ -133,6 +133,20 @@ if __name__ == "__main__":
             train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
                 df, vib_torm)
         
+            # note to test limits in thread number 
+            #from threadpoolctl import threadpool_limits
+            #import os 
+            
+            #tf.config.threading.set_inter_op_parallelism_threads(8)
+            #tf.config.threading.set_intra_op_parallelism_threads(8)
+
+            #with threadpool_limits(limits=4):
+            #    os.environ["OMP_NUM_THREADS"] = "4"
+            #    os.environ["BLIS_NUM_THREADS"] = "4"
+            #    os.environ["MKL_NUM_THREADS"] = "4"
+            #    os.environ["OPENBLAS_NUM_THREADS"] = "4"
+            #    os.environ["NUMEXPR_NUM_THREADS"] = "4"
+
             st = time.time()
             stp = time.process_time()
             if modelname == "model1":
