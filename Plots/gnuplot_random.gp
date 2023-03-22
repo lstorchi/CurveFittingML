@@ -8,7 +8,7 @@ set xlabel "% of removed points"
 set ylabel "Test Set MSE"
 set grid
 set key left top
-set terminal pdf color enhanced 
+set terminal pdf color enhanced font ",16"
 #set term tikz standalone size 20cm, 14cm font ",14"
 #set term cairolatex standalone size 10cm, 7cm
 set output "dvNrndplot.pdf"
