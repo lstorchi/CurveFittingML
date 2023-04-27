@@ -521,3 +521,17 @@ def test_train_split (column, valuestotest, x, y):
         np.asarray(ytrain), np.asarray(ytest)
 
 #######################################################################
+
+def buildmodel(modelshape):
+    model = keras.Sequential()
+    model.add(keras.layers.Dense(units = 3, activation = 'linear', input_shape=[3]))
+
+    for n in modelshape:
+        model.add(keras.layers.Dense(units = n, activation = 'relu'))
+
+    model.add(keras.layers.Dense(units = 1, activation = 'linear'))
+    model.compile(loss='mse', optimizer="adam", metrics='mse')
+
+    return model
+
+#######################################################################
