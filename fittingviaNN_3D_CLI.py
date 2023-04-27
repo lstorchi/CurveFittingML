@@ -42,11 +42,14 @@ def plotfull3dcurve (columntorm, x, y):
     X = np.array(xv)
     Y = np.array(yv)
 
+    #for i in range(X.shape[0]):
+    #    print("%4d %5d %10.5e"%(X[i,0], X[i,1], Y[i]))
+
     #print(X.shape)
     #print(Y.shape)
 
-    x1set = list(set(X[:,0]))
-    x2set = list(set(X[:,1]))
+    x1set = sorted(list(set(X[:,0])))
+    x2set = sorted(list(set(X[:,1])))
 
     x1dim = len(x1set)
     x2dim = len(x2set)
@@ -69,10 +72,12 @@ def plotfull3dcurve (columntorm, x, y):
 
             Zp[x1idx, x2idx] = zval
 
+    #print(Xp.shape, Yp.shape, Zp.shape)
+
     #fig = plt.figure(figsize=(10,8))
     fig = plt.figure(figsize=plt.figaspect(2.))
     #plt.gcf().set_size_inches(40, 30)
-    ax = fig.add_subplot(2,1,1, projection='3d')
+    ax = fig.add_subplot(2, 1, 1, projection='3d')
     surf = ax.plot_surface(Xp, Yp, Zp, rstride=1, cstride=1, cmap='jet', linewidth=0, antialiased=True)
     plt.show()
 
@@ -115,10 +120,26 @@ scalery = MinMaxScaler()
 scalery.fit(y)
 y_s = scalery.transform(y)
 
-w = 0 
+w = 0
 
 train_x, test_x, train_y, test_y = test_train_split (1, [w], x_s, y_s)
 
-print(train_x.shape, test_x.shape)
+print("Train shape: ", train_x.shape, "Test shape: ", test_x.shape)
 
-plotfull3dcurve (1, test_x, test_y)
+toplotx = []
+toploty = []
+for i in range(test_x.shape[0]):
+    v = test_x[i,0]
+    w = test_x[i,1]
+    T = test_x[i,2]
+    k = test_y[i]
+
+    ix = scalerx.inverse_transform(np.asarray([v, w, T]).reshape(1, -1))
+    iy = scalery.inverse_transform(np.asarray([k]))
+
+    toplotx.append([int(ix[0,0]), int(ix[0,1]),int(ix[0,2])])
+    toploty.append(iy)
+
+    #print("%4d %4d %5d %10.5e"%(int(ix[0,0]), int(ix[0,1]),int(ix[0,2]), iy[0]))
+
+plotfull3dcurve (1, np.asarray(toplotx), np.asarray(toploty))
