@@ -17,6 +17,11 @@ import tensorflow.keras.losses as tkl
 from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.models import Model
 
+# to fix seed
+np.random.seed(42)
+tf.random.set_seed(42)
+random.seed(42)
+
 ##########################################################################################################
 
 def __build_activation_function(af):
