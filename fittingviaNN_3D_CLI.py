@@ -1,3 +1,5 @@
+import random 
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -18,6 +20,8 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
 import commonmodules as cm
+
+FIXEDSEED = True
 
 #######################################################################
 
@@ -41,6 +45,13 @@ def build_perc_split (modelshape, batch_size, epochs, \
         print (" Perc. Split , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
 
     for perc in [0.05, 0.10, 0.25, 0.30, 0.50]:
+
+        if FIXEDSEED:
+            # to fix seed
+            np.random.seed(42)
+            tf.random.set_seed(42)
+            random.seed(42)
+
         train_x, test_x, train_y, test_y = train_test_split(x_s, y_s, \
                     test_size=perc, random_state=42)
         
@@ -103,6 +114,13 @@ def build_v_split (modelshape, batch_size, epochs, \
     if modelfname != "":
         print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
     for v in vset:
+
+        if FIXEDSEED:
+            # to fix seed
+            np.random.seed(42)
+            tf.random.set_seed(42)
+            random.seed(42)
+
         train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
 
         if thefirst:
@@ -167,6 +185,13 @@ def build_w_split (modelshape, batch_size, epochs, \
         print (" w Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
 
     for w in wset:
+
+        if FIXEDSEED:
+            # to fix seed
+            np.random.seed(42)
+            tf.random.set_seed(42)
+            random.seed(42)
+
         train_x, test_x, train_y, test_y = cm.test_train_split (1, [w], x_s, y_s)
 
         if thefirst:
@@ -228,6 +253,13 @@ def build_t_split (modelshape, batch_size, epochs, \
     if modelfname != "":
         print (" T Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
     for t in tset:
+
+        if FIXEDSEED:
+            # to fix seed
+            np.random.seed(42)
+            tf.random.set_seed(42)
+            random.seed(42)
+
         train_x, test_x, train_y, test_y = cm.test_train_split (2, [t], x_s, y_s)
 
         modelshape = [32, 32, 32, 32]
@@ -299,6 +331,13 @@ if __name__ == "__main__":
     y_s = scalery.transform(y)
 
     if testtovisualize:
+
+        if FIXEDSEED:
+            # to fix seed
+            np.random.seed(42)
+            tf.random.set_seed(42)
+            random.seed(42)
+
         train_x, test_x, train_y, test_y = \
             cm.test_train_split (columselected, [wselected], x_s, y_s)
         print("Train shape: ", train_x.shape, "Test shape: ", test_x.shape)
@@ -391,5 +430,3 @@ if __name__ == "__main__":
                  modelnum, r2test, msetest, r2train, msetrain))
             print("Model shapes  %3d , %s , %5d "%( \
                  modelnum, str(modelshape), batch_size))
-
-
