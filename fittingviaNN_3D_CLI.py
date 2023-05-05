@@ -361,9 +361,21 @@ if __name__ == "__main__":
         cm.plotfull3dcurve (1, np.asarray(toplotx), np.asarray(toploty))
 
 
-    modelshape_s = [[32, 32, 32, 32]]
+    modelshape_s = [[ 8,  8,  8,  8], 
+                    [16, 16, 16, 16],
+                    [32, 32, 32, 32],
+                    [64, 64, 64, 64],
+                    [ 8,  8,  8], 
+                    [16, 16, 16],
+                    [32, 32, 32],
+                    [64, 64, 64],
+                    [ 8,  8], 
+                    [16, 16],
+                    [32, 32],
+                    [64, 64]]
+   
     epochs = 10
-    batch_size_s = [50]
+    batch_size_s = [25, 50, 100]
 
     modelnum = 0
 
