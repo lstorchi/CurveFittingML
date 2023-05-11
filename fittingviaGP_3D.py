@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     ofp = open("perc_GP.csv", "w")
 
-    print (" Perc. Split , Test MSE , Test R2 , Train MSE , Train R2")
+    print (" Perc. Split , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
     print (" Perc. Split , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
     for perc in [0.05, 0.10, 0.25, 0.30, 0.50]:
         train_x, test_x, train_y, test_y = train_test_split(x_s, y_s, \
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         trainr2 = metrics.r2_score(train_y, pred_y)
 
         print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(perc, testmse, testr2, \
-                                                        trainmse,  trainr2))
+                                                        trainmse,  trainr2), flush=True)
         print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(perc, testmse, testr2, \
                                                         trainmse,  trainr2), file=ofp)
         
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     ofp = open("vremoved_GP.csv", "w")
 
     thefirst = True
-    print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2")
+    print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
     print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
     for v in vset:
         train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
@@ -107,7 +107,7 @@ if __name__ == "__main__":
         trainr2 = metrics.r2_score(train_y, pred_y)
 
         print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2))
+                                                        trainmse,  trainr2), flush=True)
         
         print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
                                                         trainmse,  trainr2), file=ofp)
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     thefirst = True
 
-    print (" w Removed , Test MSE , Test R2 , Train MSE , Train R2")
+    print (" w Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
     print (" w Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
     for w in wset:
         train_x, test_x, train_y, test_y = cm.test_train_split (1, [w], x_s, y_s)
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         trainr2 = metrics.r2_score(train_y, pred_y)
 
         print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(w, testmse, testr2, \
-                                                        trainmse,  trainr2))
+                                                        trainmse,  trainr2), flush=True)
         
         print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(w, testmse, testr2, \
                                                         trainmse,  trainr2), file=ofp)
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
     thefirst = True
 
-    print (" T Removed , Test MSE , Test R2 , Train MSE , Train R2")
+    print (" T Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
     print (" T Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
     for t in tset:
         train_x, test_x, train_y, test_y = cm.test_train_split (2, [t], x_s, y_s)
@@ -195,7 +195,7 @@ if __name__ == "__main__":
         trainr2 = metrics.r2_score(train_y, pred_y)
 
         print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(t, testmse, testr2, \
-                                                        trainmse,  trainr2))
+                                                        trainmse,  trainr2), flush=True)
         print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(t, testmse, testr2, \
                                                         trainmse,  trainr2), file=ofp)
         
