@@ -94,7 +94,7 @@ def build_perc_split (modelshape, batch_size, epochs, \
 
 #######################################################################
 
-def build_v_split (modelshape, batch_size, epochs, \
+def build_v_split (vset, modelshape, batch_size, epochs, \
                    modelfname="", verbose=False):
 
     ofp = None
@@ -164,7 +164,81 @@ def build_v_split (modelshape, batch_size, epochs, \
 
 #######################################################################
 
-def build_w_split (modelshape, batch_size, epochs, \
+def build_vsets_split (vlist, modelshape, batch_size, epochs, \
+                   modelfname="", verbose=False):
+
+    ofp = None
+    if modelfname != "":
+        ofp = open(modelfname, "w")
+
+    avgr2_test = 0.0
+    avgr2_train = 0.0
+    avgmse_test = 0.0
+    avgmse_train = 0.0
+
+    num = 0.0
+
+    thefirst = True
+    if verbose:
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2")
+    if modelfname != "":
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
+
+    """
+    for v in vset:
+
+        if FIXEDSEED:
+            # to fix seed
+            np.random.seed(42)
+            tf.random.set_seed(42)
+            random.seed(42)
+
+        train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
+
+        if thefirst:
+            model = cm.buildmodel(modelshape)
+            history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+                verbose=0)
+            thefirst = False
+
+        model = cm.buildmodel(modelshape)
+        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+            verbose=0)
+
+        pred_y = model.predict(test_x, verbose=0)
+        testmse = metrics.mean_absolute_error(test_y, pred_y)
+        testr2 = metrics.r2_score(test_y, pred_y)
+
+        avgr2_test += testr2
+        avgmse_test += testmse
+
+        pred_y = model.predict(train_x, verbose=0)
+        trainmse = metrics.mean_absolute_error(train_y, pred_y)
+        trainr2 = metrics.r2_score(train_y, pred_y)
+
+        avgr2_train += trainr2
+        avgmse_train += trainmse
+
+        num += 1.0
+        
+        if verbose:
+            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+                                                        trainmse,  trainr2))
+        
+        if modelfname != "":
+            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+                                                        trainmse,  trainr2), file=ofp)
+    
+    if modelfname != "":
+        ofp.close()
+
+    """
+
+    return avgr2_train/num, avgmse_train/num, avgr2_test/num, avgmse_test/num
+
+#######################################################################
+
+def build_w_split (wset, modelshape, batch_size, epochs, \
                    modelfname="", verbose=False):
     ofp = None
     if modelfname != "":
@@ -233,7 +307,7 @@ def build_w_split (modelshape, batch_size, epochs, \
 
 #######################################################################
 
-def build_t_split (modelshape, batch_size, epochs, \
+def build_t_split (tset, modelshape, batch_size, epochs, \
                    modelfname="", verbose=False):
     ofp = None
     if modelfname != "":
@@ -325,6 +399,7 @@ if __name__ == "__main__":
     vset = set(x_s[:,0])
     wset = set(x_s[:,1])
     tset = set(x_s[:,2])
+    vlist = list(x_s[:,0])
 
     scalery = MinMaxScaler()
     scalery.fit(y)
@@ -361,33 +436,42 @@ if __name__ == "__main__":
         cm.plotfull3dcurve (1, np.asarray(toplotx), np.asarray(toploty))
 
 
-    modelshape_s = [[ 8,  8,  8,  8], 
+    modelshape_s = [[ 8,  8,  8,  8, 8],
+                    [16, 16, 16, 16, 16],
+                    [32, 32, 32, 32, 32],
+                    [64, 64, 64, 64, 64],
+                    [128, 128, 128, 128, 128],
+                    [ 8,  8,  8,  8], 
                     [16, 16, 16, 16],
                     [32, 32, 32, 32],
                     [64, 64, 64, 64],
+                    [128, 128, 128, 128],
                     [ 8,  8,  8], 
                     [16, 16, 16],
                     [32, 32, 32],
                     [64, 64, 64],
+                    [128, 128, 128],
                     [ 8,  8], 
                     [16, 16],
                     [32, 32],
-                    [64, 64]]
+                    [64, 64], 
+                    [128, 128]]
    
-    epochs = 10
-    batch_size_s = [25, 50, 100]
+    epochs = 20
+    batch_size_s = [10, 25, 50, 100]
 
     modelnum = 0
 
     for modelshape in modelshape_s:
         for batch_size in batch_size_s:
             #modelfname = "perc.csv"
-
+            
             r2test = 0.0
             msetest = 0.0
             r2train = 0.0 
             msetrain = 0.0
 
+            """
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
                 build_perc_split (modelshape, batch_size, epochs)
             
@@ -398,20 +482,37 @@ if __name__ == "__main__":
             
             print("  Perc, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test))
+            """
             
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
-                build_v_split (modelshape, batch_size, epochs)
+                build_v_split (vset, modelshape, batch_size, epochs)
             
             r2test += avgr2_test
             msetest += avgmse_test
             r2train += avgr2_train
             msetrain += avgmse_train
             
-            print("vSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
+            print("    vSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test))
+            """
+            avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
+                build_vsets_split (vlist, modelshape, batch_size, epochs)
+            
+            r2test += avgr2_test
+            msetest += avgmse_test
+            r2train += avgr2_train
+            msetrain += avgmse_train
+            
+            print("vsetsSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
+                                                  avgmse_test,  avgr2_test))
+                   
+            r2test += avgr2_test
+            msetest += avgmse_test
+            r2train += avgr2_train
+            msetrain += avgmse_train
             
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
-                build_w_split (modelshape, batch_size, epochs)
+                build_w_split (wset, modelshape, batch_size, epochs)
             
             r2test += avgr2_test
             msetest += avgmse_test
@@ -422,7 +523,7 @@ if __name__ == "__main__":
                                                   avgmse_test,  avgr2_test))
             
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
-                build_t_split (modelshape, batch_size, epochs)
+                build_t_split (tset, modelshape, batch_size, epochs)
             
             r2test += avgr2_test
             msetest += avgmse_test
@@ -431,12 +532,13 @@ if __name__ == "__main__":
             
             print("TSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test))
-            
+            """
+
             modelnum += 1
-            r2test = r2test/4.0
-            msetest = msetest/4.0
-            r2train = r2train/4.0
-            msetrain = msetrain/4.0
+            r2test = r2test
+            msetest = msetest
+            r2train = r2train
+            msetrain = msetrain
 
             print("Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
                  modelnum, r2test, msetest, r2train, msetrain))
