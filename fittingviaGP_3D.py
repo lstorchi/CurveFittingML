@@ -59,7 +59,7 @@ if __name__ == "__main__":
         testmse = metrics.mean_absolute_error(test_y, pred_y)
         testr2 = metrics.r2_score(test_y, pred_y)
 
-        pred_y = model.predict(train_x, verbose=0)
+        pred_y = model.predict(train_x)
         trainmse = metrics.mean_absolute_error(train_y, pred_y)
         trainr2 = metrics.r2_score(train_y, pred_y)
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         testmse = metrics.mean_absolute_error(test_y, pred_y)
         testr2 = metrics.r2_score(test_y, pred_y)
 
-        pred_y = model.predict(train_x, verbose=0)
+        pred_y = model.predict(train_x)
         trainmse = metrics.mean_absolute_error(train_y, pred_y)
         trainr2 = metrics.r2_score(train_y, pred_y)
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         testmse = metrics.mean_absolute_error(test_y, pred_y)
         testr2 = metrics.r2_score(test_y, pred_y)
 
-        pred_y = model.predict(train_x, verbose=0)
+        pred_y = model.predict(train_x)
         trainmse = metrics.mean_absolute_error(train_y, pred_y)
         trainr2 = metrics.r2_score(train_y, pred_y)
 
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         testmse = metrics.mean_absolute_error(test_y, pred_y)
         testr2 = metrics.r2_score(test_y, pred_y)
 
-        pred_y = model.predict(train_x, verbose=0)
+        pred_y = model.predict(train_x)
         trainmse = metrics.mean_absolute_error(train_y, pred_y)
         trainr2 = metrics.r2_score(train_y, pred_y)
 
