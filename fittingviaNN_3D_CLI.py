@@ -184,8 +184,56 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
     if modelfname != "":
         print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
 
-    """
-    for v in vset:
+    vset_torm = []
+
+    vtoremove = []
+    for i in range(1,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(1,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(1,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+
+    #print(len(vlist))
+    #for v in vset_torm:
+    #    print(len(v))
+    #exit(1)
+
+    for v in vset_torm:
 
         if FIXEDSEED:
             # to fix seed
@@ -193,7 +241,7 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
             tf.random.set_seed(42)
             random.seed(42)
 
-        train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
+        train_x, test_x, train_y, test_y = cm.test_train_split (0, v, x_s, y_s)
 
         if thefirst:
             model = cm.buildmodel(modelshape)
@@ -232,7 +280,6 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
     if modelfname != "":
         ofp.close()
 
-    """
 
     return avgr2_train/num, avgmse_train/num, avgr2_test/num, avgmse_test/num
 
@@ -484,6 +531,7 @@ if __name__ == "__main__":
                                                   avgmse_test,  avgr2_test))
             """
             
+            """
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
                 build_v_split (vset, modelshape, batch_size, epochs)
             
@@ -495,6 +543,7 @@ if __name__ == "__main__":
             print("    vSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test))
             """
+            
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
                 build_vsets_split (vlist, modelshape, batch_size, epochs)
             
@@ -505,12 +554,7 @@ if __name__ == "__main__":
             
             print("vsetsSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test))
-                   
-            r2test += avgr2_test
-            msetest += avgmse_test
-            r2train += avgr2_train
-            msetrain += avgmse_train
-            
+            """
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
                 build_w_split (wset, modelshape, batch_size, epochs)
             
@@ -535,10 +579,10 @@ if __name__ == "__main__":
             """
 
             modelnum += 1
-            r2test = r2test
-            msetest = msetest
-            r2train = r2train
-            msetrain = msetrain
+            r2test = r2test/2.0
+            msetest = msetest/2.0
+            r2train = r2train/2.0
+            msetrain = msetrain/2.0
 
             print("Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
                  modelnum, r2test, msetest, r2train, msetrain))
