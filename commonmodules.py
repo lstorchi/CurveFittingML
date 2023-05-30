@@ -521,15 +521,18 @@ def test_train_split (column, valuestotest, x, y):
     ytest = []
     xtrain = []
     ytrain = []
-    
-    for v in valuestotest:
-        for i, xv in enumerate(x[:,column]):
+
+    for i, xv in enumerate(x[:,column]):
+        for v in valuestotest:
             if xv == v:
                 xtest.append(x[i,:])
                 ytest.append(y[i])
             else:
                 xtrain.append(x[i,:])
-                ytrain.append(y[i])   
+                ytrain.append(y[i])  
+    
+    #print(len(xtest), len(ytest))
+    #print(len(xtrain), len(ytrain))
 
     return np.asarray(xtrain), np.asarray(xtest), \
         np.asarray(ytrain), np.asarray(ytest)

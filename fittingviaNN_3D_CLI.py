@@ -180,9 +180,9 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
 
     thefirst = True
     if verbose:
-        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
+        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
     if modelfname != "":
-        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, flush=True)
+        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, flush=True)
 
     vset_torm = []
 
@@ -230,8 +230,7 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
 
     #print(len(vlist))
     #for v in vset_torm:
-    #    print(len(v))
-    #exit(1)
+    #    print(len(v), v)
 
     for v in vset_torm:
 
@@ -446,7 +445,7 @@ if __name__ == "__main__":
     vset = set(x_s[:,0])
     wset = set(x_s[:,1])
     tset = set(x_s[:,2])
-    vlist = list(x_s[:,0])
+    vlist = list(vset)
 
     scalery = MinMaxScaler()
     scalery.fit(y)
@@ -507,6 +506,10 @@ if __name__ == "__main__":
     epochs = 20
     batch_size_s = [10, 25, 50, 100]
 
+    modelshape_s = [[128, 128]]
+    epochs = 5
+    batch_size_s = [10]
+
     modelnum = 0
 
     for modelshape in modelshape_s:
@@ -530,8 +533,7 @@ if __name__ == "__main__":
             print("  Perc, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test))
             """
-            
-            """
+
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
                 build_v_split (vset, modelshape, batch_size, epochs)
             
@@ -542,8 +544,7 @@ if __name__ == "__main__":
             
             print("    vSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test))
-            """
-            
+
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
                 build_vsets_split (vlist, modelshape, batch_size, epochs)
             
