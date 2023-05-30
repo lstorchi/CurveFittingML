@@ -110,9 +110,9 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
 
     thefirst = True
     if verbose:
-        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2")
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
     if modelfname != "":
-        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, flush=True)
     for v in vset:
 
         if FIXEDSEED:
@@ -151,11 +151,11 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
         
         if verbose:
             print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2))
+                                                        trainmse,  trainr2), flush=True)
         
         if modelfname != "":
             print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2), file=ofp)
+                                                        trainmse,  trainr2), file=ofp, flush=True)
     
     if modelfname != "":
         ofp.close()
@@ -180,9 +180,9 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
 
     thefirst = True
     if verbose:
-        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2")
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
     if modelfname != "":
-        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, flush=True)
 
     vset_torm = []
 
@@ -271,11 +271,11 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
         
         if verbose:
             print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2))
+                                                        trainmse,  trainr2), flush=True)
         
         if modelfname != "":
             print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2), file=ofp)
+                                                        trainmse,  trainr2), file=ofp, flush=True)
     
     if modelfname != "":
         ofp.close()
@@ -553,7 +553,7 @@ if __name__ == "__main__":
             msetrain += avgmse_train
             
             print("vsetsSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
-                                                  avgmse_test,  avgr2_test))
+                                                  avgmse_test,  avgr2_test), flush=True)
             """
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
                 build_w_split (wset, modelshape, batch_size, epochs)
@@ -585,6 +585,6 @@ if __name__ == "__main__":
             msetrain = msetrain/2.0
 
             print("Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
-                 modelnum, r2test, msetest, r2train, msetrain))
+                 modelnum, r2test, msetest, r2train, msetrain), flush=True)
             print("Model shapes  %3d , %s , %5d "%( \
-                 modelnum, str(modelshape), batch_size))
+                 modelnum, str(modelshape), batch_size), flush=True)
