@@ -269,11 +269,11 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
         num += 1.0
         
         if verbose:
-            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
                                                         trainmse,  trainr2), flush=True)
         
         if modelfname != "":
-            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
                                                         trainmse,  trainr2), file=ofp, flush=True)
     
     if modelfname != "":
