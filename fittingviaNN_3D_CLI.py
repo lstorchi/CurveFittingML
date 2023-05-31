@@ -506,20 +506,18 @@ if __name__ == "__main__":
     epochs = 20
     batch_size_s = [10, 25, 50, 100]
 
-    modelshape_s = [[128, 128]]
-    epochs = 5
-    batch_size_s = [10]
-
     modelnum = 0
 
     for modelshape in modelshape_s:
         for batch_size in batch_size_s:
-            #modelfname = "perc.csv"
-            
+            modelnum += 1
+
             r2test = 0.0
             msetest = 0.0
             r2train = 0.0 
             msetrain = 0.0
+
+            nowmanytest = 0.0
 
             """
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
@@ -535,26 +533,27 @@ if __name__ == "__main__":
             """
 
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
-                build_v_split (vset, modelshape, batch_size, epochs)
-            
+                build_v_split (vset, modelshape, batch_size, epochs, \
+                               modelfname="vsplitmodel_"+str(modelnum)+".csv")
+            nowmanytest += 1.0
             r2test += avgr2_test
             msetest += avgmse_test
             r2train += avgr2_train
             msetrain += avgmse_train
-            
             print("    vSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test))
 
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
-                build_vsets_split (vlist, modelshape, batch_size, epochs)
-            
+                build_vsets_split (vlist, modelshape, batch_size, epochs, \
+                                   modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
+            nowmanytest += 1.0
             r2test += avgr2_test
             msetest += avgmse_test
             r2train += avgr2_train
             msetrain += avgmse_train
-            
             print("vsetsSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
                                                   avgmse_test,  avgr2_test), flush=True)
+            
             """
             avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
                 build_w_split (wset, modelshape, batch_size, epochs)
@@ -579,11 +578,10 @@ if __name__ == "__main__":
                                                   avgmse_test,  avgr2_test))
             """
 
-            modelnum += 1
-            r2test = r2test/2.0
-            msetest = msetest/2.0
-            r2train = r2train/2.0
-            msetrain = msetrain/2.0
+            r2test = r2test/nowmanytest
+            msetest = msetest/nowmanytest
+            r2train = r2train/nowmanytest
+            msetrain = msetrain/nowmanytest
 
             print("Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
                  modelnum, r2test, msetest, r2train, msetrain), flush=True)
