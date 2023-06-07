@@ -523,7 +523,7 @@ def test_train_split (column, valuestotest, x, y):
     ytrain = []
 
     for i, xv in enumerate(x[:,column]):
-        if xv == valuestotest:
+        if xv in valuestotest:
             xtest.append(x[i,:])
             ytest.append(y[i])
         else:
