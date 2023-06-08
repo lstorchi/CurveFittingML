@@ -119,6 +119,20 @@ def build_model_GP_2 (train_x, train_y):
 
     return model
 
+##########################################################################################################3
+
+def build_model_GP_2D (train_x, train_y):
+    #kernel = gp.kernels.ConstantKernel(1.0, (1e-5, 1e5))* gp.kernels.RBF(length_scale=1)
+    nuval = 5.0/2.0
+    kernel = 1.0 * gp.kernels.Matern(length_scale=1.0, nu=nuval)
+    model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
+        normalize_y=False)
+    print("Start training ")
+    model.fit(train_x, train_y)
+    print("Done ")
+
+    return model
+
 ##########################################################################################################
 
 def build_model_GP_3D (train_x, train_y):
