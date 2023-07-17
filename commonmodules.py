@@ -552,9 +552,9 @@ def test_train_split (column, valuestotest, x, y):
 
 #######################################################################
 
-def buildmodel(modelshape):
+def buildmodel(modelshape, inputshape=3):
     model = keras.Sequential()
-    model.add(keras.layers.Input(shape=(3)))
+    model.add(keras.layers.Input(shape=(inputshape)))
 
     for n in modelshape:
         model.add(keras.layers.Dense(units = n, activation = 'relu'))

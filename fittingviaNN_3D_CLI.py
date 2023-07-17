@@ -428,7 +428,7 @@ def build_t_split (tset, modelshape, batch_size, epochs, \
 
 if __name__ == "__main__":
 
-    filename = "N2H2_VVdata_3variables.xlsx"
+    filename = "N2H2_3D.xlsx"
     testtovisualize = False
     wselected = 0
     columselected = 1
