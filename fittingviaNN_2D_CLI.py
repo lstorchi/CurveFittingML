@@ -10,334 +10,169 @@ from mpl_toolkits.mplot3d import Axes3D
 
 import commonmodules as cm
 
-#################################################################################################
+from sklearn.preprocessing import MinMaxScaler
 
-def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_z, verbose=False):
+from tensorflow import keras
+import tensorflow as tf
 
-    overallmse = 0.0 
-    denorm_overallmse = 0.0 
-    overalltrainmse = 0.0 
-    denorm_overalltrainmse = 0.0
+import tensorflow.keras.optimizers as tko
+import tensorflow.keras.activations as tka
+import tensorflow.keras.losses as tkl
+from tensorflow.keras.layers import Input, Dense
+from tensorflow.keras.models import Model
 
-    tot = 0
-    traintot = 0
-
-    z_pred = model.predict(train_xy)
-    
-    trainmse = 0.0
-    denorm_trainmse = 0.0
-    cont = 0.0
-
-    for i in range(train_z.shape[0]):
-        x = train_xy[i,0]
-        y = train_xy[i,1]
-
-        z = train_z[i]
-        denorm_z = (z * (maxvalue - minvalue))+minvalue
-
-        zpred = z_pred[i]
-        denorm_zpred = (zpred * (maxvalue - minvalue))+minvalue
-        
-        trainmse += (zpred-z)**2
-        denorm_trainmse += (denorm_zpred-denorm_z)**2
-
-        overalltrainmse += (zpred-z)**2
-        denorm_overalltrainmse += (denorm_zpred-denorm_z)**2
-
-        traintot += 1
-        cont += 1.0
-    
-        if verbose:
-            print("Train, %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred))
-    
-    trainmse = trainmse/cont
-    denorm_trainmse = denorm_trainmse/cont
-    
-    z_pred = model.predict(test_xy)
-    mse = 0.0
-    denorm_mse = 0.0
-    cont = 0.0
-    for i in range(test_z.shape[0]):
-        x = test_xy[i,0]
-        y = test_xy[i,1]
-
-        z = test_z[i]
-        denorm_z = (z * (maxvalue - minvalue))+minvalue
-
-        zpred = z_pred[i]
-        denorm_zpred = (zpred * (maxvalue - minvalue))+minvalue
-
-        mse += (zpred-z)**2
-        denorm_mse += (denorm_zpred-denorm_z)**2
-
-        overallmse += (zpred-z)**2
-        tot += 1
-        cont += 1.0
-    
-        if verbose:
-            print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(x, y, z, zpred))
-    
-    mse = mse/cont
-    denorm_mse = denorm_mse/cont
-    
-    print(initialstring, " ,", mse[0], " ,", trainmse[0], " ,", denorm_mse[0] , \
-        " ,",  denorm_trainmse[0], flush=True, file=ofp)
-    
-    if verbose:
-        print(initialstring, " , MSE , ", mse[0], " , TrainMSE ,", trainmse[0], \
-            " , Denorm. MSE , ", denorm_mse[0], " , Denorm. TrainMSE ,", \
-                denorm_trainmse[0], flush=True)
-
-    return overallmse, denorm_overallmse, overalltrainmse, \
-        denorm_overalltrainmse, tot, traintot
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
 
 #################################################################################################
 
 if __name__ == "__main__":
 
-    filename = "testdv1.xlsx"
+    filename = "N2H2_2D.xlsx"
+    excf = pd.ExcelFile(filename)
+    debug = False
 
-    setofv = 0
-    if (len(sys.argv) == 3):
-        filename = sys.argv[1]
-        setofv = int(sys.argv[2])
+    df1 = pd.read_excel(excf, "dv=1")
+    df2 = pd.read_excel(excf, "dv=2")
+    df3 = pd.read_excel(excf, "dv=3")
 
-    basename = filename.split(".")[0]
-
-    for modelname in ["model1", "model2", "model3"]:
-
-        ofp = open(basename+"_results_NN_"+modelname+".csv", "w")
-
-        print("Type , Index , Testset MSE , Trainingset MSE , ", \
-            "Denorm. Testset MSE , Denorm. Trainingset MSE ", \
-                flush=True, file=ofp)
+    x = {}
+    x_s = {}
+    y = {} 
+    y_s = {}
+    scalerx = {}
+    scalery = {}
+    x1map_toreal = {}
+    f1set = {}
     
-        df, vib_values , temp_values, minvalue, maxvalue = cm.filterinitialset (filename)
-        #plotfull3dcurve (df, vib_values, temp_values)
+    x["1_v_cE"] = df1[['v', 'cE']].values
+    x["1_dE_cE"] = df1[['dE', 'cE']].values
+    y["1"] = np.log10(df1[["cS"]].values)
     
-        epochs = 50
-        batch_size = 50
-        model = None
-        history = None
-
-        overallmse = 0.0
-        overalltrainmse = 0.0
-        denorm_overalltrainmse = 0.0
-        denorm_overallmse = 0.0
-        tot = 0
-        traintot = 0
-        for vrm in vib_values:
-            vib_torm = [vrm]
-            print("Removing VIB ", vrm, flush=True)
+    x["2_v_cE"] = df2[['v', 'cE']].values
+    x["2_dE_cE"] = df2[['dE', 'cE']].values
+    y["2"] = np.log10(df2[["cS"]].values)
+    
+    x["3_v_cE"] = df3[['v', 'cE']].values
+    x["3_dE_cE"] = df3[['dE', 'cE']].values
+    y["3"] = np.log10(df3[["cS"]].values)
+    
+    xkey = ["1_v_cE", "1_dE_cE", \
+            "2_v_cE", "2_dE_cE", \
+            "3_v_cE", "3_dE_cE"]
+    
+    ykey = ["1", "2", "3"]
+    
+    for k in xkey:
+        scalerx[k] = MinMaxScaler()
+        scalerx[k].fit(x[k])
+        x_s[k] = scalerx[k].transform(x[k])
+    
+        x1map = {}
+    
+        for i, vn in enumerate(x_s[k][:,0]):
+            x1map[vn] = x[k][i,0]
+    
+        x1map_toreal[k] = x1map
         
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
-                df, vib_torm)
+        f1set[k] = set(x_s[k][:,0])
+    
+        if debug:
+            for i, xs in enumerate(x_s[k]):
+                print(xs, x[k][i])
+    
+    for k in ykey:
+        scalery[k] = MinMaxScaler()
+        scalery[k].fit(y[k])
+        y_s[k] = scalery[k].transform(y[k])
+    
+        if debug:
+            for i, ys in enumerate(y_s[k]):
+                print(ys, y[k][i])
+
+
+    modelshapes = [[2, 32, 64, 128, 32],
+                   [2, 16, 32, 64, 128, 32],
+                   [2, 16, 32, 64, 128, 32, 16],
+                   [2, 8, 16, 32, 64, 32, 16, 8],
+                    [ 8,  8,  8,  8, 8],
+                    [16, 16, 16, 16, 16],
+                    [32, 32, 32, 32, 32],
+                    [64, 64, 64, 64, 64],
+                    [128, 128, 128, 128, 128],
+                    [ 8,  8,  8,  8], 
+                    [16, 16, 16, 16],
+                    [32, 32, 32, 32],
+                    [64, 64, 64, 64],
+                    [128, 128, 128, 128],
+                    [ 8,  8,  8], 
+                    [16, 16, 16],
+                    [32, 32, 32],
+                    [64, 64, 64],
+                    [128, 128, 128]]
+    epochs_s = [10, 20]
+    batch_sizes = [2, 5, 10]
+    
+    print (" xK , ModelShape , BatchSize , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
+    
+    for xk in xkey:
+        yk = xk.split("_")[0]
+        f1 = xk.split("_")[1]
+        f2 = xk.split("_")[2]
+    
+        for modelshape in modelshapes:
+            for batch_size in batch_sizes:
+                for epochs in epochs_s:
+    
+                    thefirst = True
+                
+                    testmses  = []
+                    testr2s   = []
+                    trainmses = []
+                    trainr2s  = []
+                
+                    for x1 in f1set[xk]:
+                        train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], x_s[xk], y_s[yk])
+                        
+                        if thefirst:
+                            model = cm.buildmodel(modelshape, inputshape=2)
+                            #print(model.summary())
+                            history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+                                verbose=0)
+                            thefirst = False
+                
+                        model = cm.buildmodel(modelshape, inputshape=2)
+                        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+                            verbose=0)
+                    
+                        test_x_sp = scalerx[xk].inverse_transform(test_x)
+                        pred_y = model.predict(test_x, verbose=0)
+                        pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                        test_y_sb = scalery[yk].inverse_transform(test_y)
+                
+                        testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
+                        testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+                        testmses.append(testmse)
+                        testr2s.append(testr2)
+                
+                        pred_y = model.predict(train_x, verbose=0)
+                        pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                        train_y_sb = scalery[yk].inverse_transform(train_y)
+                        train_x_sp = scalerx[xk].inverse_transform(train_x)
+                
+                        trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
+                        trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+                        trainmses.append(trainmse)
+                        trainr2s.append(trainr2)
+                
+                
+                    print (xk, " , ", str(modelshape).replace(",", ";") , \
+                           " , ", batch_size , \
+                           " , ", np.average(trainmses), \
+                           " , ", np.average(trainr2s), \
+                           " , ", np.average(testmses), \
+                           " , ", np.average(testr2s), flush=True)
+    
+       
         
-            # note to test limits in thread number 
-            #from threadpoolctl import threadpool_limits
-            #import os 
-            
-            #tf.config.threading.set_inter_op_parallelism_threads(8)
-            #tf.config.threading.set_intra_op_parallelism_threads(8)
-
-            #with threadpool_limits(limits=4):
-            #    os.environ["OMP_NUM_THREADS"] = "4"
-            #    os.environ["BLIS_NUM_THREADS"] = "4"
-            #    os.environ["MKL_NUM_THREADS"] = "4"
-            #    os.environ["OPENBLAS_NUM_THREADS"] = "4"
-            #    os.environ["NUMEXPR_NUM_THREADS"] = "4"
-
-            st = time.time()
-            stp = time.process_time()
-            if modelname == "model1":
-                model = cm.build_model_NN_1()
-                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
-                        verbose=1)
-            elif modelname == "model2":
-                model = cm.build_model_NN_2()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            elif modelname == "model3":
-                model = cm.build_model_NN_3()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            etp = time.process_time()
-            et = time.time()
-
-            elapsed_time = et - st
-            res = etp - stp
-            print('Execution time: ', elapsed_time, ' seconds', flush = True)
-            print('CPU Execution time: ', res, ' seconds')
-
-            initialstring = "Removed VIB  , " + str(vrm)
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
-
-            overallmse += l_overallmse
-            overalltrainmse += l_overalltrainmse
-            tot += l_tot
-            traintot += l_traintot
-
-        print("Overall VIB MSE , ", overallmse/float(tot), \
-            ", Train MSE , ", overalltrainmse/float(traintot), \
-            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))
-
-        overallmse = 0.0
-        overalltrainmse = 0.0
-        denorm_overalltrainmse = 0.0
-        denorm_overallmse = 0.0
-        tot = 0
-        traintot = 0
-
-        vib_values_torm = []
-
-        if setofv == 1:
-            # for dv=1
-            vib_values_torm = [[2, 4, 6, 8, 10, 14, 18, 22, 26, 30, 35], \
-                           [1, 3, 5, 7, 9, 12, 16, 20, 24, 28, 32, 40], \
-                           [2, 3, 5, 6, 8, 9, 12, 14, 18, 20, 24, 26, 30, 32], \
-                           [1, 2, 4, 5, 7, 8, 10, 12, 16, 18, 22, 24, 28, 30, 35, 40]]
-        elif setofv == 2:
-            # for dv=2
-            vib_values_torm = [[2, 4, 6, 8, 10, 14, 18, 22, 26, 30, 35], \
-                           [3, 5, 7, 9, 12, 16, 20, 24, 28, 32, 40], \
-                           [2, 3, 5, 6, 8, 9, 12, 14, 18, 20, 24, 26, 30, 32, 40], \
-                           [3, 4, 6, 7, 9, 10, 14, 16, 20, 22, 26, 28, 32, 35]]
-        elif setofv == 3:
-            # for dv=3
-            vib_values_torm = [[2, 4, 6, 8, 10, 14, 18, 22, 26, 30, 35], \
-                           [3, 5, 7, 9, 12, 16, 20, 24, 28, 32], \
-                           [2, 3, 5, 6, 8, 9, 12, 14, 18, 20, 24, 26, 30, 32], \
-                           [3, 4, 6, 7, 9, 10, 14, 16, 20, 22, 26, 28, 32, 35]]
-        for vrm in vib_values_torm:
-            print("Removing VIB set", str(vrm).replace(",", ";"), flush=True)
         
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
-                df, vrm)
-            
-            st = time.time()
-            stp = time.process_time()
-            if modelname == "model1":
-                model = cm.build_model_NN_1()
-                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
-                        verbose=1)
-            elif modelname == "model2":
-                model = cm.build_model_NN_2()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            elif modelname == "model3":
-                model = cm.build_model_NN_3()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            etp = time.process_time()
-            et = time.time()
-
-            elapsed_time = et - st
-            res = etp - stp
-            print('Execution time: ', elapsed_time, ' seconds', flush = True)
-            print('CPU Execution time: ', res, ' seconds')     
-
-            initialstring = "Removed VIB  , " + str(vrm).replace(",", ";")
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
-
-            overallmse += l_overallmse
-            overalltrainmse += l_overalltrainmse
-            tot += l_tot
-            traintot += l_traintot
-
-        print("Overall VIB MSE , ", overallmse/float(tot), \
-            ", Train MSE , ", overalltrainmse/float(traintot), \
-            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))
-
-        overallmse = 0.0
-        overalltrainmse = 0.0
-        denorm_overalltrainmse = 0.0
-        denorm_overallmse = 0.0
-        tot = 0
-        traintot = 0
-        for trm in temp_values:
-            print("Removing TEMP ", trm, flush=True)
-            temp_torm = [trm]
-        
-            train_xy, train_z, test_xy, test_z = \
-                cm.get_train_and_test_rmt (temp_values, vib_values, \
-                df, temp_torm)
-
-            st = time.time()
-            stp = time.process_time()     
-            if modelname == "model1":
-                model = cm.build_model_NN_1()
-                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
-                        verbose=1)
-            elif modelname == "model2":
-                model = cm.build_model_NN_2()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            elif modelname == "model3":
-                model = cm.build_model_NN_3()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            etp = time.process_time()
-            et = time.time()
-
-            elapsed_time = et - st
-            res = etp - stp
-            print('Execution time: ', elapsed_time, ' seconds', flush = True)
-            print('CPU Execution time: ', res, ' seconds')     
-
-            initialstring = "Removed TEMP  , " + str(trm)
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
-
-            overallmse += l_overallmse
-            overalltrainmse += l_overalltrainmse
-            tot += l_tot
-            traintot += l_traintot
-
-        print("Overall TEMP MSE , ", overallmse/float(tot), \
-            ", Train MSE , ", overalltrainmse/float(traintot), \
-            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))
-        
-        perclist = [0.05, 0.10, 0.20, 0.30, 0.40, 0.50]
-        for perc in perclist:
-        
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_random (temp_values, vib_values, \
-                df, perc)
-            
-            st = time.time()
-            stp = time.process_time()     
-            if modelname == "model1":
-                model = cm.build_model_NN_1()
-                history = model.fit(train_xy, train_z, epochs=epochs,  batch_size=batch_size, \
-                        verbose=1)
-            elif modelname == "model2":
-                model = cm.build_model_NN_2()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            elif modelname == "model3":
-                model = cm.build_model_NN_3()
-                history = model.fit(train_xy, train_z, epochs=epochs, batch_size=batch_size, \
-                     verbose=1)
-            etp = time.process_time()
-            et = time.time()
-
-            elapsed_time = et - st
-            res = etp - stp
-            print('Execution time: ', elapsed_time, ' seconds', flush = True)
-            print('CPU Execution time: ', res, ' seconds')     
-
-            initialstring = "Removed RND  , " + str(perc)
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
