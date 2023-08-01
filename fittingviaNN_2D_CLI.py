@@ -113,7 +113,7 @@ if __name__ == "__main__":
     epochs_s = [10, 20]
     batch_sizes = [2, 5, 10]
     
-    print (" xK , ModelShape , BatchSize , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
+    print (" xK , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
     
     for xk in xkey:
         yk = xk.split("_")[0]
@@ -168,6 +168,7 @@ if __name__ == "__main__":
                 
                     print (xk, " , ", str(modelshape).replace(",", ";") , \
                            " , ", batch_size , \
+                           " , ", epochs , \
                            " , ", np.average(trainmses), \
                            " , ", np.average(trainr2s), \
                            " , ", np.average(testmses), \
