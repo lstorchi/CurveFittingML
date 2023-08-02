@@ -214,9 +214,9 @@ if __name__  == "__main__":
 
         print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
         for i in range(test_z.shape[0]):
-            x = train_xy[i,0]
+            x = test_xy[i,0]
             t = int(x*(maxt - mint)+mint)
-            y = train_xy[i,1]
+            y = test_xy[i,1]
             v = int(y*(maxv - minv)+minv)
             zpred = z_pred[i]
             zstd = std[i]
