@@ -221,7 +221,7 @@ if __name__  == "__main__":
             zpred = z_pred[i]
             zstd = std[i]
 
-            print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
+            print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
                   flush=True)
             
         ofp.close()
