@@ -10,10 +10,10 @@ from mpl_toolkits.mplot3d import Axes3D
 
 ##########################################################################################################
 
-def filterinitialset (filename, headername = "vibrational level v\Temperature(K)",  \
+def filterinitialset (data, sheetname, headername, \
     factor = 1.0, normalize = False):
 
-    dfin = pd.read_excel(filename)
+    dfin = data.parse(sheetname)
 
     #print(dfin)
     
@@ -30,7 +30,7 @@ def filterinitialset (filename, headername = "vibrational level v\Temperature(K)
             dfdict[c] = list(dfin[c].values)
         else:
             for v in dfin[c].values:
-                val = factor*v
+                val = math.log10(factor*v)
                 if val > max:
                     max = val
                 if val < min:
@@ -39,7 +39,7 @@ def filterinitialset (filename, headername = "vibrational level v\Temperature(K)
     for c in dfin.columns:
         if c != headername:
             for v in dfin[c].values:
-                val = factor*v
+                val = math.log10(factor*v)
                 valp = (val - min) / (max - min)
                 if normalize:
                     dfdict[c].append(valp)
@@ -88,8 +88,10 @@ def plotfull3dcurve (df, vib_values, temp_values):
 ##########################################################################################################3
 
 def fitusingscikitl (train_x, train_y):
+
     #kernel = gp.kernels.ConstantKernel(1.0, (1e-5, 1e5))* gp.kernels.RBF(length_scale=1)
-    kernel = gp.kernels.ConstantKernel(1.0, (1e-3, 1e3)) * gp.kernels.RBF([5,5], (1e-2, 1e2))
+    nuval = 5.0/2.0
+    kernel = 1.0 * gp.kernels.Matern(length_scale=1.0, nu=nuval)
     model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
         normalize_y=False)
     print("Start training ")
@@ -97,65 +99,6 @@ def fitusingscikitl (train_x, train_y):
     print("Done ")
 
     return model
-
-##########################################################################################################
-
-def get_train_and_test_rmt (temp_values, vib_values, df, \
-    removetemps=[]):
-
-    maxt = max(temp_values)
-    mint = min(temp_values)
-
-    minv = min(vib_values)
-    maxv = max(vib_values)
-
-    train_xy = []
-    train_z = []
-
-    test_xy = []
-    test_z = []
-
-    maxz = float("-inf")
-    minz = float("+inf")
-
-    for tidx, t in enumerate(temp_values):
-        for vidx, v in enumerate(vib_values):
-            zval = df[t].values[vidx]
-
-            if zval < minz:
-                minz = zval
-            elif zval > maxz:
-                maxz = zval
-
-    for t in temp_values:
-        if t not in removetemps:
-            tnorm = (t - mint)/(maxt - mint)
-
-            for vidx, v in enumerate(vib_values):
-                vnorm  = (v - minv)/(maxv - minv)
-                train_xy.append([tnorm, vnorm])
-        
-                z = df[t].values[vidx]
-                znorm = (z - minz)/(maxz - minz)
-                train_z.append(znorm)
-        else:
-            tnorm = (t - mint)/(maxt - mint)
-            for vidx, v in enumerate(vib_values):
-                vnorm  = (v - minv)/(maxv - minv)
-                test_xy.append([tnorm, vnorm])
-
-                z = df[t].values[vidx]
-                znorm = (z - minz)/(maxz - minz)
-                test_z.append(znorm)
-
-
-    train_xy = np.asarray(train_xy)
-    train_z = np.asarray(train_z)
-
-    test_xy = np.asarray(test_xy)
-    test_z = np.asarray(test_z)
-
-    return train_xy, train_z, test_xy, test_z
 
 ##########################################################################################################
 
@@ -215,118 +158,66 @@ def get_train_and_test_rmv (temp_values, vib_values, df, \
 
 ##########################################################################################################
 
-filename = "N2N2_dataset.xls"
-df, vib_values , temp_values = filterinitialset (filename)
-#plotfull3dcurve (df, vib_values, temp_values)
+if __name__  == "__main__":
 
-overallmse = 0.0
-overalltrainmse = 0.0
-tot = 0
-traintot = 0
-for trm in temp_values:
-    print("Removing TEMP ", trm, flush=True)
-    temp_torm = [trm]
+    filename = "N2N2_touse.xlsx"
+    headername = "vibrational level v\Temperature(K)"
 
-    train_xy, train_z, test_xy, test_z = get_train_and_test_rmt (temp_values, vib_values, \
-        df, temp_torm)
+    data = pd.ExcelFile(filename)
+    for sheetname in data.sheet_names:
 
-    model = fitusingscikitl (train_xy, train_z)
+        df, vib_values , temp_values = filterinitialset (data, sheetname, headername)
 
-    z_pred, std = model.predict(train_xy, return_std=True)
-    trainmse = 0.0
-    cont = 0.0
-    for i in range(train_z.shape[0]):
-        x = train_xy[i,0]
-        y = train_xy[i,1]
-        z = train_z[i]
-        zpred = z_pred[i]
-        zstd = std[i]
+        maxt = max(temp_values)
+        mint = min(temp_values)
+
+        minv = min(vib_values)
+        maxv = max(vib_values)
+
+        vib_torm = []
+        for v in df[headername]:
+            #print(type(df[df[headername] == v].values[0]))
+            #print(df[df[headername] == v].values[0][1:-1])
+            if np.isnan(df[df[headername] == v].values[0][1:-1].astype(float)).all():
+                vib_torm.append(v)
+
+        #plotfull3dcurve (df, vib_values, temp_values)
+
+        train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
+            df, vib_torm)
         
-        trainmse += (zpred-z)**2
-        overalltrainmse += (zpred-z)**2
-        traintot += 1
-        cont += 1.0
-
-        print("Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
-
-    trainmse = trainmse/cont
-
-    z_pred, std = model.predict(test_xy, return_std=True)
-    mse = 0.0
-    cont = 0.0
-    for i in range(test_z.shape[0]):
-        x = test_xy[i,0]
-        y = test_xy[i,1]
-        z = test_z[i]
-        zpred = z_pred[i]
-        zstd = std[i]
-
-        mse += (zpred-z)**2
-        overallmse += (zpred-z)**2
-        tot += 1
-        cont += 1.0
-
-        print("Test, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
-
-    mse = mse/cont
-
-    print("Removed TEMP , ", trm, " , MSE , ", mse, " , TrainMSE ,", trainmse, flush=True)
-
-print("Overall TEMP MSE , ", overallmse/float(tot), \
-    " , Train MSE , ", overalltrainmse/float(traintot))
-
-overallmse = 0.0
-overalltrainmse = 0.0
-tot = 0
-traintot = 0
-for vrm in vib_values:
-    vib_torm = [vrm]
-    print("Removing VIB ", vrm, flush=True)
-
-    train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
-        df, vib_torm)
-
-    model = fitusingscikitl (train_xy, train_z)
-
-    z_pred, std = model.predict(train_xy, return_std=True)
-    trainmse = 0.0
-    cont = 0.0
-    for i in range(train_z.shape[0]):
-        x = train_xy[i,0]
-        y = train_xy[i,1]
-        z = train_z[i]
-        zpred = z_pred[i]
-        zstd = std[i]
+        model = fitusingscikitl (train_xy, train_z)
         
-        trainmse += (zpred-z)**2
-        overalltrainmse += (zpred-z)**2
-        traintot += 1
-        cont += 1.0
-
-        print("Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
-
-    trainmse = trainmse/cont
-
-    z_pred, std = model.predict(test_xy, return_std=True)
-    mse = 0.0
-    cont = 0.0
-    for i in range(test_z.shape[0]):
-        x = test_xy[i,0]
-        y = test_xy[i,1]
-        z = test_z[i]
-        zpred = z_pred[i]
-        zstd = std[i]
+        z_pred, std = model.predict(train_xy, return_std=True)
+        trainmse = 0.0
+        cont = 0.0
+        for i in range(train_z.shape[0]):
+            x = train_xy[i,0]
+            t = int(x*(maxt - mint)+mint)
+            y = train_xy[i,1]
+            v = int(y*(maxv - minv)+minv)
+            z = train_z[i]
+            zpred = z_pred[i]
+            zstd = std[i]
+            
+            trainmse += (zpred-z)**2
+            cont += 1.0
         
-        mse += (zpred-z)**2
-        overallmse += (zpred-z)**2
-        tot += 1
-        cont += 1.0
-    
-        print("Test, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
+            print("Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd))
+        
+        trainmse = trainmse/cont
+        print("Train  MSE : %10.7f"%(trainmse))
+        
+        z_pred, std = model.predict(test_xy, return_std=True)
 
-    mse = mse/cont
+        for i in range(test_z.shape[0]):
+            x = train_xy[i,0]
+            t = int(x*(maxt - mint)+mint)
+            y = train_xy[i,1]
+            v = int(y*(maxv - minv)+minv)
+            zpred = z_pred[i]
+            zstd = std[i]
 
-    print("Removed VIB , ", vrm, " , MSE , ", mse, " , TrainMSE ,", trainmse, flush=True)
-
-print("Overall VIB MSE , ", overallmse/float(tot), \
-    " , Train MSE , ", overalltrainmse/float(traintot))
+            print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd))
+ 
+ 
