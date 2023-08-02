@@ -203,13 +203,16 @@ if __name__  == "__main__":
             trainmse += (zpred-z)**2
             cont += 1.0
         
-            print("Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
+            print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
         
         trainmse = trainmse/cont
-        print("Train  MSE : %10.7f"%(trainmse), flush=True)
+        print(sheetname, " Train MSE : %10.7f"%(trainmse), flush=True)
         
         z_pred, std = model.predict(test_xy, return_std=True)
 
+        ofp = open(sheetname"_results.csv", "w")
+
+        print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
         for i in range(test_z.shape[0]):
             x = train_xy[i,0]
             t = int(x*(maxt - mint)+mint)
@@ -218,6 +221,8 @@ if __name__  == "__main__":
             zpred = z_pred[i]
             zstd = std[i]
 
-            print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), flush=True)
- 
+            print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
+                  flush=True)
+            
+        ofp.close()
  
