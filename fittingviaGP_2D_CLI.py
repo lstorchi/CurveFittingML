@@ -103,7 +103,7 @@ def fitusingscikitl (train_x, train_y):
 ##########################################################################################################
 
 def get_train_and_test_rmv (temp_values, vib_values, df, \
-    removevibs=[]):
+    removevibs=[], normalize=False):
 
     maxt = max(temp_values)
     mint = min(temp_values)
@@ -138,15 +138,21 @@ def get_train_and_test_rmv (temp_values, vib_values, df, \
                 train_xy.append([tnorm, vnorm])
         
                 z = df[t].values[vidx]
-                znorm = (z - minz)/(maxz - minz)
-                train_z.append(znorm)
+                if normalize:
+                    znorm = (z - minz)/(maxz - minz)
+                    train_z.append(znorm)
+                else:
+                    train_z.append(z)
             else:
                 vnorm  = (v - minv)/(maxv - minv)
                 test_xy.append([tnorm, vnorm])
 
                 z = df[t].values[vidx]
-                znorm = (z - minz)/(maxz - minz)
-                test_z.append(znorm)
+                if normalize:
+                    znorm = (z - minz)/(maxz - minz)
+                    test_z.append(znorm)
+                else:
+                    test_z.append(z)
 
     train_xy = np.asarray(train_xy)
     train_z = np.asarray(train_z)
