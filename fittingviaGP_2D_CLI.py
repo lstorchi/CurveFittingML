@@ -87,10 +87,9 @@ def plotfull3dcurve (df, vib_values, temp_values):
 
 ##########################################################################################################3
 
-def fitusingscikitl (train_x, train_y):
+def fitusingscikitl (train_x, train_y, nuval=5.0/2.0):
 
     #kernel = gp.kernels.ConstantKernel(1.0, (1e-5, 1e5))* gp.kernels.RBF(length_scale=1)
-    nuval = 5.0/2.0
     kernel = 1.0 * gp.kernels.Matern(length_scale=1.0, nu=nuval)
     model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
         normalize_y=False)
@@ -168,6 +167,7 @@ if __name__  == "__main__":
 
     filename = "N2N2_touse.xlsx"
     headername = "vibrational level v\Temperature(K)"
+    nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
 
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
@@ -192,43 +192,44 @@ if __name__  == "__main__":
         train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
             df, vib_torm)
         
-        model = fitusingscikitl (train_xy, train_z)
-        
-        z_pred, std = model.predict(train_xy, return_std=True)
-        trainmse = 0.0
-        cont = 0.0
-        for i in range(train_z.shape[0]):
-            x = train_xy[i,0]
-            t = int(x*(maxt - mint)+mint)
-            y = train_xy[i,1]
-            v = int(y*(maxv - minv)+minv)
-            z = train_z[i]
-            zpred = z_pred[i]
-            zstd = std[i]
+        for nuval in nuvals:
+            model = fitusingscikitl (train_xy, train_z, nuval)
             
-            trainmse += (zpred-z)**2
-            cont += 1.0
-        
-            print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
-        
-        trainmse = trainmse/cont
-        print(sheetname, " Train MSE : %10.7f"%(trainmse), flush=True)
-        
-        z_pred, std = model.predict(test_xy, return_std=True)
-
-        ofp = open(sheetname+"_results.csv", "w")
-
-        print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
-        for i in range(test_z.shape[0]):
-            x = test_xy[i,0]
-            t = int(x*(maxt - mint)+mint)
-            y = test_xy[i,1]
-            v = int(y*(maxv - minv)+minv)
-            zpred = z_pred[i]
-            zstd = std[i]
-
-            print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
-                  flush=True)
+            z_pred, std = model.predict(train_xy, return_std=True)
+            trainmse = 0.0
+            cont = 0.0
+            for i in range(train_z.shape[0]):
+                x = train_xy[i,0]
+                t = int(x*(maxt - mint)+mint)
+                y = train_xy[i,1]
+                v = int(y*(maxv - minv)+minv)
+                z = train_z[i]
+                zpred = z_pred[i]
+                zstd = std[i]
+                
+                trainmse += (zpred-z)**2
+                cont += 1.0
             
-        ofp.close()
+                print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
+            
+            trainmse = trainmse/cont
+            print(sheetname, " Train MSE : %10.7f"%(trainmse), flush=True)
+            
+            z_pred, std = model.predict(test_xy, return_std=True)
+        
+            ofp = open(sheetname+"_"+str(nuval)+"_results.csv", "w")
+        
+            print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
+            for i in range(test_z.shape[0]):
+                x = test_xy[i,0]
+                t = int(x*(maxt - mint)+mint)
+                y = test_xy[i,1]
+                v = int(y*(maxv - minv)+minv)
+                zpred = z_pred[i]
+                zstd = std[i]
+        
+                print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
+                      flush=True)
+                
+            ofp.close()
  
