@@ -167,7 +167,8 @@ if __name__  == "__main__":
 
     filename = "N2N2_touse.xlsx"
     headername = "vibrational level v\Temperature(K)"
-    nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
+    #nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
+    nuvals = [5.0/2.0]
 
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
