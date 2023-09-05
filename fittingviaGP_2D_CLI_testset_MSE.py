@@ -224,7 +224,7 @@ if __name__  == "__main__":
                 
                 z_pred, std = model.predict(test_xy, return_std=True)
             
-                ofp = open(sheetname+"_"+str(nuval)+"_results.csv", "w")
+                ofp = open(sheetname+"_"+str(nuval)+"_"+str(v)+"_results.csv", "w")
             
                 print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
                 testmse = 0.0
