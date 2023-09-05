@@ -191,10 +191,10 @@ if __name__  == "__main__":
         minv = min(vib_values)
         maxv = max(vib_values)
 
-        for v in df[headername]:
-            print("To remove: ", v)
+        for vrm in df[headername]:
+            print("To remove: ", vrm)
             vib_torm = []
-            vib_torm.append(v)
+            vib_torm.append(vrm)
 
             train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
                 df, vib_torm)
@@ -220,11 +220,11 @@ if __name__  == "__main__":
                     #print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
                 
                 trainmse = trainmse/cont
-                print(sheetname, "Train MSE : %f %e"%(v, trainmse), flush=True)
+                print(sheetname, "Train MSE : %f %e"%(vrm, trainmse), flush=True)
                 
                 z_pred, std = model.predict(test_xy, return_std=True)
             
-                ofp = open(sheetname+"_"+str(nuval)+"_"+str(v)+"_results.csv", "w")
+                ofp = open(sheetname+"_"+str(nuval)+"_"+str(vrm)+"_results.csv", "w")
             
                 print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
                 testmse = 0.0
@@ -245,7 +245,7 @@ if __name__  == "__main__":
                           flush=True)
 
                 testmse = testmse/cont
-                print(sheetname, " Test MSE : %f %e"%(v, testmse), flush=True)
+                print(sheetname, " Test MSE : %f %e"%(vrm, testmse), flush=True)
                     
                 ofp.close()
  
