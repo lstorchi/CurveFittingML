@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 ##########################################################################################################
 
-def filterinitialset (data, sheetname, headername, \
+def filterinitialset_rmnan (data, sheetname, headername, \
     factor = 1.0, normalize = False):
 
     dfin = data.parse(sheetname)
@@ -26,6 +26,7 @@ def filterinitialset (data, sheetname, headername, \
     max = float("-inf")
     for c in dfin.columns:
         dfdict[c] = []
+
         if c == headername:
             dfdict[c] = list(dfin[c].values)
         else:
@@ -47,6 +48,15 @@ def filterinitialset (data, sheetname, headername, \
                     dfdict[c].append(val)
 
     df = pd.DataFrame.from_dict(dfdict)
+
+    vib_torm = []
+    for v in df[headername]:
+        if np.isnan(df[df[headername] == v].values[0][1:-1].astype(float)).all():
+            vib_torm.append(v)
+
+    for v in vib_torm:
+        vibvalues.remove(v)
+        df = df.drop(df[df[headername] == v].index)
 
     return df, vibvalues, tempvalues
 
@@ -165,7 +175,7 @@ def get_train_and_test_rmv (temp_values, vib_values, df, \
 
 if __name__  == "__main__":
 
-    filename = "N2N2_touse_rmunjnown.xlsx"
+    filename = "N2N2_touse.xlsx"
     headername = "vibrational level v\Temperature(K)"
     #nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
     nuvals = [5.0/2.0]
@@ -173,7 +183,7 @@ if __name__  == "__main__":
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
 
-        df, vib_values , temp_values = filterinitialset (data, sheetname, headername)
+        df, vib_values , temp_values = filterinitialset_rmnan (data, sheetname, headername)
 
         maxt = max(temp_values)
         mint = min(temp_values)
@@ -207,10 +217,10 @@ if __name__  == "__main__":
                     trainmse += (zpred-z)**2
                     cont += 1.0
                 
-                    print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
+                    #print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
                 
                 trainmse = trainmse/cont
-                print(sheetname, " Train MSE : %10.7f"%(trainmse), flush=True)
+                print(sheetname, "Train MSE : %f %e"%(v, trainmse), flush=True)
                 
                 z_pred, std = model.predict(test_xy, return_std=True)
             
@@ -235,7 +245,7 @@ if __name__  == "__main__":
                           flush=True)
 
                 testmse = testmse/cont
-                print("Test MSE : %f %e"%(v, testmse), flush=True)
+                print(sheetname, " Test MSE : %f %e"%(v, testmse), flush=True)
                     
                 ofp.close()
  
