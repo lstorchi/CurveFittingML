@@ -190,7 +190,7 @@ if __name__  == "__main__":
             if np.isnan(df[df[headername] == v].values[0][1:-1].astype(float)).all():
                 vib_torm.append(v)
 
-        #plotfull3dcurve (df, vib_values, temp_values)
+        #git plotfull3dcurve (df, vib_values, temp_values)
 
         train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
             df, vib_torm)

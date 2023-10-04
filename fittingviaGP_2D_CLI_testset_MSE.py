@@ -10,12 +10,11 @@ from mpl_toolkits.mplot3d import Axes3D
 
 ##########################################################################################################
 
-def filterinitialset_rmnan (data, sheetname, headername, \
+def filterinitialset_rmnan (data, columntorm, coltorm, headername, \
     factor = 1.0, normalize = False):
 
     dfin = data.parse(sheetname)
-
-    #print(dfin)
+    dfin = dfin.drop(columns=[coltorm])
     
     dfdict = {}
     
@@ -177,13 +176,15 @@ if __name__  == "__main__":
 
     filename = "N2N2_touse.xlsx"
     headername = "vibrational level v\Temperature(K)"
+    coltorm = "DE(cm-1)"
     #nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
     nuvals = [5.0/2.0]
 
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
 
-        df, vib_values , temp_values = filterinitialset_rmnan (data, sheetname, headername)
+        df, vib_values , temp_values = filterinitialset_rmnan (data, coltorm=, \
+                                                               sheetname, headername)
 
         maxt = max(temp_values)
         mint = min(temp_values)
