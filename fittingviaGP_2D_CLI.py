@@ -177,7 +177,7 @@ if __name__  == "__main__":
 
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
-        print("Using shhet: ", sheetname, flush=True)
+        print("Using sheet: ", sheetname, flush=True)
 
         df, vib_values , temp_values = filterinitialset (data, coltorm, sheetname, headername)
 
