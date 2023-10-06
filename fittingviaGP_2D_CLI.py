@@ -220,11 +220,13 @@ if __name__  == "__main__":
                 print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
             
             trainmse = trainmse/cont
-            print(sheetname, " Train MSE : %10.7f"%(trainmse), flush=True)
+            print(sheetname, " Train MSE : %12.8e"%(trainmse), flush=True)
             
             z_pred, std = model.predict(test_xy, return_std=True)
         
             ofp = open(sheetname+"_"+str(nuval)+"_results.csv", "w")
+
+            avgstd = 0.0
         
             print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
             #print ("T , DE , Zpred, Zstd ", file=ofp , flush=True)
@@ -235,9 +237,13 @@ if __name__  == "__main__":
                 v = int(y*(maxv - minv)+minv)
                 zpred = z_pred[i]
                 zstd = std[i]
+                
+                avgstd += zstd
         
                 print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
                       flush=True)
-                
+            
+            print ("Average std: ", avgstd/test_z.shape[0], flush=True)  
+
             ofp.close()
  
