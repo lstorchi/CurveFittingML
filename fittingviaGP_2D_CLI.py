@@ -166,11 +166,17 @@ def get_train_and_test_rmv (temp_values, vib_values, df, \
 if __name__  == "__main__":
 
     filename = "COCO_touse.xlsx"
+    USEV = False
 
     headername = "vibrational level v\Temperature(K)"
     coltorm = "DE(cm-1)"
-    #coltorm = "vibrational level v\Temperature(K)"
-    #headername = "DE(cm-1)"
+
+    if USEV:
+        headername = "vibrational level v\Temperature(K)"
+        coltorm = "DE(cm-1)"
+    else:
+        coltorm = "vibrational level v\Temperature(K)"
+        headername = "DE(cm-1)"
 
     nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
     #nuvals = [5.0/2.0]
@@ -232,8 +238,11 @@ if __name__  == "__main__":
         
                 avgstd = 0.0
             
-                print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
-                #print ("T , DE , Zpred, Zstd ", file=ofp , flush=True)
+                if USEV:
+                    print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
+                else:
+                    print ("T , DE , Zpred, Zstd ", file=ofp , flush=True)
+
                 for i in range(test_z.shape[0]):
                     x = test_xy[i,0]
                     t = int(x*(maxt - mint)+mint)
