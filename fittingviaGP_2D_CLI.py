@@ -174,11 +174,11 @@ if __name__  == "__main__":
 
     nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
     #nuvals = [5.0/2.0]
-    selectedseeh = ["3","7","8"]
+    selectedsheets = ["3","7","8"]
 
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
-        if sheetname in sheetname:
+        if sheetname in selectedsheets:
         
             print("Using sheet: ", sheetname, flush=True)
         
