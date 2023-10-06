@@ -172,78 +172,81 @@ if __name__  == "__main__":
     coltorm = "vibrational level v\Temperature(K)"
     headername = "DE(cm-1)"
 
-    #nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
-    nuvals = [5.0/2.0]
+    nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
+    #nuvals = [5.0/2.0]
+    selectedseeh = ["3","7","8"]
 
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
-        print("Using sheet: ", sheetname, flush=True)
-
-        df, vib_values , temp_values = filterinitialset (data, coltorm, sheetname, headername)
-
-        maxt = max(temp_values)
-        mint = min(temp_values)
-
-        minv = min(vib_values)
-        maxv = max(vib_values)
-
-        vib_torm = []
-        for v in df[headername]:
-            #print(type(df[df[headername] == v].values[0]))
-            #print(df[df[headername] == v].values[0][1:-1])
-            if np.isnan(df[df[headername] == v].values[0][1:-1].astype(float)).all():
-                vib_torm.append(v)
-
-        #git plotfull3dcurve (df, vib_values, temp_values)
-
-        train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
-            df, vib_torm)
+        if sheetname in sheetname:
         
-        for nuval in nuvals:
-            model = fitusingscikitl (train_xy, train_z, nuval)
+            print("Using sheet: ", sheetname, flush=True)
+        
+            df, vib_values , temp_values = filterinitialset (data, coltorm, sheetname, headername)
+        
+            maxt = max(temp_values)
+            mint = min(temp_values)
+        
+            minv = min(vib_values)
+            maxv = max(vib_values)
+        
+            vib_torm = []
+            for v in df[headername]:
+                #print(type(df[df[headername] == v].values[0]))
+                #print(df[df[headername] == v].values[0][1:-1])
+                if np.isnan(df[df[headername] == v].values[0][1:-1].astype(float)).all():
+                    vib_torm.append(v)
+        
+            #git plotfull3dcurve (df, vib_values, temp_values)
+        
+            train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
+                df, vib_torm)
             
-            z_pred, std = model.predict(train_xy, return_std=True)
-            trainmse = 0.0
-            cont = 0.0
-            for i in range(train_z.shape[0]):
-                x = train_xy[i,0]
-                t = int(x*(maxt - mint)+mint)
-                y = train_xy[i,1]
-                v = int(y*(maxv - minv)+minv)
-                z = train_z[i]
-                zpred = z_pred[i]
-                zstd = std[i]
+            for nuval in nuvals:
+                model = fitusingscikitl (train_xy, train_z, nuval)
                 
-                trainmse += (zpred-z)**2
-                cont += 1.0
-            
-                print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
-            
-            trainmse = trainmse/cont
-            print(sheetname, " Train MSE : %12.8e"%(trainmse), flush=True)
-            
-            z_pred, std = model.predict(test_xy, return_std=True)
-        
-            ofp = open(sheetname+"_"+str(nuval)+"_results.csv", "w")
-
-            avgstd = 0.0
-        
-            print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
-            #print ("T , DE , Zpred, Zstd ", file=ofp , flush=True)
-            for i in range(test_z.shape[0]):
-                x = test_xy[i,0]
-                t = int(x*(maxt - mint)+mint)
-                y = test_xy[i,1]
-                v = int(y*(maxv - minv)+minv)
-                zpred = z_pred[i]
-                zstd = std[i]
+                z_pred, std = model.predict(train_xy, return_std=True)
+                trainmse = 0.0
+                cont = 0.0
+                for i in range(train_z.shape[0]):
+                    x = train_xy[i,0]
+                    t = int(x*(maxt - mint)+mint)
+                    y = train_xy[i,1]
+                    v = int(y*(maxv - minv)+minv)
+                    z = train_z[i]
+                    zpred = z_pred[i]
+                    zstd = std[i]
+                    
+                    trainmse += (zpred-z)**2
+                    cont += 1.0
                 
-                avgstd += zstd
-        
-                print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
-                      flush=True)
+                    print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
+                
+                trainmse = trainmse/cont
+                print(sheetname, "Nu %6.3f Train MSE : %12.8e"%(nuval, trainmse), flush=True)
+                
+                z_pred, std = model.predict(test_xy, return_std=True)
             
-            print ("Average std: ", avgstd/test_z.shape[0], flush=True)  
-
-            ofp.close()
+                ofp = open(sheetname+"_"+str(nuval)+"_results.csv", "w")
+        
+                avgstd = 0.0
+            
+                print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
+                #print ("T , DE , Zpred, Zstd ", file=ofp , flush=True)
+                for i in range(test_z.shape[0]):
+                    x = test_xy[i,0]
+                    t = int(x*(maxt - mint)+mint)
+                    y = test_xy[i,1]
+                    v = int(y*(maxv - minv)+minv)
+                    zpred = z_pred[i]
+                    zstd = std[i]
+                    
+                    avgstd += zstd
+            
+                    print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
+                          flush=True)
+                
+                print ("Nu %6.3f Average std: "%(nuval), avgstd/test_z.shape[0], flush=True)  
+        
+                ofp.close()
  
