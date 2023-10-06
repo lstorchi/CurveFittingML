@@ -223,7 +223,8 @@ if __name__  == "__main__":
                     print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
                 
                 trainmse = trainmse/cont
-                print(sheetname, "Nu %6.3f Train MSE : %12.8e"%(nuval, trainmse), flush=True)
+                print(sheetname, "Sheet %s Nu %6.3f Train MSE : %12.8e"%(sheetname, \
+                                                                         nuval, trainmse), flush=True)
                 
                 z_pred, std = model.predict(test_xy, return_std=True)
             
@@ -246,7 +247,8 @@ if __name__  == "__main__":
                     print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
                           flush=True)
                 
-                print ("Nu %6.3f Average std: "%(nuval), avgstd/test_z.shape[0], flush=True)  
+                print ("Sheet %s Nu %6.3f Average std: %10.6f"%(sheetname, nuval, \
+                       avgstd/test_z.shape[0]), flush=True)  
         
                 ofp.close()
  
