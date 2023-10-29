@@ -515,90 +515,29 @@ if __name__ == "__main__":
 
     modelnum = 0
 
-    r2test_v_split = 0.0
-    msetest_v_split = 0.0
-    r2train_v_split = 0.0 
-    msetrain_v_split = 0.0
-
-    r2test_vsets_split = 0.0
-    msetest_vsets_split = 0.0
-    r2train_vsets_split = 0.0 
-    msetrain_vsets_split = 0.0
-
-    nowmanytest = 0.0
-
     for modelshape in modelshape_s:
         for batch_size in batch_size_s:
             modelnum += 1
-            nowmanytest += 1.0
 
-            """
-            avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
-                build_perc_split (modelshape, batch_size, epochs)
-            
-            r2test += avgr2_test
-            msetest += avgmse_test
-            r2train += avgr2_train
-            msetrain += avgmse_train
-            
-            print("  Perc, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
-                                                  avgmse_test,  avgr2_test))
-            """
+            r2test_v_split = 0.0
+            msetest_v_split = 0.0
+            r2train_v_split = 0.0 
+            msetrain_v_split = 0.0
+     
+            r2test_vsets_split = 0.0
+            msetest_vsets_split = 0.0
+            r2train_vsets_split = 0.0 
+            msetrain_vsets_split = 0.0
 
-            avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
+            r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
                 build_v_split (vset, modelshape, batch_size, epochs, \
                                modelfname="vsplitmodel_"+str(modelnum)+".csv")
-            r2test_v_split += avgr2_test
-            msetest_v_split += avgmse_test
-            r2train_v_split += avgr2_train
-            msetrain_v_split += avgmse_train
-            print("    vSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
-                                                  avgmse_test,  avgr2_test))
 
-            avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
+            r2train_vsets_split, msetrain_vsets_split, \
+                r2test_vsets_split, msetest_vsets_split = \
                 build_vsets_split (vlist, modelshape, batch_size, epochs, \
                                    modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
-            r2test_vsets_split += avgr2_test
-            msetest_vsets_split += avgmse_test
-            r2train_vsets_split += avgr2_train
-            msetrain_vsets_split += avgmse_train
-            print("vsetsSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
-                                                  avgmse_test,  avgr2_test), flush=True)
             
-            """
-            avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
-                build_w_split (wset, modelshape, batch_size, epochs)
-            
-            r2test += avgr2_test
-            msetest += avgmse_test
-            r2train += avgr2_train
-            msetrain += avgmse_train
-            
-            print("wSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
-                                                  avgmse_test,  avgr2_test))
-            
-            avgr2_train, avgmse_train, avgr2_test, avgmse_test = \
-                build_t_split (tset, modelshape, batch_size, epochs)
-            
-            r2test += avgr2_test
-            msetest += avgmse_test
-            r2train += avgr2_train
-            msetrain += avgmse_train
-            
-            print("TSplit, %10.5f , %10.5f , %10.5f , %10.5f"%(avgmse_train, avgr2_train, \
-                                                  avgmse_test,  avgr2_test))
-            """
-
-            r2test_v_split = r2test_v_split /nowmanytest
-            msetest_v_split = msetest_v_split /nowmanytest
-            r2train_v_split = r2train_v_split /nowmanytest
-            msetrain_v_split = msetrain_v_split /nowmanytest
-
-            r2test_vsets_split = r2test_vsets_split /nowmanytest
-            msetest_vsets_split = msetest_vsets_split /nowmanytest
-            r2train_vsets_split = r2train_vsets_split /nowmanytest
-            msetrain_vsets_split = msetrain_vsets_split /nowmanytest
-  
             print("v split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
                 modelnum, r2test_v_split, msetest_v_split, \
                 r2train_v_split, msetrain_v_split), flush=True)
