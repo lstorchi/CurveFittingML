@@ -34,8 +34,9 @@ def build_v_split (vset, modelshape, \
 
         train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
 
+
         model = cm.buildmodel_RF(modelshape)
-        model.fit(train_x, train_y)
+        model.fit(train_x, train_y[:,0])
 
         pred_y = model.predict(test_x)
         testmse = metrics.mean_absolute_error(test_y, pred_y)
@@ -141,7 +142,7 @@ def build_vsets_split (vlist, modelshape, \
         train_x, test_x, train_y, test_y = cm.test_train_split (0, v, x_s, y_s)
 
         model = cm.buildmodel_RF(modelshape)
-        model.fit(train_x, train_y)
+        model.fit(train_x, train_y[:,0])
 
         pred_y = model.predict(test_x)
         testmse = metrics.mean_absolute_error(test_y, pred_y)
@@ -285,5 +286,5 @@ if __name__ == "__main__":
                                 print("vsets split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
                                     modelnum, r2test_vsets_split, msetest_vsets_split, \
                                     r2train_vsets_split, msetrain_vsets_split), flush=True)
-                                #print("Model shapes  %3d , %s "%(\
-                                #    modelnum, str(modelshape).replace(","," "), flush=True)
+                                print("Model shapes  %3d , %s "%(\
+                                    modelnum, str(modelshape).replace(","," "), flush=True))
