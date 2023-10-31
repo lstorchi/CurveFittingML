@@ -231,7 +231,7 @@ if __name__ == "__main__":
     min_samples_split = [2, 5, 10, 15, 100]
     min_samples_leaf = [10, 20, 50, 100, 200] 
     random_state = [42]
-    max_features = ['auto', 'sqrt']
+    max_features = ['log2', 'sqrt']
     bootstrap = [True]
 
     hyperF = {"n_estimators" : n_estimators, 
