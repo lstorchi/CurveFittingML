@@ -17,6 +17,8 @@ import tensorflow.keras.losses as tkl
 from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.models import Model
 
+from sklearn.ensemble import RandomForestRegressor
+
 ##########################################################################################################
 
 def __build_activation_function(af):
@@ -561,6 +563,21 @@ def buildmodel(modelshape, inputshape=3):
 
     model.add(keras.layers.Dense(units = 1, activation = 'linear'))
     model.compile(loss='mse', optimizer="adam", metrics='mse')
+
+    return model
+
+#######################################################################
+
+def buildmodel_RF(modelshape):
+
+    model = RandomForestRegressor( \
+        n_estimators=modelshape["n_estimators"],\
+        max_depth=modelshape["max_depth"],\
+        min_samples_split=modelshape["min_samples_split"],\
+        min_samples_leaf=modelshape["min_samples_leaf"],\
+        random_state=modelshape["random_state"],\
+        bootstrap=modelshape["bootstrap"],\
+        max_features=modelshape["max_features"])
 
     return model
 
