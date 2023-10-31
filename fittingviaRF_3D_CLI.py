@@ -287,4 +287,4 @@ if __name__ == "__main__":
                                     modelnum, r2test_vsets_split, msetest_vsets_split, \
                                     r2train_vsets_split, msetrain_vsets_split), flush=True)
                                 print("Model shapes  %3d , %s "%(\
-                                    modelnum, str(modelshape).replace(","," "), flush=True))
+                                    modelnum, str(modelshape).replace(","," ")), flush=True)
