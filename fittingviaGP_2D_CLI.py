@@ -166,7 +166,7 @@ def get_train_and_test_rmv (temp_values, vib_values, df, \
 if __name__  == "__main__":
 
     filename = "COCO_touse.xlsx"
-    USEV = False
+    USEV = True
 
     headername = "vibrational level v\Temperature(K)"
     coltorm = "DE(cm-1)"
@@ -180,7 +180,7 @@ if __name__  == "__main__":
 
     nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
     #nuvals = [5.0/2.0]
-    selectedsheets = ["3","7","8"]
+    selectedsheets = ["1","2","3","4","5","6","7","8"]
 
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
