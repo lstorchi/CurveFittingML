@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 ##########################################################################################################
 
-def filterinitialset_rmnan (data,  coltorm, headername, \
+def filterinitialset_rmnan (data,  coltorm, sheetname, headername, \
     factor = 1.0, normalize = False):
 
     dfin = data.parse(sheetname)
