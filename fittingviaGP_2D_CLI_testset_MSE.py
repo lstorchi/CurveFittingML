@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 ##########################################################################################################
 
-def filterinitialset_rmnan (data, columntorm, coltorm, headername, \
+def filterinitialset_rmnan (data,  coltorm, headername, \
     factor = 1.0, normalize = False):
 
     dfin = data.parse(sheetname)
@@ -58,41 +58,6 @@ def filterinitialset_rmnan (data, columntorm, coltorm, headername, \
         df = df.drop(df[df[headername] == v].index)
 
     return df, vibvalues, tempvalues
-
-##############################################################################
-
-def plotfull3dcurve (df, vib_values, temp_values):
-
-    y = []
-    x = []
-    for t in temp_values:
-        for idx in range(len(vib_values)):
-            x.append([float(t), float(vib_values[idx])])
-            y.append(df[t].values[idx])
-
-    X = np.array(x)
-    Y = np.array(y)
-
-    xdim = len(temp_values)
-    ydim = len(vib_values)
-
-    Xp = np.zeros((xdim, ydim), dtype=float)
-    Yp = np.zeros((xdim, ydim), dtype=float)
-    Zp = np.zeros((xdim, ydim), dtype=float)
-    for xidx in range(xdim):
-        t = temp_values[xidx]
-        for yidx in range(ydim):
-            v =  vib_values[yidx]
-            Xp[xidx, yidx] = float(t)
-            Yp[xidx, yidx] = float(v)
-            Zp[xidx, yidx] = df[t].values[yidx]
-
-    #fig = plt.figure(figsize=(10,8))
-    fig = plt.figure(figsize=plt.figaspect(2.))
-    plt.gcf().set_size_inches(40, 30)
-    ax = fig.add_subplot(2,1,1, projection='3d')
-    surf = ax.plot_surface(Xp, Yp, Zp, rstride=1, cstride=1, cmap='jet', linewidth=0, antialiased=False)
-    plt.show()
 
 ##########################################################################################################3
 
@@ -174,83 +139,107 @@ def get_train_and_test_rmv (temp_values, vib_values, df, \
 
 if __name__  == "__main__":
 
-    filename = "N2N2_touse.xlsx"
-    
+    filename = "COCO_touse.xlsx"
+    USEV = True
+
     headername = "vibrational level v\Temperature(K)"
     coltorm = "DE(cm-1)"
-    #coltorm = "vibrational level v\Temperature(K)"
-    #headername = "DE(cm-1)"
 
-    #nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
-    nuvals = [5.0/2.0]
+    if USEV:
+        headername = "vibrational level v\Temperature(K)"
+        coltorm = "DE(cm-1)"
+    else:
+        coltorm = "vibrational level v\Temperature(K)"
+        headername = "DE(cm-1)"
+
+    nuvals = [1.0, 1.0/2.0, 3.0/2.0, 4.0/3.0, 2.0, 5.0/2.0, 7.0/2.0, 7.0/3.0]
+    selectedsheets = ["1","2","3","4","5","6","7","8"]
 
     data = pd.ExcelFile(filename)
     for sheetname in data.sheet_names:
+        if sheetname in selectedsheets:
+        
+            print("Using sheet: ", sheetname, flush=True)
 
-        df, vib_values , temp_values = filterinitialset_rmnan (data, coltorm, \
-                                                               sheetname, headername)
-
-        maxt = max(temp_values)
-        mint = min(temp_values)
-
-        minv = min(vib_values)
-        maxv = max(vib_values)
-
-        for vrm in df[headername]:
-            print("To remove: ", vrm)
-            vib_torm = []
-            vib_torm.append(vrm)
-
-            train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
-                df, vib_torm)
+            df, vib_values , temp_values = filterinitialset_rmnan (data, coltorm, \
+                                                                   sheetname, headername)
+        
+            maxt = max(temp_values)
+            mint = min(temp_values)
+        
+            minv = min(vib_values)
+            maxv = max(vib_values)
             
             for nuval in nuvals:
-                model = fitusingscikitl (train_xy, train_z, nuval)
-                
-                z_pred, std = model.predict(train_xy, return_std=True)
-                trainmse = 0.0
-                cont = 0.0
-                for i in range(train_z.shape[0]):
-                    x = train_xy[i,0]
-                    t = int(x*(maxt - mint)+mint)
-                    y = train_xy[i,1]
-                    v = int(y*(maxv - minv)+minv)
-                    z = train_z[i]
-                    zpred = z_pred[i]
-                    zstd = std[i]
-                    
-                    trainmse += (zpred-z)**2
-                    cont += 1.0
-                
-                    #print(sheetname, " Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(t, v, z, zpred, zstd), flush=True)
-                
-                trainmse = trainmse/cont
-                print(sheetname, "Train MSE : %f %e"%(vrm, trainmse), flush=True)
-                
-                z_pred, std = model.predict(test_xy, return_std=True)
-            
-                ofp = open(sheetname+"_"+str(nuval)+"_"+str(vrm)+"_results.csv", "w")
-            
-                print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
-                testmse = 0.0
-                cont = 0.0
-                for i in range(test_z.shape[0]):
-                    x = test_xy[i,0]
-                    t = int(x*(maxt - mint)+mint)
-                    y = test_xy[i,1]
-                    v = int(y*(maxv - minv)+minv)
-                    z = test_z[i]
-                    zpred = z_pred[i]
-                    zstd = std[i]
+                global_cont_train = 0.0
+                global_trainmse = 0.0
 
-                    testmse += (zpred-z)**2
-                    cont += 1.0
-            
-                    print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
-                          flush=True)
+                global_cont_test = 0.0
+                global_testmse = 0.0
 
-                testmse = testmse/cont
-                print(sheetname, " Test MSE : %f %e"%(vrm, testmse), flush=True)
+                for vrm in df[headername]:
+                    print("To remove: ", vrm)
+                    vib_torm = []
+                    vib_torm.append(vrm)
+            
+                    train_xy, train_z, test_xy, test_z = get_train_and_test_rmv (temp_values, vib_values, \
+                        df, vib_torm)
                     
-                ofp.close()
+                    model = fitusingscikitl (train_xy, train_z, nuval)
+                    
+                    z_pred, std = model.predict(train_xy, return_std=True)
+                    trainmse = 0.0
+                    cont = 0.0
+                    for i in range(train_z.shape[0]):
+                        x = train_xy[i,0]
+                        t = int(x*(maxt - mint)+mint)
+                        y = train_xy[i,1]
+                        v = int(y*(maxv - minv)+minv)
+                        z = train_z[i]
+                        zpred = z_pred[i]
+                        zstd = std[i]
+                        
+                        trainmse += (zpred-z)**2
+                        cont += 1.0
+                                        
+                    trainmse = trainmse/cont
+                    global_trainmse += trainmse
+                    global_cont_train += 1.0
+
+                    print(sheetname, nuval, " Train MSE : %f %e"%(vrm, trainmse), flush=True)
+                    
+                    z_pred, std = model.predict(test_xy, return_std=True)
+                    
+                    ofp = open(sheetname+"_"+str(nuval)+"_"+str(vrm)+"_results.csv", "w")
+                    print ("T , v , Zpred, Zstd ", file=ofp , flush=True)
+                    testmse = 0.0
+                    cont = 0.0
+                    for i in range(test_z.shape[0]):
+                        x = test_xy[i,0]
+                        t = int(x*(maxt - mint)+mint)
+                        y = test_xy[i,1]
+                        v = int(y*(maxv - minv)+minv)
+                        z = test_z[i]
+                        zpred = z_pred[i]
+                        zstd = std[i]
+            
+                        testmse += (zpred-z)**2
+                        cont += 1.0
+                    
+                        print("%10.7f , %10.7f , %10.7f , %10.7f"%(t, v, zpred, zstd), file=ofp , \
+                              flush=True)
+            
+                    testmse = testmse/cont
+                    global_testmse += testmse
+                    global_cont_test += 1.0
+
+                    print(sheetname, nuval, " Test MSE : %f %e"%(vrm, testmse), flush=True)
+                            
+                    ofp.close()
+
+                print(sheetname, nuval, " Average Train MSE : %e"%(\
+                    global_trainmse/global_cont_train), flush=True)
+                print(sheetname, nuval, " Average Test MSE : %e"%(\
+                    global_testmse/global_cont_test), flush=True)
+
  
