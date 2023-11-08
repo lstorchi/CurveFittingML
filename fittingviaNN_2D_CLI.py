@@ -1,9 +1,63 @@
-import math
 import numpy as np
 import pandas as pd
+
+from tensorflow import keras
+import tensorflow as tf
+
+from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
 
 import commonmodules as cm
+
+###############################################################################
+
+def buil_vsettorm (vlist):
+
+    vset_torm = []
+
+    vtoremove = []
+    for i in range(1,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(1,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(1,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+
+    return vset_torm
 
 ###############################################################################
 
@@ -31,6 +85,7 @@ def read_excel_file_and_norm (filename, debug=False):
     scalery = {}
     x1map_toreal = {}
     f1set = {}
+    f1list = {}
 
     x["1_v_cE"] = df1[['v', 'cE']].values
     x["1_dE_cE"] = df1[['dE', 'cE']].values
@@ -63,6 +118,7 @@ def read_excel_file_and_norm (filename, debug=False):
         x1map_toreal[k] = x1map
     
         f1set[k] = set(x_s[k][:,0])
+        f1list[k] = x_s[k][:,0]
 
         if debug:
             for i, xs in enumerate(x_s[k]):
@@ -77,7 +133,7 @@ def read_excel_file_and_norm (filename, debug=False):
             for i, ys in enumerate(y_s[k]):
                 print(ys, y[k][i]) 
 
-    return xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set
+    return xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list
 
 ###############################################################################
 
@@ -87,8 +143,136 @@ if __name__ == "__main__":
     #dE = Delta E 
     #cS = Cross Section
 
+    np.random.seed(812)
+    keras.utils.set_random_seed(812)
+    tf.config.experimental.enable_op_determinism()
+
     filename = "N2H2_2D.xlsx"
 
-    xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set = \
+    xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
         read_excel_file_and_norm (filename)
+
+
+    modelshapes = [[2, 32, 64, 128, 32],
+                   [2, 16, 32, 64, 128, 32],
+                   [2, 16, 32, 64, 128, 32, 16],
+                   [2, 8, 16, 32, 64, 32, 16, 8],
+                    [ 8,  8,  8,  8, 8],
+                    [16, 16, 16, 16, 16],
+                    [32, 32, 32, 32, 32],
+                    [64, 64, 64, 64, 64],
+                    [128, 128, 128, 128, 128],
+                    [ 8,  8,  8,  8], 
+                    [16, 16, 16, 16],
+                    [32, 32, 32, 32],
+                    [64, 64, 64, 64],
+                    [128, 128, 128, 128],
+                    [ 8,  8,  8], 
+                    [16, 16, 16],
+                    [32, 32, 32],
+                    [64, 64, 64],
+                    [128, 128, 128]]
+    epochs_s = [10, 20, 30, 60, 80, 90, 100]
+    batch_sizes = [2, 5, 10]
+    
+    print (" xK , split , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
+    
+    for xk in xkey:
+        yk = xk.split("_")[0]
+        f1 = xk.split("_")[1]
+        f2 = xk.split("_")[2]
+    
+        for modelshape in modelshapes:
+            for batch_size in batch_sizes:
+                for epochs in epochs_s:
+                    
+                    testmses  = []
+                    testr2s   = []
+                    trainmses = []
+                    trainr2s  = []
+                
+                    for x1 in f1set[xk]:
+                        train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], \
+                                                                                x_s[xk], y_s[yk])
+                
+                        model = cm.buildmodel(modelshape, inputshape=2)
+                        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+                            verbose=0)
+                    
+                        test_x_sp = scalerx[xk].inverse_transform(test_x)
+                        pred_y = model.predict(test_x, verbose=0)
+                        pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                        test_y_sb = scalery[yk].inverse_transform(test_y)
+                
+                        testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
+                        testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+                        testmses.append(testmse)
+                        testr2s.append(testr2)
+                
+                        pred_y = model.predict(train_x, verbose=0)
+                        pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                        train_y_sb = scalery[yk].inverse_transform(train_y)
+                        train_x_sp = scalerx[xk].inverse_transform(train_x)
+                
+                        trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
+                        trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+                        trainmses.append(trainmse)
+                        trainr2s.append(trainr2)
+                
+                
+                    print (xk, " , vsplit , ", str(modelshape).replace(",", ";") , \
+                           " , ", batch_size , \
+                           " , ", epochs , \
+                           " , ", np.average(trainmses), \
+                           " , ", np.average(trainr2s), \
+                           " , ", np.average(testmses), \
+                           " , ", np.average(testr2s), flush=True)
+                    
+                    testmses  = []
+                    testr2s   = []
+                    trainmses = []
+                    trainr2s  = []
+
+                    vsettorm = buil_vsettorm (f1list[xk])
+
+                    for vset in vsettorm:
+
+                        train_x, test_x, train_y, test_y = cm.test_train_split (0, vset, \
+                                                                                x_s[xk], y_s[yk])
+                
+                        model = cm.buildmodel(modelshape, inputshape=2)
+                        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+                            verbose=0)
+                    
+                        test_x_sp = scalerx[xk].inverse_transform(test_x)
+                        pred_y = model.predict(test_x, verbose=0)
+                        pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                        test_y_sb = scalery[yk].inverse_transform(test_y)
+                
+                        testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
+                        testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+                        testmses.append(testmse)
+                        testr2s.append(testr2)
+                
+                        pred_y = model.predict(train_x, verbose=0)
+                        pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                        train_y_sb = scalery[yk].inverse_transform(train_y)
+                        train_x_sp = scalerx[xk].inverse_transform(train_x)
+                
+                        trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
+                        trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+                        trainmses.append(trainmse)
+                        trainr2s.append(trainr2)
+
+                    print (xk, " , vsetsplit , ", str(modelshape).replace(",", ";") , \
+                           " , ", batch_size , \
+                           " , ", epochs , \
+                           " , ", np.average(trainmses), \
+                           " , ", np.average(trainr2s), \
+                           " , ", np.average(testmses), \
+                           " , ", np.average(testr2s), flush=True)
+ 
+
+
+    
 
