@@ -147,8 +147,7 @@ if __name__ == "__main__":
     keras.utils.set_random_seed(812)
     tf.config.experimental.enable_op_determinism()
 
-    filename = "N2H2_2D.xlsx"
-
+    filename = "N2H2_2D_VT_process.xlsx"
     xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
         read_excel_file_and_norm (filename)
 
