@@ -137,6 +137,79 @@ def read_excel_file_and_norm (filename, debug=False):
 
 ###############################################################################
 
+def read_excel_file_and_norm_tfile (filename, debug=False):
+
+    excf = pd.ExcelFile(filename)
+
+    if debug:
+        print(excf.sheet_names)
+
+    df1 = pd.read_excel(excf, "dv=1")
+    df2 = pd.read_excel(excf, "dv=2")
+    df3 = pd.read_excel(excf, "dv=3")
+
+    if debug:
+        print(df1.columns)
+        print(df2.columns)
+        print(df3.columns)
+
+    x = {}
+    x_s = {}
+    y = {} 
+    y_s = {}
+    scalerx = {}
+    scalery = {}
+    x1map_toreal = {}
+    f1set = {}
+    f1list = {}
+
+    x["1_v_T"] = df1[['v', 'T']].values
+    y["1"] = np.log10(df1[["RateC"]].values)
+
+    x["2_v_T"] = df2[['v', 'T']].values
+    y["2"] = np.log10(df2[["RateC"]].values)
+
+    x["3_v_T"] = df3[['v', 'cE']].values
+    y["3"] = np.log10(df3[["RateC"]].values)
+
+    xkey = ["1_v_T", \
+            "2_v_T", \
+            "3_v_T"]
+
+    ykey = ["1", "2", "3"]
+
+    for k in xkey:
+        scalerx[k] = MinMaxScaler()
+        scalerx[k].fit(x[k])
+        x_s[k] = scalerx[k].transform(x[k])
+
+        x1map = {}
+
+        for i, vn in enumerate(x_s[k][:,0]):
+            x1map[vn] = x[k][i,0]
+
+        x1map_toreal[k] = x1map
+    
+        f1set[k] = set(x_s[k][:,0])
+        f1list[k] = x_s[k][:,0]
+
+        if debug:
+            for i, xs in enumerate(x_s[k]):
+                print(xs, x[k][i])
+
+    for k in ykey:
+        scalery[k] = MinMaxScaler()
+        scalery[k].fit(y[k])
+        y_s[k] = scalery[k].transform(y[k])
+
+        if debug:
+            for i, ys in enumerate(y_s[k]):
+                print(ys, y[k][i]) 
+
+    return xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list
+
+###############################################################################
+
 if __name__ == "__main__":
 
     #cE = Collision Energy
@@ -147,11 +220,16 @@ if __name__ == "__main__":
     keras.utils.set_random_seed(812)
     tf.config.experimental.enable_op_determinism()
 
-    filename = "N2H2_2D_VT_process.xlsx"
+    # first file
+    #filename = "N2H2_2D_VT_process.xlsx"
+    #xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
+    #    read_excel_file_and_norm (filename)
+    
+    # second file
+    filename = "N2H2_2D_VT_process_using_T.xlsx"
     xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
-        read_excel_file_and_norm (filename)
-
-
+        read_excel_file_and_norm_tfile (filename)
+    
     modelshapes = [[2, 32, 64, 128, 32],
                    [2, 16, 32, 64, 128, 32],
                    [2, 16, 32, 64, 128, 32, 16],
