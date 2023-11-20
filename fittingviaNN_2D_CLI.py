@@ -118,7 +118,9 @@ def read_excel_file_and_norm (filename, debug=False):
         x1map_toreal[k] = x1map
     
         f1set[k] = set(x_s[k][:,0])
-        f1list[k] = x_s[k][:,0]
+        lista = list(set(x_s[k][:,0]))
+        lista.sort(reverse=False)
+        f1list[k] = lista
 
         if debug:
             for i, xs in enumerate(x_s[k]):
@@ -191,7 +193,9 @@ def read_excel_file_and_norm_tfile (filename, debug=False):
         x1map_toreal[k] = x1map
     
         f1set[k] = set(x_s[k][:,0])
-        f1list[k] = x_s[k][:,0]
+        lista = list(set(x_s[k][:,0]))
+        lista.sort(reverse=False)
+        f1list[k] = lista
 
         if debug:
             for i, xs in enumerate(x_s[k]):
@@ -221,15 +225,15 @@ if __name__ == "__main__":
     tf.config.experimental.enable_op_determinism()
 
     # first file
-    #filename = "N2H2_2D_VT_process.xlsx"
-    #xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
-    #    read_excel_file_and_norm (filename)
-    
-    # second file
-    filename = "N2H2_2D_VT_process_using_T.xlsx"
+    filename = "N2H2_2D_VT_process.xlsx"
     xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
-        read_excel_file_and_norm_tfile (filename)
-    
+        read_excel_file_and_norm (filename)
+
+    # second file
+    #filename = "N2H2_2D_VT_process_using_T.xlsx"
+    #xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
+    #    read_excel_file_and_norm_tfile (filename)
+
     modelshapes = [[2, 32, 64, 128, 32],
                    [2, 16, 32, 64, 128, 32],
                    [2, 16, 32, 64, 128, 32, 16],
@@ -258,7 +262,9 @@ if __name__ == "__main__":
         yk = xk.split("_")[0]
         f1 = xk.split("_")[1]
         f2 = xk.split("_")[2]
-    
+
+        vsettorm = buil_vsettorm (f1list[xk])
+
         for modelshape in modelshapes:
             for batch_size in batch_sizes:
                 for epochs in epochs_s:
@@ -309,8 +315,6 @@ if __name__ == "__main__":
                     testr2s   = []
                     trainmses = []
                     trainr2s  = []
-
-                    vsettorm = buil_vsettorm (f1list[xk])
 
                     for vset in vsettorm:
 
