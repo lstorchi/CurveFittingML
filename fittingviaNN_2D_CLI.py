@@ -171,7 +171,7 @@ def read_excel_file_and_norm_tfile (filename, debug=False):
     x["2_v_T"] = df2[['v', 'T']].values
     y["2"] = np.log10(df2[["RateC"]].values)
 
-    x["3_v_T"] = df3[['v', 'cE']].values
+    x["3_v_T"] = df3[['v', 'T']].values
     y["3"] = np.log10(df3[["RateC"]].values)
 
     xkey = ["1_v_T", \
