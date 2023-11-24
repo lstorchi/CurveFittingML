@@ -8,10 +8,34 @@ from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
 
 import commonmodules as cm
+import sys
 
 ###############################################################################
 
-def buil_vsettorm (vlist):
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd, file = sys.stderr)
+    # Print New Line on Complete
+    if iteration == total: 
+        print(file = sys.stderr)
+
+###############################################################################
+
+def build_vsettorm (vlist):
 
     vset_torm = []
 
@@ -257,17 +281,23 @@ if __name__ == "__main__":
     batch_sizes = [2, 5, 10]
     
     print (" xK , split , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
-    
+
+    totvalues = len(xkey) * len(modelshapes) * len(batch_sizes) * len(epochs_s)
+    counter = 0
+
     for xk in xkey:
         yk = xk.split("_")[0]
         f1 = xk.split("_")[1]
         f2 = xk.split("_")[2]
 
-        vsettorm = buil_vsettorm (f1list[xk])
+        vsettorm = build_vsettorm (f1list[xk])
 
         for modelshape in modelshapes:
             for batch_size in batch_sizes:
                 for epochs in epochs_s:
+
+                    counter += 1
+                    print(counter, "/", totvalues, flush=True, file=sys.stderr)
                     
                     testmses  = []
                     testr2s   = []
@@ -301,6 +331,10 @@ if __name__ == "__main__":
                         trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
                         trainmses.append(trainmse)
                         trainr2s.append(trainr2)
+
+                        printProgressBar (len(testmses), len(f1set[xk]), \
+                                           prefix = 'Progress:', \
+                                            suffix = 'Complete', length = 50)
                 
                 
                     print (xk, " , vsplit , ", str(modelshape).replace(",", ";") , \
@@ -345,6 +379,10 @@ if __name__ == "__main__":
                         trainmses.append(trainmse)
                         trainr2s.append(trainr2)
 
+                        printProgressBar (len(testmses), len(f1set[xk]),\
+                                           prefix = 'Progress:',\
+                                              suffix = 'Complete', length = 50)
+
                     print (xk, " , vsetsplit , ", str(modelshape).replace(",", ";") , \
                            " , ", batch_size , \
                            " , ", epochs , \
@@ -352,8 +390,3 @@ if __name__ == "__main__":
                            " , ", np.average(trainr2s), \
                            " , ", np.average(testmses), \
                            " , ", np.average(testr2s), flush=True)
- 
-
-
-    
-
