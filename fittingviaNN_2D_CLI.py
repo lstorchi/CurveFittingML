@@ -297,7 +297,7 @@ if __name__ == "__main__":
                 for epochs in epochs_s:
 
                     counter += 1
-                    print(counter, "/", totvalues, flush=True, file=sys.stderr)
+                    print("vsplit: ", counter, "/", totvalues, flush=True, file=sys.stderr)
                     
                     testmses  = []
                     testr2s   = []
@@ -343,12 +343,28 @@ if __name__ == "__main__":
                            " , ", np.average(trainmses), \
                            " , ", np.average(trainr2s), \
                            " , ", np.average(testmses), \
-                           " , ", np.average(testr2s), flush=True)
-                    
+                           " , ", np.average(testr2s), flush=True
+
+    counter = 0
+
+    for xk in xkey:
+        yk = xk.split("_")[0]
+        f1 = xk.split("_")[1]
+        f2 = xk.split("_")[2]
+
+        vsettorm = build_vsettorm (f1list[xk])    
+
+        for modelshape in modelshapes:
+            for batch_size in batch_sizes:
+                for epochs in epochs_s:  
+                                     
                     testmses  = []
                     testr2s   = []
                     trainmses = []
                     trainr2s  = []
+
+                    counter += 1
+                    print("vsetsplit: ", counter, "/", totvalues, flush=True, file=sys.stderr)
 
                     for vset in vsettorm:
 
