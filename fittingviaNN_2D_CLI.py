@@ -379,7 +379,7 @@ if __name__ == "__main__":
                         trainmses.append(trainmse)
                         trainr2s.append(trainr2)
 
-                        printProgressBar (len(testmses), len(f1set[xk]),\
+                        printProgressBar (len(testmses), len(vsettorm),\
                                            prefix = 'Progress:',\
                                               suffix = 'Complete', length = 50)
 
