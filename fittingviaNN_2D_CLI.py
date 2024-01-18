@@ -336,7 +336,7 @@ if __name__ == "__main__":
                                     print("Error: len(x1) != 2")
                                     exit(1)
 
-                                print("Test.",
+                                print("Test,",
                                       x1[0], ",",\
                                       x1[1], ",",\
                                       test_y_sb[i][0],",", \
@@ -359,7 +359,7 @@ if __name__ == "__main__":
                                     print("Error: len(x1) != 2")
                                     exit(1)
 
-                                print("Train.",
+                                print("Train,",
                                       x1[0], ",",\
                                       x1[1], ",",\
                                       train_y_sb[i][0],",", \
