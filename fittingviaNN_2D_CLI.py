@@ -318,6 +318,7 @@ if __name__ == "__main__":
                         fp = None
                         if dumppredictions:
                             fp = open("model_"+str(counter)+"_"+\
+                                    "xk_"+xk+"_"+\
                                     "yk_"+yk+"_"+\
                                     "rmset_"+str(x1)+"_"+\
                                     "_predictions.csv", "w")
@@ -357,7 +358,7 @@ if __name__ == "__main__":
                                 if len(x1) != 2:
                                     print("Error: len(x1) != 2")
                                     exit(1)
-                                    
+
                                 print("Train.",
                                       x1[0], ",",\
                                       x1[1], ",",\
