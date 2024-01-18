@@ -243,6 +243,7 @@ if __name__ == "__main__":
     #cE = Collision Energy
     #dE = Delta E 
     #cS = Cross Section
+    dumppredictions = True
 
     np.random.seed(812)
     keras.utils.set_random_seed(812)
@@ -286,6 +287,10 @@ if __name__ == "__main__":
     counter = 0
 
     for xk in xkey:
+        if len(xk.split("_")) != 3:
+            print("Error: xk.split('_') != 3")
+            exit(1)
+
         yk = xk.split("_")[0]
         f1 = xk.split("_")[1]
         f2 = xk.split("_")[2]
@@ -309,11 +314,33 @@ if __name__ == "__main__":
                         model = cm.buildmodel(modelshape, inputshape=2)
                         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
                             verbose=0)
+                        
+                        fp = None
+                        if dumppredictions:
+                            fp = open("model_"+str(counter)+"_"+\
+                                    "yk_"+yk+"_"+\
+                                    "rmset_"+str(x1)+"_"+\
+                                    "_predictions.csv", "w")
+                            
+                            print ("Set,"+f1+","+f2+",y,pred_y", file=fp)
                     
                         test_x_sp = scalerx[xk].inverse_transform(test_x)
                         pred_y = model.predict(test_x, verbose=0)
                         pred_y_sb = scalery[yk].inverse_transform(pred_y)
                         test_y_sb = scalery[yk].inverse_transform(test_y)
+
+                        if dumppredictions:
+                            for i, x1 in enumerate(test_x_sp):
+                                if len(x1) != 2:
+                                    print("Error: len(x1) != 2")
+                                    exit(1)
+
+                                print("Test.",
+                                      x1[0], ",",\
+                                      x1[1], ",",\
+                                      test_y_sb[i][0],",", \
+                                      pred_y_sb[i][0],\
+                                    file=fp)
                 
                         testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
                         testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
@@ -325,6 +352,18 @@ if __name__ == "__main__":
                         train_y_sb = scalery[yk].inverse_transform(train_y)
                         train_x_sp = scalerx[xk].inverse_transform(train_x)
                 
+                        if dumppredictions:
+                            for i, x1 in enumerate(train_x_sp):
+                                if len(x1) != 2:
+                                    print("Error: len(x1) != 2")
+                                    exit(1)
+                                    
+                                print("Train.",
+                                      x1[0], ",",\
+                                      x1[1], ",",\
+                                      train_y_sb[i][0],",", \
+                                      pred_y_sb[i][0],\
+                                    file=fp)
                         trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
                         trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
                         trainmses.append(trainmse)
