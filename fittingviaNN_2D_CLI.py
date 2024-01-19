@@ -111,21 +111,31 @@ def read_excel_file_and_norm (filename, debug=False):
     f1set = {}
     f1list = {}
 
+    useonlyv = True
+
     x["1_v_cE"] = df1[['v', 'cE']].values
-    x["1_dE_cE"] = df1[['dE', 'cE']].values
+    if useonlyv:
+        x["1_dE_cE"] = df1[['dE', 'cE']].values
     y["1"] = np.log10(df1[["cS"]].values)
 
     x["2_v_cE"] = df2[['v', 'cE']].values
-    x["2_dE_cE"] = df2[['dE', 'cE']].values
+    if useonlyv:
+        x["2_dE_cE"] = df2[['dE', 'cE']].values
     y["2"] = np.log10(df2[["cS"]].values)
 
     x["3_v_cE"] = df3[['v', 'cE']].values
-    x["3_dE_cE"] = df3[['dE', 'cE']].values
+    if useonlyv:
+        x["3_dE_cE"] = df3[['dE', 'cE']].values
     y["3"] = np.log10(df3[["cS"]].values)
 
     xkey = ["1_v_cE", "1_dE_cE", \
             "2_v_cE", "2_dE_cE", \
             "3_v_cE", "3_dE_cE"]
+
+    if useonlyv:
+        xkey = ["1_v_cE", \
+                "2_v_cE", \
+                "3_v_cE", ]
 
     ykey = ["1", "2", "3"]
 
