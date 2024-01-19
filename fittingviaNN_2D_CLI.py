@@ -280,6 +280,11 @@ if __name__ == "__main__":
                     [128, 128, 128]]
     epochs_s = [10, 20, 30, 60, 80, 90, 100]
     batch_sizes = [2, 5, 10]
+
+    # selected single model
+    #modelshapes = [[128, 128, 128, 128]]
+    #epochs_s = [100]
+    #batch_sizes = [5]
     
     print (" xK , split , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
 
