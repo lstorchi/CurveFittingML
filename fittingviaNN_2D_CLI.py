@@ -322,13 +322,21 @@ if __name__ == "__main__":
                             verbose=0)
                         
                         fp = None
+                        fpplot = None
                         if dumppredictions:
                             fp = open("model_"+str(counter)+"_"+\
                                     "xk_"+xk+"_"+\
                                     "rm_"+str(removedx)+"_"+\
                                     "predictions.csv", "w")
-                            
+
                             print ("Set,"+f1+","+f2+",y,pred_y", file=fp)
+                            
+                            fpplot = open("model_"+str(counter)+"_"+\
+                                    "xk_"+xk+"_"+\
+                                    "rm_"+str(removedx)+"_"+\
+                                    "toplot.csv", "w")
+
+                            print (f1+" "+f2+" y", file=fpplot)        
                     
                         test_x_sp = scalerx[xk].inverse_transform(test_x)
                         pred_y = model.predict(test_x, verbose=0)
@@ -347,6 +355,8 @@ if __name__ == "__main__":
                                       test_y_sb[i][0],",", \
                                       pred_y_sb[i][0],\
                                     file=fp)
+
+                                print (x1[0], x1[1], test_y_sb[i][0], file=fpplot)
                 
                         testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
                         testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
@@ -370,10 +380,17 @@ if __name__ == "__main__":
                                       train_y_sb[i][0],",", \
                                       pred_y_sb[i][0],\
                                     file=fp)
+
+                                print (x1[0], x1[1], train_y_sb[i][0], file=fpplot)
+
                         trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
                         trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
                         trainmses.append(trainmse)
                         trainr2s.append(trainr2)
+
+                        if dumppredictions:
+                            fp.close()
+                            fpplot.close()
 
                         printProgressBar (len(testmses), len(f1set[xk]), \
                                            prefix = 'Progress:', \
@@ -413,6 +430,7 @@ if __name__ == "__main__":
 
                         removedx = ""
                         fp = None
+                        fpplot = None
                         if dumppredictions:
                             for v in vset:
                                 removedx += str(x1map_toreal[xk][v])+ \
@@ -424,6 +442,13 @@ if __name__ == "__main__":
                                     "predictions.csv", "w")
                             
                             print ("Set,"+f1+","+f2+",y,pred_y", file=fp)
+
+                            fpplot = open("model_"+str(counter)+"_"+\
+                                    "xk_"+xk+"_"+\
+                                    "rmset_"+str(removedx)+"_"+\
+                                    "toplot.csv", "w")
+                            
+                            print (f1+" "+f2+" y", file=fpplot)
                     
 
                         train_x, test_x, train_y, test_y = cm.test_train_split (0, vset, \
@@ -450,6 +475,8 @@ if __name__ == "__main__":
                                       test_y_sb[i][0],",", \
                                       pred_y_sb[i][0],\
                                     file=fp)
+                                
+                                print (x1[0], x1[1], test_y_sb[i][0], file=fpplot)
                 
                         testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
                         testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
@@ -473,11 +500,18 @@ if __name__ == "__main__":
                                       train_y_sb[i][0],",", \
                                       pred_y_sb[i][0],\
                                     file=fp)
+                                
+                                print (x1[0], x1[1], train_y_sb[i][0], file=fpplot)
+
 
                         trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
                         trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
                         trainmses.append(trainmse)
                         trainr2s.append(trainr2)
+
+                        if dumppredictions:
+                            fp.close()
+                            fpplot.close()  
 
                         printProgressBar (len(testmses), len(vsettorm),\
                                            prefix = 'Progress:',\
