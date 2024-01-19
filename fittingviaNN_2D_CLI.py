@@ -308,6 +308,7 @@ if __name__ == "__main__":
                     trainr2s  = []
                 
                     for x1 in f1set[xk]:
+                        removedx = x1map_toreal[xk][x1]
                         train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], \
                                                                                 x_s[xk], y_s[yk])
                 
@@ -319,9 +320,8 @@ if __name__ == "__main__":
                         if dumppredictions:
                             fp = open("model_"+str(counter)+"_"+\
                                     "xk_"+xk+"_"+\
-                                    "yk_"+yk+"_"+\
-                                    "rmset_"+str(x1)+"_"+\
-                                    "_predictions.csv", "w")
+                                    "rm_"+str(removedx)+"_"+\
+                                    "predictions.csv", "w")
                             
                             print ("Set,"+f1+","+f2+",y,pred_y", file=fp)
                     
@@ -406,6 +406,21 @@ if __name__ == "__main__":
 
                     for vset in vsettorm:
 
+                        removedx = ""
+                        fp = None
+                        if dumppredictions:
+                            for v in vset:
+                                removedx += str(x1map_toreal[xk][v])+ \
+                                            "_"
+
+                            fp = open("model_"+str(counter)+"_"+\
+                                    "xk_"+xk+"_"+\
+                                    "rmset_"+str(removedx)+"_"+\
+                                    "predictions.csv", "w")
+                            
+                            print ("Set,"+f1+","+f2+",y,pred_y", file=fp)
+                    
+
                         train_x, test_x, train_y, test_y = cm.test_train_split (0, vset, \
                                                                                 x_s[xk], y_s[yk])
                 
@@ -417,6 +432,19 @@ if __name__ == "__main__":
                         pred_y = model.predict(test_x, verbose=0)
                         pred_y_sb = scalery[yk].inverse_transform(pred_y)
                         test_y_sb = scalery[yk].inverse_transform(test_y)
+
+                        if dumppredictions:
+                            for i, x1 in enumerate(test_x_sp):
+                                if len(x1) != 2:
+                                    print("Error: len(x1) != 2")
+                                    exit(1)
+
+                                print("Test,",
+                                      x1[0], ",",\
+                                      x1[1], ",",\
+                                      test_y_sb[i][0],",", \
+                                      pred_y_sb[i][0],\
+                                    file=fp)
                 
                         testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
                         testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
@@ -427,7 +455,20 @@ if __name__ == "__main__":
                         pred_y_sb = scalery[yk].inverse_transform(pred_y)
                         train_y_sb = scalery[yk].inverse_transform(train_y)
                         train_x_sp = scalerx[xk].inverse_transform(train_x)
-                
+
+                        if dumppredictions:
+                            for i, x1 in enumerate(train_x_sp):
+                                if len(x1) != 2:
+                                    print("Error: len(x1) != 2")
+                                    exit(1)
+
+                                print("Train,",
+                                      x1[0], ",",\
+                                      x1[1], ",",\
+                                      train_y_sb[i][0],",", \
+                                      pred_y_sb[i][0],\
+                                    file=fp)
+
                         trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
                         trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
                         trainmses.append(trainmse)
