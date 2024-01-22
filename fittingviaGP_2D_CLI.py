@@ -1,308 +1,496 @@
-import sys
-import time
 import numpy as np
 import pandas as pd
 
-from matplotlib import pyplot as plt
-import sklearn.gaussian_process as gp
-from mpl_toolkits.mplot3d import Axes3D
+from tensorflow import keras
+import tensorflow as tf
+
+from sklearn import metrics
+from sklearn.preprocessing import MinMaxScaler
 
 import commonmodules as cm
+import sys
 
-#################################################################################################
+###############################################################################
 
-def get_mseresults (initialstring, ofp, model, train_xy, train_z, test_xy, test_z, verbose=False):
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd, file = sys.stderr)
+    # Print New Line on Complete
+    if iteration == total: 
+        print(file = sys.stderr)
 
-    overallmse = 0.0 
-    denorm_overallmse = 0.0 
-    overalltrainmse = 0.0 
-    denorm_overalltrainmse = 0.0
+###############################################################################
 
-    tot = 0
-    traintot = 0
+def build_vsettorm (vlist):
 
-    z_pred = model.predict(train_xy)
+    vset_torm = []
+
+    vtoremove = []
+    for i in range(1,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(1,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(1,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+
+    return vset_torm
+
+###############################################################################
+
+def read_excel_file_and_norm (filename, debug=False):
+
+    excf = pd.ExcelFile(filename)
+
+    if debug:
+        print(excf.sheet_names)
+
+    df1 = pd.read_excel(excf, "dv=1")
+    df2 = pd.read_excel(excf, "dv=2")
+    df3 = pd.read_excel(excf, "dv=3")
+
+    if debug:
+        print(df1.columns)
+        print(df2.columns)
+        print(df3.columns)
+
+    x = {}
+    x_s = {}
+    y = {} 
+    y_s = {}
+    scalerx = {}
+    scalery = {}
+    x1map_toreal = {}
+    f1set = {}
+    f1list = {}
+
+    useonlyv = False
+
+    x["1_v_cE"] = df1[['v', 'cE']].values
+    if not useonlyv:
+        x["1_dE_cE"] = df1[['dE', 'cE']].values
+    y["1"] = np.log10(df1[["cS"]].values)
+
+    x["2_v_cE"] = df2[['v', 'cE']].values
+    if not useonlyv:
+        x["2_dE_cE"] = df2[['dE', 'cE']].values
+    y["2"] = np.log10(df2[["cS"]].values)
+
+    x["3_v_cE"] = df3[['v', 'cE']].values
+    if not useonlyv:
+        x["3_dE_cE"] = df3[['dE', 'cE']].values
+    y["3"] = np.log10(df3[["cS"]].values)
+
+    xkey = ["1_v_cE", "1_dE_cE", \
+            "2_v_cE", "2_dE_cE", \
+            "3_v_cE", "3_dE_cE"]
+
+    if not useonlyv:
+        xkey = ["1_v_cE", \
+                "2_v_cE", \
+                "3_v_cE", ]
+
+    ykey = ["1", "2", "3"]
+
+    for k in xkey:
+        scalerx[k] = MinMaxScaler()
+        scalerx[k].fit(x[k])
+        x_s[k] = scalerx[k].transform(x[k])
+
+        x1map = {}
+
+        for i, vn in enumerate(x_s[k][:,0]):
+            x1map[vn] = x[k][i,0]
+
+        x1map_toreal[k] = x1map
     
-    trainmse = 0.0
-    denorm_trainmse = 0.0
-    cont = 0.0
+        f1set[k] = set(x_s[k][:,0])
+        lista = list(set(x_s[k][:,0]))
+        lista.sort(reverse=False)
+        f1list[k] = lista
 
-    for i in range(train_z.shape[0]):
-        x = train_xy[i,0]
-        y = train_xy[i,1]
+        if debug:
+            for i, xs in enumerate(x_s[k]):
+                print(xs, x[k][i])
 
-        z = train_z[i]
-        denorm_z = (z * (maxvalue - minvalue))+minvalue
+    for k in ykey:
+        scalery[k] = MinMaxScaler()
+        scalery[k].fit(y[k])
+        y_s[k] = scalery[k].transform(y[k])
 
-        zpred = z_pred[i]
-        denorm_zpred = (zpred * (maxvalue - minvalue))+minvalue
-        
-        trainmse += (zpred-z)**2
-        denorm_trainmse += (denorm_zpred-denorm_z)**2
+        if debug:
+            for i, ys in enumerate(y_s[k]):
+                print(ys, y[k][i]) 
 
-        overalltrainmse += (zpred-z)**2
-        denorm_overalltrainmse += (denorm_zpred-denorm_z)**2
+    return xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list
 
-        traintot += 1
-        cont += 1.0
+###############################################################################
 
-        if verbose :
-            print("Train, %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred))
+def read_excel_file_and_norm_tfile (filename, debug=False):
+
+    excf = pd.ExcelFile(filename)
+
+    if debug:
+        print(excf.sheet_names)
+
+    df1 = pd.read_excel(excf, "dv=1")
+    df2 = pd.read_excel(excf, "dv=2")
+    df3 = pd.read_excel(excf, "dv=3")
+
+    if debug:
+        print(df1.columns)
+        print(df2.columns)
+        print(df3.columns)
+
+    x = {}
+    x_s = {}
+    y = {} 
+    y_s = {}
+    scalerx = {}
+    scalery = {}
+    x1map_toreal = {}
+    f1set = {}
+    f1list = {}
+
+    x["1_v_T"] = df1[['v', 'T']].values
+    y["1"] = np.log10(df1[["RateC"]].values)
+
+    x["2_v_T"] = df2[['v', 'T']].values
+    y["2"] = np.log10(df2[["RateC"]].values)
+
+    x["3_v_T"] = df3[['v', 'T']].values
+    y["3"] = np.log10(df3[["RateC"]].values)
+
+    xkey = ["1_v_T", \
+            "2_v_T", \
+            "3_v_T"]
+
+    ykey = ["1", "2", "3"]
+
+    for k in xkey:
+        scalerx[k] = MinMaxScaler()
+        scalerx[k].fit(x[k])
+        x_s[k] = scalerx[k].transform(x[k])
+
+        x1map = {}
+
+        for i, vn in enumerate(x_s[k][:,0]):
+            x1map[vn] = x[k][i,0]
+
+        x1map_toreal[k] = x1map
     
-    trainmse = trainmse/cont
-    denorm_trainmse = denorm_trainmse/cont
-    
-    z_pred = model.predict(test_xy)
-    mse = 0.0
-    denorm_mse = 0.0
-    cont = 0.0
-    for i in range(test_z.shape[0]):
-        x = test_xy[i,0]
-        y = test_xy[i,1]
+        f1set[k] = set(x_s[k][:,0])
+        lista = list(set(x_s[k][:,0]))
+        lista.sort(reverse=False)
+        f1list[k] = lista
 
-        z = test_z[i]
-        denorm_z = (z * (maxvalue - minvalue))+minvalue
+        if debug:
+            for i, xs in enumerate(x_s[k]):
+                print(xs, x[k][i])
 
-        zpred = z_pred[i]
-        denorm_zpred = (zpred * (maxvalue - minvalue))+minvalue
+    for k in ykey:
+        scalery[k] = MinMaxScaler()
+        scalery[k].fit(y[k])
+        y_s[k] = scalery[k].transform(y[k])
 
-        mse += (zpred-z)**2
-        denorm_mse += (denorm_zpred-denorm_z)**2
+        if debug:
+            for i, ys in enumerate(y_s[k]):
+                print(ys, y[k][i]) 
 
-        overallmse += (zpred-z)**2
-        tot += 1
-        cont += 1.0
-    
-        if verbose:
-            print("Test, %10.7f , %10.7f , %10.7f , %10.7f"%(x, y, z, zpred))
-    
-    mse = mse/cont
-    denorm_mse = denorm_mse/cont
-    
-    print(initialstring, " ,", mse, " ,", trainmse, " ,", denorm_mse , \
-        " ,",  denorm_trainmse, flush=True, file=ofp)
-    
-    if verbose:
-        print(initialstring, " , MSE , ", mse, " , TrainMSE ,", trainmse, \
-            " , Denorm. MSE , ", denorm_mse, " , Denorm. TrainMSE ,", \
-                denorm_trainmse, flush=True)
+    return xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list
 
-    return overallmse, denorm_overallmse, overalltrainmse, \
-        denorm_overalltrainmse, tot, traintot
-
-#################################################################################################
+###############################################################################
 
 if __name__ == "__main__":
 
-    filename = "testdv1.xlsx"
+    #cE = Collision Energy
+    #dE = Delta E 
+    #cS = Cross Section
+    dumppredictions = False
 
-    setofv = 0
-    if (len(sys.argv) == 3):
-        filename = sys.argv[1]
-        setofv = int(sys.argv[2])
+    np.random.seed(812)
 
-    basename = filename.split(".")[0]
+    # first file
+    filename = "N2H2_2D_VT_process.xlsx"
+    xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
+        read_excel_file_and_norm (filename)
 
-    for modelname in ["model2", "model1"]:
+    # second file
+    #filename = "N2H2_2D_VT_process_using_T.xlsx"
+    #xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
+    #    read_excel_file_and_norm_tfile (filename)
 
-        ofp = open(basename+"_results_GP"+modelname+".csv", "w")
-    
-        print("Type , Index , Testset MSE , Trainingset MSE", flush=True, file=ofp)
-    
-        df, vib_values , temp_values, minvalue, maxvalue = cm.filterinitialset (filename)
-        #plotfull3dcurve (df, vib_values, temp_values)
+    nuvals = [1.0, 4.0/3.0, 3.0/2.0, 2.0, 5.0/2.0, 7.0/3.0, 7.0/2.0]
 
-        overallmse = 0.0
-        overalltrainmse = 0.0
-        denorm_overalltrainmse = 0.0
-        denorm_overallmse = 0.0
-        tot = 0
-        traintot = 0
-        for vrm in vib_values:
-            vib_torm = [vrm]
-            print("Removing VIB ", vrm, flush=True)
-        
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
-                df, vib_torm)
+    print (" xK , split , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
+
+    totvalues = len(xkey) * len(modelshapes) * len(batch_sizes) * len(epochs_s)
+    counter = 0
+
+    for xk in xkey:
+        if len(xk.split("_")) != 3:
+            print("Error: xk.split('_') != 3")
+            exit(1)
+
+        yk = xk.split("_")[0]
+        f1 = xk.split("_")[1]
+        f2 = xk.split("_")[2]
+
+        for nu in nuvals:
+      
+            counter += 1
+            print("vsplit: ", counter, "/", totvalues, flush=True, file=sys.stderr)
             
-            model = None
-            st = time.time()
-            stp = time.process_time()
-            # note to test limits in thread number 
-            #from threadpoolctl import threadpool_limits
-            #import os 
+            testmses  = []
+            testr2s   = []
+            trainmses = []
+            trainr2s  = []
             
-            #tf.config.threading.set_inter_op_parallelism_threads(8)
-            #tf.config.threading.set_intra_op_parallelism_threads(8)
-
-            #with threadpool_limits(limits=4):
-            #    os.environ["OMP_NUM_THREADS"] = "4"
-            #    os.environ["BLIS_NUM_THREADS"] = "4"
-            #    os.environ["MKL_NUM_THREADS"] = "4"
-            #    os.environ["OPENBLAS_NUM_THREADS"] = "4"
-            #    os.environ["NUMEXPR_NUM_THREADS"] = "4"
+            for x1 in f1set[xk]:
+                removedx = x1map_toreal[xk][x1]
+                train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], \
+                                                                        x_s[xk], y_s[yk])
             
-            if modelname == "model1":
-                model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model2":
-                model = cm.build_model_GP_2 (train_xy, train_z)
-            etp = time.process_time()
-            et = time.time()
+                model = cm.build_model_GP_2 (train_x, train_y, nuval = nu)
+                
+                fp = None
+                fpplot = None
+                if dumppredictions:
+                    fp = open("model_"+str(counter)+"_"+\
+                            "xk_"+xk+"_"+\
+                            "rm_"+str(removedx)+"_"+\
+                            "predictions.csv", "w")
 
-            elapsed_time = et - st
-            res = etp - stp
-            print('Execution time: ', elapsed_time, ' seconds', flush = True)
-            print('CPU Execution time: ', res, ' seconds')
+                    print ("Set,"+f1+","+f2+",y,pred_y", file=fp)
+                    
+                    fpplot = open("model_"+str(counter)+"_"+\
+                            "xk_"+xk+"_"+\
+                            "rm_"+str(removedx)+"_"+\
+                            "toplot.csv", "w")
 
-            initialstring = "Removed VIB  , " + str(vrm)
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
+                    print (f1+" "+f2+" y", file=fpplot)        
+            
+                test_x_sp = scalerx[xk].inverse_transform(test_x)
+                pred_y = model.predict(test_x, verbose=0)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                test_y_sb = scalery[yk].inverse_transform(test_y)
 
-            overallmse += l_overallmse
-            overalltrainmse += l_overalltrainmse
-            tot += l_tot
-            traintot += l_traintot
+                if dumppredictions:
+                    for i, x1 in enumerate(test_x_sp):
+                        if len(x1) != 2:
+                            print("Error: len(x1) != 2")
+                            exit(1)
 
-        print("Overall VIB MSE , ", overallmse/float(tot), \
-            ", Train MSE , ", overalltrainmse/float(traintot), \
-            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))    
-    
-        overallmse = 0.0
-        overalltrainmse = 0.0
-        denorm_overalltrainmse = 0.0
-        denorm_overallmse = 0.0
+                        print("Test,",
+                              x1[0], ",",\
+                              x1[1], ",",\
+                              test_y_sb[i][0],",", \
+                              pred_y_sb[i][0],\
+                            file=fp)
 
-        tot = 0
-        traintot = 0
+                        print (x1[0], x1[1], test_y_sb[i][0], file=fpplot)
+            
+                testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
+                testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+                testmses.append(testmse)
+                testr2s.append(testr2)
+            
+                pred_y = model.predict(train_x, verbose=0)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                train_y_sb = scalery[yk].inverse_transform(train_y)
+                train_x_sp = scalerx[xk].inverse_transform(train_x)
+            
+                if dumppredictions:
+                    for i, x1 in enumerate(train_x_sp):
+                        if len(x1) != 2:
+                            print("Error: len(x1) != 2")
+                            exit(1)
 
-        vib_values_torm = []
-        if setofv == 1:
-            # for dv=1
-            vib_values_torm = [[2, 4, 6, 8, 10, 14, 18, 22, 26, 30, 35], \
-                           [1, 3, 5, 7, 9, 12, 16, 20, 24, 28, 32, 40], \
-                           [2, 3, 5, 6, 8, 9, 12, 14, 18, 20, 24, 26, 30, 32], \
-                           [1, 2, 4, 5, 7, 8, 10, 12, 16, 18, 22, 24, 28, 30, 35, 40]]
-        elif setofv == 2:
-            # for dv=2
-            vib_values_torm = [[2, 4, 6, 8, 10, 14, 18, 22, 26, 30, 35], \
-                           [3, 5, 7, 9, 12, 16, 20, 24, 28, 32, 40], \
-                           [2, 3, 5, 6, 8, 9, 12, 14, 18, 20, 24, 26, 30, 32, 40], \
-                           [3, 4, 6, 7, 9, 10, 14, 16, 20, 22, 26, 28, 32, 35]]
-        elif setofv == 3:
-            # for dv=3
-            vib_values_torm = [[2, 4, 6, 8, 10, 14, 18, 22, 26, 30, 35], \
-                           [3, 5, 7, 9, 12, 16, 20, 24, 28, 32], \
-                           [2, 3, 5, 6, 8, 9, 12, 14, 18, 20, 24, 26, 30, 32], \
-                           [3, 4, 6, 7, 9, 10, 14, 16, 20, 22, 26, 28, 32, 35]]
+                        print("Train,",
+                              x1[0], ",",\
+                              x1[1], ",",\
+                              train_y_sb[i][0],",", \
+                              pred_y_sb[i][0],\
+                            file=fp)
 
-        for vrm in vib_values_torm:
-            print("Removing VIB set ", str(vrm).replace(",", ";"), flush=True)
-        
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmv (temp_values, vib_values, \
-                df, vrm)
- 
-            model = None
-            st = time.time()
-            stp = time.process_time()
-            if modelname == "model1":
-                model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model2":
-                model = cm.build_model_GP_2 (train_xy, train_z)
-            etp = time.process_time()
-            et = time.time()
+                        print (x1[0], x1[1], train_y_sb[i][0], file=fpplot)
 
-            elapsed_time = et - st
-            res = etp - stp
-            print('Execution time: ', elapsed_time, ' seconds', flush = True)
-            print('CPU Execution time: ', res, ' seconds')
+                trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
+                trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+                trainmses.append(trainmse)
+                trainr2s.append(trainr2)
 
-            initialstring = "Removed VIB  , " + str(vrm).replace(",", ";")
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
+                if dumppredictions:
+                    fp.close()
+                    fpplot.close()
 
-            overallmse += l_overallmse
-            overalltrainmse += l_overalltrainmse
-            tot += l_tot
-            traintot += l_traintot            
+                printProgressBar (len(testmses), len(f1set[xk]), \
+                                   prefix = 'Progress:', \
+                                    suffix = 'Complete', length = 50)
+            
+            
+            print (xk, " , vsplit , ", nu , \
+                   " , ", np.average(trainmses), \
+                   " , ", np.average(trainr2s), \
+                   " , ", np.average(testmses), \
+                   " , ", np.average(testr2s), flush=True)
 
-        print("Overall VIB MSE , ", overallmse/float(tot), \
-            ", Train MSE , ", overalltrainmse/float(traintot), \
-            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))
-    
-        overallmse = 0.0
-        overalltrainmse = 0.0
-        denorm_overalltrainmse = 0.0
-        denorm_overallmse = 0.0
+    counter = 0
 
-        tot = 0
-        traintot = 0
-        for trm in temp_values:
-            print("Removing TEMP ", trm, flush=True)
-            temp_torm = [trm]
-        
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_rmt (temp_values, vib_values, \
-                df, temp_torm)
+    for xk in xkey:
+        yk = xk.split("_")[0]
+        f1 = xk.split("_")[1]
+        f2 = xk.split("_")[2]
 
-            model = None
-            st = time.time()
-            stp = time.process_time()
-            if modelname == "model1":
-                model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model2":
-                model = cm.build_model_GP_2 (train_xy, train_z)
-            etp = time.process_time()
-            et = time.time()
+        vsettorm = build_vsettorm (f1list[xk])    
 
-            elapsed_time = et - st
-            res = etp - stp
-            print('Execution time: ', elapsed_time, ' seconds', flush = True)
-            print('CPU Execution time: ', res, ' seconds')
+        for nu in nuvals:
+            testmses  = []
+            testr2s   = []
+            trainmses = []
+            trainr2s  = []
 
-            initialstring = "Removed TEMP  , " + str(trm)
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
+            counter += 1
+            print("vsetsplit: ", counter, "/", totvalues, flush=True, file=sys.stderr)
 
-            overallmse += l_overallmse
-            overalltrainmse += l_overalltrainmse
-            tot += l_tot
-            traintot += l_traintot
+            for vset in vsettorm:
 
-        print("Overall TEMP MSE , ", overallmse/float(tot), \
-            ", Train MSE , ", overalltrainmse/float(traintot), \
-            ", Denorm. MSE , ", denorm_overallmse/float(tot), \
-            ", Denorm. Train MSE , ", denorm_overalltrainmse/float(traintot))                            
-        
-        perclist = [0.05, 0.10, 0.20, 0.30, 0.40, 0.50]
-        for perc in perclist:
-        
-            train_xy, train_z, test_xy, test_z = cm.get_train_and_test_random (temp_values, vib_values, \
-                df, perc)
+                removedx = ""
+                fp = None
+                fpplot = None
+                if dumppredictions:
+                    for v in vset:
+                        removedx += str(x1map_toreal[xk][v])+ \
+                                    "_"
 
-            model = None
-            st = time.time()
-            stp = time.process_time()
-            if modelname == "model1":
-                model = cm.build_model_GP_1 (train_xy, train_z)
-            elif modelname == "model2":
-                model = cm.build_model_GP_2 (train_xy, train_z)
-            etp = time.process_time()
-            et = time.time()
+                    fp = open("model_"+str(counter)+"_"+\
+                            "xk_"+xk+"_"+\
+                            "rmset_"+str(removedx)+"_"+\
+                            "predictions.csv", "w")
+                    
+                    print ("Set,"+f1+","+f2+",y,pred_y", file=fp)
 
-            elapsed_time = et - st
-            res = etp - stp
-            print('Execution time: ', elapsed_time, ' seconds', flush = True)
-            print('CPU Execution time: ', res, ' seconds')
+                    fpplot = open("model_"+str(counter)+"_"+\
+                            "xk_"+xk+"_"+\
+                            "rmset_"+str(removedx)+"_"+\
+                            "toplot.csv", "w")
+                    
+                    print (f1+" "+f2+" y", file=fpplot)
+            
 
-            initialstring = "Removed RND  , " + str(perc)
-            l_overallmse, l_denorm_overallmse, \
-                l_overalltrainmse, l_denorm_overalltrainmse, \
-                    l_tot,  l_traintot = get_mseresults (initialstring, ofp, model, \
-                    train_xy, train_z, test_xy, test_z)
+                train_x, test_x, train_y, test_y = cm.test_train_split (0, vset, \
+                                                                        x_s[xk], y_s[yk])
+
+                model = cm.build_model_GP_2 (train_x, train_y, nuval = nu)
+            
+                test_x_sp = scalerx[xk].inverse_transform(test_x)
+                pred_y = model.predict(test_x, verbose=0)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                test_y_sb = scalery[yk].inverse_transform(test_y)
+
+                if dumppredictions:
+                    for i, x1 in enumerate(test_x_sp):
+                        if len(x1) != 2:
+                            print("Error: len(x1) != 2")
+                            exit(1)
+
+                        print("Test,",
+                              x1[0], ",",\
+                              x1[1], ",",\
+                              test_y_sb[i][0],",", \
+                              pred_y_sb[i][0],\
+                            file=fp)
+                        
+                        print (x1[0], x1[1], test_y_sb[i][0], file=fpplot)
+            
+                testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
+                testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+                testmses.append(testmse)
+                testr2s.append(testr2)
+            
+                pred_y = model.predict(train_x, verbose=0)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                train_y_sb = scalery[yk].inverse_transform(train_y)
+                train_x_sp = scalerx[xk].inverse_transform(train_x)
+
+                if dumppredictions:
+                    for i, x1 in enumerate(train_x_sp):
+                        if len(x1) != 2:
+                            print("Error: len(x1) != 2")
+                            exit(1)
+
+                        print("Train,",
+                              x1[0], ",",\
+                              x1[1], ",",\
+                              train_y_sb[i][0],",", \
+                              pred_y_sb[i][0],\
+                            file=fp)
+                        
+                        print (x1[0], x1[1], train_y_sb[i][0], file=fpplot)
+
+
+                trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
+                trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+                trainmses.append(trainmse)
+                trainr2s.append(trainr2)
+
+                if dumppredictions:
+                    fp.close()
+                    fpplot.close()  
+
+                printProgressBar (len(testmses), len(vsettorm),\
+                                   prefix = 'Progress:',\
+                                      suffix = 'Complete', length = 50)
+
+            print (xk, " , vsetsplit , ", nu , \
+                   " , ", np.average(trainmses), \
+                   " , ", np.average(trainr2s), \
+                   " , ", np.average(testmses), \
+                   " , ", np.average(testr2s), flush=True)
