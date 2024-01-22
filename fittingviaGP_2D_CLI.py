@@ -271,7 +271,7 @@ if __name__ == "__main__":
 
     print (" xK , split , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
 
-    totvalues = len(xkey) * len(modelshapes) * len(batch_sizes) * len(epochs_s)
+    totvalues = len(xkey) * len(nuvals)
     counter = 0
 
     for xk in xkey:
