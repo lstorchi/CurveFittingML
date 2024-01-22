@@ -318,7 +318,7 @@ if __name__ == "__main__":
                     print (f1+" "+f2+" y", file=fpplot)        
             
                 test_x_sp = scalerx[xk].inverse_transform(test_x)
-                pred_y = model.predict(test_x, verbose=0)
+                pred_y = model.predict(test_x, return_std=False)
                 pred_y_sb = scalery[yk].inverse_transform(pred_y)
                 test_y_sb = scalery[yk].inverse_transform(test_y)
 
@@ -342,7 +342,7 @@ if __name__ == "__main__":
                 testmses.append(testmse)
                 testr2s.append(testr2)
             
-                pred_y = model.predict(train_x, verbose=0)
+                pred_y = model.predict(train_x, , return_std=False)
                 pred_y_sb = scalery[yk].inverse_transform(pred_y)
                 train_y_sb = scalery[yk].inverse_transform(train_y)
                 train_x_sp = scalerx[xk].inverse_transform(train_x)
@@ -431,7 +431,7 @@ if __name__ == "__main__":
                 model = cm.build_model_GP_2 (train_x, train_y, nuval = nu)
             
                 test_x_sp = scalerx[xk].inverse_transform(test_x)
-                pred_y = model.predict(test_x, verbose=0)
+                pred_y = model.predict(test_x, return_std=False)
                 pred_y_sb = scalery[yk].inverse_transform(pred_y)
                 test_y_sb = scalery[yk].inverse_transform(test_y)
 
@@ -455,7 +455,7 @@ if __name__ == "__main__":
                 testmses.append(testmse)
                 testr2s.append(testr2)
             
-                pred_y = model.predict(train_x, verbose=0)
+                pred_y = model.predict(train_x, return_std=False`)
                 pred_y_sb = scalery[yk].inverse_transform(pred_y)
                 train_y_sb = scalery[yk].inverse_transform(train_y)
                 train_x_sp = scalerx[xk].inverse_transform(train_x)
