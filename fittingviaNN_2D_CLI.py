@@ -132,7 +132,7 @@ def read_excel_file_and_norm (filename, debug=False):
             "2_v_cE", "2_dE_cE", \
             "3_v_cE", "3_dE_cE"]
 
-    if not useonlyv:
+    if useonlyv:
         xkey = ["1_v_cE", \
                 "2_v_cE", \
                 "3_v_cE", ]
