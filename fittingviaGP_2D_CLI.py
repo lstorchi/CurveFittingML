@@ -267,7 +267,7 @@ if __name__ == "__main__":
     #xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
     #    read_excel_file_and_norm_tfile (filename)
 
-    nuvals = [1.0, 4.0/3.0, 3.0/2.0, 2.0, 5.0/2.0, 7.0/3.0, 7.0/2.0]
+    nuvals = [4.0/3.0, 2.0, 5.0/2.0]
 
     print (" xK , split , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
 
