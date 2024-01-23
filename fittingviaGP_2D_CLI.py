@@ -294,6 +294,9 @@ if __name__ == "__main__":
             trainr2s  = []
             
             for x1 in f1set[xk]:
+                print("Starting x1: ", x1, " of ", len(f1set[xk]), \
+                      flush=True, file=sys.stderr)
+                
                 removedx = x1map_toreal[xk][x1]
                 train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], \
                                                                         x_s[xk], y_s[yk])
@@ -371,10 +374,8 @@ if __name__ == "__main__":
                     fp.close()
                     fpplot.close()
 
-                printProgressBar (len(testmses), len(f1set[xk]), \
-                                   prefix = 'Progress:', \
-                                    suffix = 'Complete', length = 50)
-            
+                print("End x1: ", x1, " of ", len(f1set[xk]), \
+                      flush=True, file=sys.stderr)
             
             print (xk, " , vsplit , ", nu , \
                    " , ", np.average(trainmses), \
@@ -401,6 +402,9 @@ if __name__ == "__main__":
             print("vsetsplit: ", counter, "/", totvalues, flush=True, file=sys.stderr)
 
             for vset in vsettorm:
+
+                print("Starting vset: ", vset, " of ", len(vsettorm), \
+                      flush=True, file=sys.stderr) 
 
                 removedx = ""
                 fp = None
@@ -485,9 +489,8 @@ if __name__ == "__main__":
                     fp.close()
                     fpplot.close()  
 
-                printProgressBar (len(testmses), len(vsettorm),\
-                                   prefix = 'Progress:',\
-                                      suffix = 'Complete', length = 50)
+                print("End vset: ", vset, " of ", len(vsettorm), \
+                      flush=True, file=sys.stderr) 
 
             print (xk, " , vsetsplit , ", nu , \
                    " , ", np.average(trainmses), \
