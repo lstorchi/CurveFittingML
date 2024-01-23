@@ -1,4 +1,5 @@
 import random
+import sys
 
 import math
 import numpy as np
@@ -114,9 +115,9 @@ def build_model_GP_2 (train_x, train_y, nuval = 5.0/2.0):
     kernel = 1.0 * gp.kernels.Matern(length_scale=1.0, nu=nuval)
     model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
         normalize_y=False)
-    print("Start training ")
+    print("Start training ", flush=True, file=sys.stderr)
     model.fit(train_x, train_y)
-    print("Done ")
+    print("Done ", flush=True, file=sys.stderr)
 
     return model
 
