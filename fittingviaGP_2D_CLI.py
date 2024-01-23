@@ -343,7 +343,7 @@ if __name__ == "__main__":
                 testr2s.append(testr2)
             
                 pred_y = model.predict(train_x,return_std=False)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))
                 train_y_sb = scalery[yk].inverse_transform(train_y)
                 train_x_sp = scalerx[xk].inverse_transform(train_x)
             
