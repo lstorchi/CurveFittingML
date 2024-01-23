@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import time
 
 from tensorflow import keras
 import tensorflow as tf
@@ -294,6 +295,8 @@ if __name__ == "__main__":
             trainr2s  = []
             
             for x1 in f1set[xk]:
+                st = time.time()
+                stp = time.process_time()
                 print("Starting x1: ", x1, " of ", len(f1set[xk]), \
                       flush=True, file=sys.stderr)
                 
@@ -374,6 +377,15 @@ if __name__ == "__main__":
                     fp.close()
                     fpplot.close()
 
+                etp = time.process_time()
+                et = time.time()
+                elapsed_time = et - st
+                res = etp - stp
+                print('Execution time: ', elapsed_time, \
+                      ' seconds', flush = True, file=sys.stderr)
+                print('CPU Execution time: ', res, ' seconds', 
+                      flush = True, file=sys.stderr)
+
                 print("End x1: ", x1, " of ", len(f1set[xk]), \
                       flush=True, file=sys.stderr)
             
@@ -402,7 +414,8 @@ if __name__ == "__main__":
             print("vsetsplit: ", counter, "/", totvalues, flush=True, file=sys.stderr)
 
             for vset in vsettorm:
-
+                st = time.time()
+                stp = time.process_time()
                 print("Starting vset: ", vset, " of ", len(vsettorm), \
                       flush=True, file=sys.stderr) 
 
@@ -488,6 +501,16 @@ if __name__ == "__main__":
                 if dumppredictions:
                     fp.close()
                     fpplot.close()  
+
+                etp = time.process_time()
+                et = time.time()
+
+                elapsed_time = et - st
+                res = etp - stp
+                print('Execution time: ', elapsed_time, \
+                      ' seconds', flush = True, file=sys.stderr)
+                print('CPU Execution time: ', res, ' seconds', \
+                        flush = True, file=sys.stderr)
 
                 print("End vset: ", vset, " of ", len(vsettorm), \
                       flush=True, file=sys.stderr) 
