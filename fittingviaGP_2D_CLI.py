@@ -319,7 +319,7 @@ if __name__ == "__main__":
             
                 test_x_sp = scalerx[xk].inverse_transform(test_x)
                 pred_y = model.predict(test_x, return_std=False)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))
                 test_y_sb = scalery[yk].inverse_transform(test_y)
 
                 if dumppredictions:
@@ -343,7 +343,7 @@ if __name__ == "__main__":
                 testr2s.append(testr2)
             
                 pred_y = model.predict(train_x,return_std=False)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1)
                 train_y_sb = scalery[yk].inverse_transform(train_y)
                 train_x_sp = scalerx[xk].inverse_transform(train_x)
             
@@ -432,7 +432,7 @@ if __name__ == "__main__":
             
                 test_x_sp = scalerx[xk].inverse_transform(test_x)
                 pred_y = model.predict(test_x, return_std=False)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1)
                 test_y_sb = scalery[yk].inverse_transform(test_y)
 
                 if dumppredictions:
@@ -456,7 +456,7 @@ if __name__ == "__main__":
                 testr2s.append(testr2)
             
                 pred_y = model.predict(train_x, return_std=False)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1)
                 train_y_sb = scalery[yk].inverse_transform(train_y)
                 train_x_sp = scalerx[xk].inverse_transform(train_x)
 
