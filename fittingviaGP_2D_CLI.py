@@ -432,7 +432,7 @@ if __name__ == "__main__":
             
                 test_x_sp = scalerx[xk].inverse_transform(test_x)
                 pred_y = model.predict(test_x, return_std=False)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1)
+                pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))
                 test_y_sb = scalery[yk].inverse_transform(test_y)
 
                 if dumppredictions:
