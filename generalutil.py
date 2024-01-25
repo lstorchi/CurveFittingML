@@ -1,3 +1,9 @@
+import sys
+import time
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+
 ###############################################################################
 
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
