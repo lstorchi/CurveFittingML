@@ -9,6 +9,7 @@ from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
 
 import commonmodules as cm
+import formulagenerator as fg
 from generalutil import * 
 import sys
 
@@ -35,7 +36,7 @@ if __name__ == "__main__":
 
     print (" xK , split , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
 
-    totvalues = len(xkey) * len(nuvals)
+    totvalues = len(xkey) 
     counter = 0
 
     for xk in xkey:
@@ -65,7 +66,7 @@ if __name__ == "__main__":
             train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], \
                                                                     x_s[xk], y_s[yk])
         
-            model = cm.build_model_GP_2 (train_x, train_y)
+            model = fg.build_model (train_x, train_y)
             
             fp = None
             fpplot = None
@@ -85,8 +86,8 @@ if __name__ == "__main__":
                 print (f1+" "+f2+" y", file=fpplot)        
         
             test_x_sp = scalerx[xk].inverse_transform(test_x)
-            pred_y = model.predict(test_x, return_std=False)
-            pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))
+            pred_y = model.predict(test_x)
+            pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))    
             test_y_sb = scalery[yk].inverse_transform(test_y)
 
             if dumppredictions:
@@ -109,7 +110,7 @@ if __name__ == "__main__":
             testmses.append(testmse)
             testr2s.append(testr2)
         
-            pred_y = model.predict(train_x,return_std=False)
+            pred_y = model.predict(train_x)
             pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))
             train_y_sb = scalery[yk].inverse_transform(train_y)
             train_x_sp = scalerx[xk].inverse_transform(train_x)
@@ -150,7 +151,7 @@ if __name__ == "__main__":
             print("End x1: ", x1, " of ", len(f1set[xk]), \
                   flush=True, file=sys.stderr)
         
-        print (xk, " , vsplit , ", nu , \
+        print (xk, " , vsplit , " , \
                " , ", np.average(trainmses), \
                " , ", np.average(trainr2s), \
                " , ", np.average(testmses), \
@@ -204,10 +205,10 @@ if __name__ == "__main__":
             train_x, test_x, train_y, test_y = cm.test_train_split (0, vset, \
                                                                     x_s[xk], y_s[yk])
 
-            model = cm.build_model_GP_2 (train_x, train_y)
+            model = fg.build_model (train_x, train_y)
         
             test_x_sp = scalerx[xk].inverse_transform(test_x)
-            pred_y = model.predict(test_x, return_std=False)
+            pred_y = model.predict(test_x)
             pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))
             test_y_sb = scalery[yk].inverse_transform(test_y)
 
@@ -231,7 +232,7 @@ if __name__ == "__main__":
             testmses.append(testmse)
             testr2s.append(testr2)
         
-            pred_y = model.predict(train_x, return_std=False)
+            pred_y = model.predict(train_x)
             pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))
             train_y_sb = scalery[yk].inverse_transform(train_y)
             train_x_sp = scalerx[xk].inverse_transform(train_x)
@@ -274,7 +275,7 @@ if __name__ == "__main__":
             print("End vset: ", vset, " of ", len(vsettorm), \
                   flush=True, file=sys.stderr) 
 
-        print (xk, " , vsetsplit , ", nu , \
+        print (xk, " , vsetsplit , ", \
                " , ", np.average(trainmses), \
                " , ", np.average(trainr2s), \
                " , ", np.average(testmses), \
