@@ -106,7 +106,7 @@ if __name__ == "__main__":
                               pred_y_sb[i][0],\
                             file=fp)
 
-                        print (x1[0], x1[1], test_y_sb[i][0], file=fpplot)
+                        print (x1[0], x1[1], pred_y_sb[i][0], file=fpplot)
             
                 testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
                 testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
@@ -230,7 +230,7 @@ if __name__ == "__main__":
                               pred_y_sb[i][0],\
                             file=fp)
                         
-                        print (x1[0], x1[1], test_y_sb[i][0], file=fpplot)
+                        print (x1[0], x1[1], pred_y_sb[i][0], file=fpplot)
             
                 testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
                 testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
