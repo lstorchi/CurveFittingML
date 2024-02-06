@@ -123,6 +123,23 @@ def build_model_GP_2 (train_x, train_y, nuval = 5.0/2.0):
 
 ##########################################################################################################3
 
+def build_model_GP_3 (train_x, train_y, nuval = 5.0/2.0):
+    
+    length_scale_param=1.9
+    length_scale_bounds_param=(1e-05, 100000.0)
+    matern=gp.kernels.Matern(length_scale=length_scale_param,
+              length_scale_bounds=length_scale_bounds_param,nu=nuval)
+    kernel = matern + gp.kernels.WhiteKernel()
+    model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
+        normalize_y=False)
+    print("Start training ", flush=True, file=sys.stderr)
+    model.fit(train_x, train_y)
+    print("Done ", flush=True, file=sys.stderr)
+
+    return model
+
+##########################################################################################################3
+
 def build_model_GP_2D (train_x, train_y):
     #kernel = gp.kernels.ConstantKernel(1.0, (1e-5, 1e5))* gp.kernels.RBF(length_scale=1)
     nuval = 5.0/2.0
