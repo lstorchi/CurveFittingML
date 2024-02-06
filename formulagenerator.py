@@ -13,7 +13,7 @@ class formula_gen:
 
 ######################################################################
 
-def build_model (train_x, train_y):
+def build_model (variables, train_x, train_y):
     
     model = formula_gen ()
 

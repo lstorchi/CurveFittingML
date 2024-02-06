@@ -65,8 +65,9 @@ if __name__ == "__main__":
             removedx = x1map_toreal[xk][x1]
             train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], \
                                                                     x_s[xk], y_s[yk])
-        
-            model = fg.build_model (train_x, train_y)
+
+            variables = [f1, f2]
+            model = fg.build_model (variables, train_x, train_y)
             
             fp = None
             fpplot = None
