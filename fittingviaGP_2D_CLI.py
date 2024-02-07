@@ -33,7 +33,7 @@ if __name__ == "__main__":
     #xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
     #    read_excel_file_and_norm_tfile (filename)
 
-    nuvals = [4.0/3.0, 2.0, 5.0/2.0]
+    nuvals = [5.0/2.0, 3.0, 7.0/2.0, 4.0]
 
     print (" xK , split , ModelShape , BatchSize , Epochs , avg TrainMSE , avg TrainR2,  avg TestMSE ,avg TestR2 ")
 
@@ -69,8 +69,9 @@ if __name__ == "__main__":
                 train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], \
                                                                         x_s[xk], y_s[yk])
             
-                model = cm.build_model_GP_2 (train_x, train_y, nuval = nu)
-                
+                #model = cm.build_model_GP_2 (train_x, train_y, nuval = nu)
+                model = cm.build_model_GP_3 (train_x, train_y, nuval = nu)
+
                 fp = None
                 fpplot = None
                 if dumppredictions:
@@ -210,8 +211,9 @@ if __name__ == "__main__":
                 train_x, test_x, train_y, test_y = cm.test_train_split (0, vset, \
                                                                         x_s[xk], y_s[yk])
 
-                model = cm.build_model_GP_2 (train_x, train_y, nuval = nu)
-            
+                #model = cm.build_model_GP_2 (train_x, train_y, nuval = nu)
+                model = cm.build_model_GP_3 (train_x, train_y, nuval = nu)
+                
                 test_x_sp = scalerx[xk].inverse_transform(test_x)
                 pred_y = model.predict(test_x, return_std=False)
                 pred_y_sb = scalery[yk].inverse_transform(pred_y.reshape(-1, 1))
