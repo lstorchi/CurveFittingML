@@ -8,7 +8,7 @@ from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
 
 import commonmodules as cm
-import fotmulagenerator as fg
+import formulagenerator as fg
 from generalutil import *
 import sys
 
