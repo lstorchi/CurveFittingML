@@ -79,7 +79,7 @@ def build_vsettorm (vlist):
 
 ###############################################################################
 
-def read_excel_file_and_norm (filename, debug=False):
+def read_excel_file_and_norm (filename, donotscale=False, debug=False):
 
     excf = pd.ExcelFile(filename)
 
@@ -134,9 +134,11 @@ def read_excel_file_and_norm (filename, debug=False):
     ykey = ["1", "2", "3"]
 
     for k in xkey:
-        scalerx[k] = MinMaxScaler()
-        scalerx[k].fit(x[k])
-        x_s[k] = scalerx[k].transform(x[k])
+        x_s[k] = x[k]
+        if not donotscale:
+            scalerx[k] = MinMaxScaler()
+            scalerx[k].fit(x[k])
+            x_s[k] = scalerx[k].transform(x[k])
 
         x1map = {}
 
@@ -155,9 +157,11 @@ def read_excel_file_and_norm (filename, debug=False):
                 print(xs, x[k][i])
 
     for k in ykey:
-        scalery[k] = MinMaxScaler()
-        scalery[k].fit(y[k])
-        y_s[k] = scalery[k].transform(y[k])
+        y_s[k] = y[k]
+        if not donotscale:
+            scalery[k] = MinMaxScaler()
+            scalery[k].fit(y[k])
+            y_s[k] = scalery[k].transform(y[k])
 
         if debug:
             for i, ys in enumerate(y_s[k]):

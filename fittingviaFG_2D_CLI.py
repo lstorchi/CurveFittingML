@@ -1,14 +1,11 @@
 import numpy as np
 import pandas as pd
 
-from tensorflow import keras
-import tensorflow as tf
-
 from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
 
-import commonmodules as cm
 import formulagenerator as fg
+import commonmodules as cm
 from generalutil import *
 import sys
 
@@ -24,7 +21,7 @@ if __name__ == "__main__":
     # first file
     filename = "N2H2_2D_VT_process.xlsx"
     xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
-        read_excel_file_and_norm (filename)
+        read_excel_file_and_norm (filename, donotscale=True)
     basicdescriptors = ["v", "cE"]
 
     # second file
@@ -65,7 +62,7 @@ if __name__ == "__main__":
                 train_x, test_x, train_y, test_y = cm.test_train_split (0, [x1], \
                                                                         x_s[xk], y_s[yk])
             
-                model = fg.buildmodel(ft, basicdescriptors)
+                model = fg.build_model(ft, basicdescriptors)
                 model.fit(train_x, train_y)
                 
                 fp = None
@@ -85,13 +82,10 @@ if __name__ == "__main__":
 
                     print (f1+" "+f2+" y", file=fpplot)        
             
-                test_x_sp = scalerx[xk].inverse_transform(test_x)
                 pred_y = model.predict(test_x, verbose=0)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y)
-                test_y_sb = scalery[yk].inverse_transform(test_y)
 
                 if dumppredictions:
-                    for i, x1 in enumerate(test_x_sp):
+                    for i, x1 in enumerate(test_x):
                         if len(x1) != 2:
                             print("Error: len(x1) != 2")
                             exit(1)
@@ -99,24 +93,21 @@ if __name__ == "__main__":
                         print("Test,",
                               x1[0], ",",\
                               x1[1], ",",\
-                              test_y_sb[i][0],",", \
-                              pred_y_sb[i][0],\
+                              test_y[i][0],",", \
+                              pred_y[i],\
                             file=fp)
 
-                        print (x1[0], x1[1], pred_y_sb[i][0], file=fpplot)
+                        print (x1[0], x1[1], pred_y[i], file=fpplot)
             
-                testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
-                testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+                testmse = metrics.mean_absolute_error(test_y, pred_y)
+                testr2 = metrics.r2_score(test_y, pred_y)
                 testmses.append(testmse)
                 testr2s.append(testr2)
             
                 pred_y = model.predict(train_x, verbose=0)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y)
-                train_y_sb = scalery[yk].inverse_transform(train_y)
-                train_x_sp = scalerx[xk].inverse_transform(train_x)
             
                 if dumppredictions:
-                    for i, x1 in enumerate(train_x_sp):
+                    for i, x1 in enumerate(train_x):
                         if len(x1) != 2:
                             print("Error: len(x1) != 2")
                             exit(1)
@@ -124,14 +115,14 @@ if __name__ == "__main__":
                         print("Train,",
                               x1[0], ",",\
                               x1[1], ",",\
-                              train_y_sb[i][0],",", \
-                              pred_y_sb[i][0],\
+                              train_y[i][0],",", \
+                              pred_y[i],\
                             file=fp)
 
-                        print (x1[0], x1[1], train_y_sb[i][0], file=fpplot)
+                        print (x1[0], x1[1], train_y[i], file=fpplot)
 
-                trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
-                trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+                trainmse = metrics.mean_absolute_error(train_y, pred_y)
+                trainr2 = metrics.r2_score(train_y, pred_y)
                 trainmses.append(trainmse)
                 trainr2s.append(trainr2)
 
@@ -197,16 +188,13 @@ if __name__ == "__main__":
                 train_x, test_x, train_y, test_y = cm.test_train_split (0, vset, \
                                                                         x_s[xk], y_s[yk])
             
-                model = fg.buildmodel(ft, basicdescriptors)
+                model = fg.build_model(ft, basicdescriptors)
                 history = model.fit(train_x, train_y)
             
-                test_x_sp = scalerx[xk].inverse_transform(test_x)
                 pred_y = model.predict(test_x, verbose=0)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y)
-                test_y_sb = scalery[yk].inverse_transform(test_y)
 
                 if dumppredictions:
-                    for i, x1 in enumerate(test_x_sp):
+                    for i, x1 in enumerate(test_x):
                         if len(x1) != 2:
                             print("Error: len(x1) != 2")
                             exit(1)
@@ -214,24 +202,21 @@ if __name__ == "__main__":
                         print("Test,",
                               x1[0], ",",\
                               x1[1], ",",\
-                              test_y_sb[i][0],",", \
-                              pred_y_sb[i][0],\
+                              test_y[i][0],",", \
+                              pred_y[i],\
                             file=fp)
                         
-                        print (x1[0], x1[1], pred_y_sb[i][0], file=fpplot)
+                        print (x1[0], x1[1], pred_y[i], file=fpplot)
             
-                testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
-                testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+                testmse = metrics.mean_absolute_error(test_y, pred_y)
+                testr2 = metrics.r2_score(test_y, pred_y)
                 testmses.append(testmse)
                 testr2s.append(testr2)
             
                 pred_y = model.predict(train_x, verbose=0)
-                pred_y_sb = scalery[yk].inverse_transform(pred_y)
-                train_y_sb = scalery[yk].inverse_transform(train_y)
-                train_x_sp = scalerx[xk].inverse_transform(train_x)
 
                 if dumppredictions:
-                    for i, x1 in enumerate(train_x_sp):
+                    for i, x1 in enumerate(train_x):
                         if len(x1) != 2:
                             print("Error: len(x1) != 2")
                             exit(1)
@@ -239,15 +224,15 @@ if __name__ == "__main__":
                         print("Train,",
                               x1[0], ",",\
                               x1[1], ",",\
-                              train_y_sb[i][0],",", \
-                              pred_y_sb[i][0],\
+                              train_y[i][0],",", \
+                              pred_y[i],\
                             file=fp)
                         
-                        print (x1[0], x1[1], train_y_sb[i][0], file=fpplot)
+                        print (x1[0], x1[1], train_y[i][0], file=fpplot)
 
 
-                trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
-                trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+                trainmse = metrics.mean_absolute_error(train_y, pred_y)
+                trainr2 = metrics.r2_score(train_y, pred_y)
                 trainmses.append(trainmse)
                 trainr2s.append(trainr2)
 
