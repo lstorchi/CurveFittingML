@@ -2,8 +2,13 @@ import numpy as np
 
 ######################################################################
 class formula_gen:
-    def __init__ (self):
-        pass
+    def __init__ (self, gentype. variables):
+        self.__getype__ = gentype
+        self.__variables__ = variables
+
+    def fit (self, x, y):
+        if self.__getype__ == "gen1":
+            self.__fit_gen1__ (x, y)
 
     def predict (self, x):
         pred_y = []
@@ -13,8 +18,8 @@ class formula_gen:
 
 ######################################################################
 
-def build_model (variables, train_x, train_y):
+def build_model (gentype. variables):
     
-    model = formula_gen ()
+    model = formula_gen (gentype, variables)
 
     return model 
