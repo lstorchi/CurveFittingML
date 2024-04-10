@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     formulatypes = ["gen1"]
 
-    totvalues = len(xkey) * len(formulatypes)` 
+    totvalues = len(xkey) * len(formulatypes)
+
     counter = 0
 
     for xk in xkey:
