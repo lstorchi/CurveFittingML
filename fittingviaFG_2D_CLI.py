@@ -22,7 +22,7 @@ if __name__ == "__main__":
     filename = "N2H2_2D_VT_process.xlsx"
     xkey, ykey, x_s, y_s, scalerx, scalery, x1map_toreal, f1set, f1list = \
         read_excel_file_and_norm (filename, donotscale=True)
-    basicdescriptors = ["v", "cE"]
+    basicdescriptors = {"class1" : ["v", "cE"]}
 
     # second file
     #filename = "N2H2_2D_VT_process_using_T.xlsx"
