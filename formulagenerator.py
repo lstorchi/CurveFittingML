@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from io import StringIO
 
+from math import exp
 import token
 import parser
 import tokenize
@@ -135,10 +136,21 @@ class formula_gen:
 
         fidxtorm = []
         for idxf, f in enumerate(formulas):
-           newf = self.__get_new_feature__(data, f) 
-           if newf[0] == None:
-               fidxtorm.append(idxf)
-               print(" torm :", f)
+            newf = self.__get_new_feature__(data, f) 
+            if newf[0] == None:
+                fidxtorm.append(idxf)
+                #print(" torm :", f)
+            else:
+                print(f)
+
+                for i in range(len(newf)):
+                    v = data["v"][i]
+                    cE = data["cE"][i]
+                    print(v)
+                    print(cE)
+                    print(eval(f))
+                    print(newf[i])
+                exit()
 
         return 
 
