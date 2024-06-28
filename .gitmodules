@@ -1,0 +1,3 @@
+[submodule "formulagenerator"]
+	path = formulagenerator
+	url = git@github.com:lstorchi/formulagenerator.git

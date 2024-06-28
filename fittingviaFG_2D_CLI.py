@@ -4,10 +4,13 @@ import pandas as pd
 from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
 
-import formulagenerator as fg
 import commonmodules as cm
 from generalutil import *
 import sys
+
+sys.path.append("./formulagenerator")
+import formulagenerator as fg
+
 
 ###############################################################################
 
