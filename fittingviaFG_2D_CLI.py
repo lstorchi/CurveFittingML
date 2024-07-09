@@ -67,7 +67,7 @@ if __name__ == "__main__":
             
                 model = fg.build_model(ft, basicdescriptors)
                 model.fit(train_x, train_y)
-                model.fit_refinment()
+                model.fit_refinment(train_x, train_y)
                 
                 fp = None
                 fpplot = None
@@ -193,7 +193,8 @@ if __name__ == "__main__":
                                                                         x_s[xk], y_s[yk])
             
                 model = fg.build_model(ft, basicdescriptors)
-                history = model.fit(train_x, train_y)
+                model.fit(train_x, train_y)
+                model.fit_refinment(train_x, train_y)
             
                 pred_y = model.predict(test_x, verbose=0)
 
