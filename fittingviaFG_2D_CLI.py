@@ -67,6 +67,7 @@ if __name__ == "__main__":
             
                 model = fg.build_model(ft, basicdescriptors)
                 model.fit(train_x, train_y)
+                model.fit_refinment()
                 
                 fp = None
                 fpplot = None
