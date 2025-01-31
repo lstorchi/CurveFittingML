@@ -126,12 +126,14 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
         train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
 
         if thefirst:
-            model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer)
+            model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
             history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
                 verbose=0)
             thefirst = False
 
-        model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer)
+        model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
             verbose=0)
 
@@ -167,6 +169,7 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
 #######################################################################
 
 def build_vsets_split (vlist, modelshape, batch_size, epochs, \
+                     lossfun, optimizer, activation, \
                    modelfname="", verbose=False):
 
     ofp = None
@@ -234,7 +237,7 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
     #for v in vset_torm:
     #    print(len(v), v)
 
-    for v in vset_tormi:
+    for v in vset_torm:
 
         if FIXEDSEED:
             # to fix seed
@@ -245,12 +248,14 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
         train_x, test_x, train_y, test_y = cm.test_train_split (0, v, x_s, y_s)
 
         if thefirst:
-            model = cm.buildmodel(modelshape)
+            model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
             history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
                 verbose=0)
             thefirst = False
 
-        model = cm.buildmodel(modelshape)
+        model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
             verbose=0)
 
@@ -539,11 +544,13 @@ if __name__ == "__main__":
                             
                             r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
                                 build_v_split (vset, modelshape, batch_size, epochs, \
+                                                lossfun, optimizer, activation, \
                                                modelfname="vsplitmodel_"+str(modelnum)+".csv")
                             
                             r2train_vsets_split, msetrain_vsets_split, \
                                 r2test_vsets_split, msetest_vsets_split = \
                                 build_vsets_split (vlist, modelshape, batch_size, epochs, \
+                                                   lossfun, optimizer, activation, \
                                                    modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
                             
                             print("v split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
