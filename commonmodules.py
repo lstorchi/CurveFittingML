@@ -572,7 +572,7 @@ def test_train_split (column, valuestotest, x, y):
 #######################################################################
 
 def buildmodel(modelshape, inputshape=3, lossf='mse', \
-        avtivationf='relu'):
+        avtivationf='relu', optimizerf='adam'):
     model = keras.Sequential()
     model.add(keras.layers.Input(shape=[inputshape]))
 
@@ -580,7 +580,7 @@ def buildmodel(modelshape, inputshape=3, lossf='mse', \
         model.add(keras.layers.Dense(units = n, activation = avtivationf))
 
     model.add(keras.layers.Dense(units = 1, activation = 'linear'))
-    model.compile(loss=lossf, optimizer="adam", metrics=['mse'])
+    model.compile(loss=lossf, optimizer=optimizerf, metrics=['mse'])
 
     return model
 

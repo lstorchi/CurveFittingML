@@ -96,6 +96,7 @@ def build_perc_split (modelshape, batch_size, epochs, \
 #######################################################################
 
 def build_v_split (vset, modelshape, batch_size, epochs, \
+                   lossfun, optimizer, activation, \
                    modelfname="", verbose=False):
 
     ofp = None
@@ -125,12 +126,12 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
         train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
 
         if thefirst:
-            model = cm.buildmodel(modelshape)
+            model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer)
             history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
                 verbose=0)
             thefirst = False
 
-        model = cm.buildmodel(modelshape)
+        model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer)
         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
             verbose=0)
 
@@ -510,41 +511,47 @@ if __name__ == "__main__":
                     [32, 32],
                     [64, 64], 
                     [128, 128]]
-   
-    epochs_s = [20, 80]
     batch_size_s = [10, 25, 50, 100]
+    epochs_s = [20, 80]
+    lossfuns = ['mse', 'mae', 'mape']
+    optimizers = ['adam', 'sgd', 'rmsprop']
+    activations = ['relu', 'tanh', 'sigmoid']
 
     modelnum = 0
 
     for modelshape in modelshape_s:
         for batch_size in batch_size_s:
-            for ephocs  in epochs_s:
-                modelnum += 1
-                
-                r2test_v_split = 0.0
-                msetest_v_split = 0.0
-                r2train_v_split = 0.0 
-                msetrain_v_split = 0.0
-                
-                r2test_vsets_split = 0.0
-                msetest_vsets_split = 0.0
-                r2train_vsets_split = 0.0 
-                msetrain_vsets_split = 0.0
-                
-                r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
-                    build_v_split (vset, modelshape, batch_size, epochs, \
-                                   modelfname="vsplitmodel_"+str(modelnum)+".csv")
-                
-                r2train_vsets_split, msetrain_vsets_split, \
-                    r2test_vsets_split, msetest_vsets_split = \
-                    build_vsets_split (vlist, modelshape, batch_size, epochs, \
-                                       modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
-                
-                print("v split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
-                    modelnum, r2test_v_split, msetest_v_split, \
-                    r2train_v_split, msetrain_v_split), flush=True)
-                print("vsets split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
-                    modelnum, r2test_vsets_split, msetest_vsets_split, \
-                    r2train_vsets_split, msetrain_vsets_split), flush=True)
-                print("Model shapes  %3d , %s , %5d "%( \
-                     modelnum, str(modelshape), batch_size), flush=True)
+            for epochs  in epochs_s:
+                for lossfun in lossfuns:
+                    for optimizer in optimizers:
+                        for activation in activations:
+                            modelnum += 1
+                            
+                            r2test_v_split = 0.0
+                            msetest_v_split = 0.0
+                            r2train_v_split = 0.0 
+                            msetrain_v_split = 0.0
+                            
+                            r2test_vsets_split = 0.0
+                            msetest_vsets_split = 0.0
+                            r2train_vsets_split = 0.0 
+                            msetrain_vsets_split = 0.0
+                            
+                            r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
+                                build_v_split (vset, modelshape, batch_size, epochs, \
+                                               modelfname="vsplitmodel_"+str(modelnum)+".csv")
+                            
+                            r2train_vsets_split, msetrain_vsets_split, \
+                                r2test_vsets_split, msetest_vsets_split = \
+                                build_vsets_split (vlist, modelshape, batch_size, epochs, \
+                                                   modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
+                            
+                            print("v split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
+                                modelnum, r2test_v_split, msetest_v_split, \
+                                r2train_v_split, msetrain_v_split), flush=True)
+                            print("vsets split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
+                                modelnum, r2test_vsets_split, msetest_vsets_split, \
+                                r2train_vsets_split, msetrain_vsets_split), flush=True)
+                            print("Model shapes  %3d , %s , %5d , %5d , %s , %s , %s "%( \
+                                 modelnum, str(modelshape), batch_size, epochs, \
+                                    lossfun, optimizer, activation), flush=True)
