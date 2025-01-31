@@ -9,14 +9,14 @@ from matplotlib import pyplot as plt
 import sklearn.gaussian_process as gp
 from mpl_toolkits.mplot3d import Axes3D
 
-from tensorflow import keras
 import tensorflow as tf
+import keras 
 
-import tensorflow.keras.optimizers as tko
-import tensorflow.keras.activations as tka
-import tensorflow.keras.losses as tkl
-from tensorflow.keras.layers import Input, Dense
-from tensorflow.keras.models import Model
+import keras.optimizers as tko
+import keras.activations as tka
+import keras.losses as tkl
+from keras.layers import Input, Dense
+from keras.models import Model
 
 from sklearn.ensemble import RandomForestRegressor
 
@@ -571,15 +571,16 @@ def test_train_split (column, valuestotest, x, y):
 
 #######################################################################
 
-def buildmodel(modelshape, inputshape=3):
+def buildmodel(modelshape, inputshape=3, lossf='mse', \
+        avtivationf='relu'):
     model = keras.Sequential()
-    model.add(keras.layers.Input(shape=(inputshape)))
+    model.add(keras.layers.Input(shape=[inputshape]))
 
     for n in modelshape:
-        model.add(keras.layers.Dense(units = n, activation = 'relu'))
+        model.add(keras.layers.Dense(units = n, activation = avtivationf))
 
     model.add(keras.layers.Dense(units = 1, activation = 'linear'))
-    model.compile(loss='mse', optimizer="adam", metrics='mse')
+    model.compile(loss=lossf, optimizer="adam", metrics=['mse'])
 
     return model
 

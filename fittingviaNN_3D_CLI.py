@@ -8,12 +8,13 @@ from sklearn.preprocessing import MinMaxScaler
 
 from tensorflow import keras
 import tensorflow as tf
+import keras 
 
-import tensorflow.keras.optimizers as tko
-import tensorflow.keras.activations as tka
-import tensorflow.keras.losses as tkl
-from tensorflow.keras.layers import Input, Dense
-from tensorflow.keras.models import Model
+import keras.optimizers as tko
+import keras.activations as tka
+import keras.losses as tkl
+from keras.layers import Input, Dense
+from keras.models import Model
 
 from sklearn.model_selection import train_test_split
 
@@ -232,7 +233,7 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
     #for v in vset_torm:
     #    print(len(v), v)
 
-    for v in vset_torm:
+    for v in vset_tormi:
 
         if FIXEDSEED:
             # to fix seed
@@ -510,39 +511,40 @@ if __name__ == "__main__":
                     [64, 64], 
                     [128, 128]]
    
-    epochs = 20
+    epochs_s = [20, 80]
     batch_size_s = [10, 25, 50, 100]
 
     modelnum = 0
 
     for modelshape in modelshape_s:
         for batch_size in batch_size_s:
-            modelnum += 1
-
-            r2test_v_split = 0.0
-            msetest_v_split = 0.0
-            r2train_v_split = 0.0 
-            msetrain_v_split = 0.0
-     
-            r2test_vsets_split = 0.0
-            msetest_vsets_split = 0.0
-            r2train_vsets_split = 0.0 
-            msetrain_vsets_split = 0.0
-
-            r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
-                build_v_split (vset, modelshape, batch_size, epochs, \
-                               modelfname="vsplitmodel_"+str(modelnum)+".csv")
-
-            r2train_vsets_split, msetrain_vsets_split, \
-                r2test_vsets_split, msetest_vsets_split = \
-                build_vsets_split (vlist, modelshape, batch_size, epochs, \
-                                   modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
-            
-            print("v split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
-                modelnum, r2test_v_split, msetest_v_split, \
-                r2train_v_split, msetrain_v_split), flush=True)
-            print("vsets split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
-                modelnum, r2test_vsets_split, msetest_vsets_split, \
-                r2train_vsets_split, msetrain_vsets_split), flush=True)
-            print("Model shapes  %3d , %s , %5d "%( \
-                 modelnum, str(modelshape), batch_size), flush=True)
+            for ephocs  in epochs_s:
+                modelnum += 1
+                
+                r2test_v_split = 0.0
+                msetest_v_split = 0.0
+                r2train_v_split = 0.0 
+                msetrain_v_split = 0.0
+                
+                r2test_vsets_split = 0.0
+                msetest_vsets_split = 0.0
+                r2train_vsets_split = 0.0 
+                msetrain_vsets_split = 0.0
+                
+                r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
+                    build_v_split (vset, modelshape, batch_size, epochs, \
+                                   modelfname="vsplitmodel_"+str(modelnum)+".csv")
+                
+                r2train_vsets_split, msetrain_vsets_split, \
+                    r2test_vsets_split, msetest_vsets_split = \
+                    build_vsets_split (vlist, modelshape, batch_size, epochs, \
+                                       modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
+                
+                print("v split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
+                    modelnum, r2test_v_split, msetest_v_split, \
+                    r2train_v_split, msetrain_v_split), flush=True)
+                print("vsets split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
+                    modelnum, r2test_vsets_split, msetest_vsets_split, \
+                    r2train_vsets_split, msetrain_vsets_split), flush=True)
+                print("Model shapes  %3d , %s , %5d "%( \
+                     modelnum, str(modelshape), batch_size), flush=True)
