@@ -495,12 +495,12 @@ if __name__ == "__main__":
 
 
     modelshape_s = [[128, 128, 128, 128],
-                    [16, 16, 16],
+                    [16, 16, 16, 16],
                     [128, 128, 128],
                     [128, 128],
                     [128]]
-    batch_size_s = [10, 25, 50, 100]
-    epochs_s = [20, 80, 90]
+    batch_size_s = [25, 50, 100]
+    epochs_s = [80, 90]
     lossfuns = ['mse', 'mae', 'mape']
     optimizers = ['adam', 'sgd', 'rmsprop']
     activations = ['relu', 'tanh', 'sigmoid']
