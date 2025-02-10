@@ -494,36 +494,23 @@ if __name__ == "__main__":
         #cm.plotfull3dcurve (1, np.asarray(toplotx), np.asarray(toploty))
 
 
-    modelshape_s = [[ 8,  8,  8,  8, 8],
-                    [16, 16, 16, 16, 16],
-                    [32, 32, 32, 32, 32],
-                    [64, 64, 64, 64, 64],
-                    [128, 128, 128, 128, 128],
-                    [32, 64, 128, 64, 32],
-                    [128, 64, 32, 64, 128],
-                    [ 8,  8,  8,  8], 
-                    [16, 16, 16, 16],
-                    [32, 32, 32, 32],
-                    [64, 64, 64, 64],
-                    [128, 128, 128, 128],
-                    [ 8,  8,  8], 
+    modelshape_s = [[128, 128, 128, 128],
                     [16, 16, 16],
-                    [32, 32, 32],
-                    [64, 64, 64],
                     [128, 128, 128],
-                    [ 8,  8], 
-                    [16, 16],
-                    [32, 32],
-                    [64, 64], 
-                    [128, 128]]
+                    [128, 128],
+                    [128]]
     batch_size_s = [10, 25, 50, 100]
-    epochs_s = [20, 80]
+    epochs_s = [20, 80, 90]
     lossfuns = ['mse', 'mae', 'mape']
     optimizers = ['adam', 'sgd', 'rmsprop']
     activations = ['relu', 'tanh', 'sigmoid']
 
+    # run a grid search
+    totalnum = len(modelshape_s)*\
+        len(batch_size_s)*len(epochs_s)*\
+            len(lossfuns)*len(optimizers)*len(activations)
+    print("Total number of models to run: ", totalnum)
     modelnum = 0
-
     for modelshape in modelshape_s:
         for batch_size in batch_size_s:
             for epochs  in epochs_s:
