@@ -21,6 +21,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
 import commonmodules as cm
+import time
 
 FIXEDSEED = True
 
@@ -545,7 +546,9 @@ if __name__ == "__main__":
                             msetest_vsets_split = 0.0
                             r2train_vsets_split = 0.0 
                             msetrain_vsets_split = 0.0
-                            
+
+                            timestart = time.time()
+
                             r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
                                 build_v_split (vset, modelshape, batch_size, epochs, \
                                                 lossfun, optimizer, activation, \
@@ -566,3 +569,6 @@ if __name__ == "__main__":
                             print("Model shapes  %3d , %s , %5d , %5d , %s , %s , %s "%( \
                                  modelnum, str(modelshape), batch_size, epochs, \
                                     lossfun, optimizer, activation), flush=True)
+                            
+                            timeend = time.time()
+                            print("Total seconds taken: ", timeend-timestart, flush=True)
