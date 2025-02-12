@@ -522,7 +522,7 @@ if __name__ == "__main__":
         [128]]
     batch_size_s = [25, 50, 100]
     epochs_s = [80, 90]
-    lossfuns = ['mse', 'mae', 'mape']
+    lossfuns = ['mse', 'mae']
     optimizers = ['adam', 'sgd', 'rmsprop']
     activations = ['relu', 'tanh', 'sigmoid']
 
