@@ -63,7 +63,9 @@ if __name__ == "__main__":
             
                 model = cm.build_model_GP_3D (train_x, train_y, nuval=nu)
                 
-                ofptest = open("vremoved_GP_"+str(vmap_toreal[v])+"_test.csv", "w")
+                ofptest = open("vremoved_GP_"+\
+                               str(nu)+"_"+ \
+                               str(vmap_toreal[v])+"_test.csv", "w")
                 print (" v , w , T , y , y_pred ", file=ofptest)
                 test_x_sp = scalerx.inverse_transform(test_x)
                 pred_y = model.predict(test_x)
