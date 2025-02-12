@@ -138,15 +138,24 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
             verbose=0)
 
         pred_y = model.predict(test_x, verbose=0)
-        testmse = metrics.mean_absolute_error(test_y, pred_y)
-        testr2 = metrics.r2_score(test_y, pred_y)
+        try:
+            testmse = metrics.mean_absolute_error(test_y, pred_y)
+            testr2 = metrics.r2_score(test_y, pred_y)
+        except:
+            testmse = float('inf')
+            testr2 = 0.0
 
         avgr2_test += testr2
         avgmse_test += testmse
 
         pred_y = model.predict(train_x, verbose=0)
-        trainmse = metrics.mean_absolute_error(train_y, pred_y)
-        trainr2 = metrics.r2_score(train_y, pred_y)
+
+        try:
+            trainmse = metrics.mean_absolute_error(train_y, pred_y)
+            trainr2 = metrics.r2_score(train_y, pred_y)
+        except:
+            trainmse = float('inf')
+            trainr2 = 0.0
 
         avgr2_train += trainr2
         avgmse_train += trainmse
@@ -260,15 +269,23 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
             verbose=0)
 
         pred_y = model.predict(test_x, verbose=0)
-        testmse = metrics.mean_absolute_error(test_y, pred_y)
-        testr2 = metrics.r2_score(test_y, pred_y)
+        try:
+            testmse = metrics.mean_absolute_error(test_y, pred_y)
+            testr2 = metrics.r2_score(test_y, pred_y)
+        except:
+            testmse = float('inf')
+            testr2 = 0.0
 
         avgr2_test += testr2
         avgmse_test += testmse
 
         pred_y = model.predict(train_x, verbose=0)
-        trainmse = metrics.mean_absolute_error(train_y, pred_y)
-        trainr2 = metrics.r2_score(train_y, pred_y)
+        try:
+            trainmse = metrics.mean_absolute_error(train_y, pred_y)
+            trainr2 = metrics.r2_score(train_y, pred_y)
+        except:
+            trainmse = float('inf')
+            trainr2 = 0.0
 
         avgr2_train += trainr2
         avgmse_train += trainmse
