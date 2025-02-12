@@ -11,16 +11,26 @@ from sklearn import metrics
 
 if __name__ == "__main__":
 
-    filename = "N2H2_VVdata_3variables.xlsx"
+    filename = "N2H2_3D.xlsx"
     df = pd.read_excel(filename)
     debug = False
 
     x = df[['v', 'w', 'T(K)']].values
-    y = df[['k(cm^3/s)']].values
+    #y = df[['k(cm^3/s)']].values
+    y = np.log10(df[['k(cm^3/s)']].values)
 
     scalerx = MinMaxScaler()
     scalerx.fit(x)
     x_s = scalerx.transform(x)
+
+    vmap_toreal = {}
+
+    for i, vn in enumerate(x_s[:,0]):
+        vmap_toreal[vn] = x[i,0]
+
+    print("V map: ")
+    for a in vmap_toreal:
+        print("%4.2f --> %3d"%(a, vmap_toreal[a]))
 
     vset = set(x_s[:,0])
     wset = set(x_s[:,1])
@@ -35,168 +45,172 @@ if __name__ == "__main__":
             print(ys, y[i])
         for i, xs in enumerate(x_s):
             print(xs, x[i])
+    
+   
+    for nu in [1.0/2.0, 1.0, 2.0, 5.0/2.0, 3.0]:
+        ofp = open("vremoved_GP_"+str(nu)+".csv", "w")
+    
+        avgr2test = 0.0
+        avgmsetest = 0.0
+        avgr2train = 0.0
+        avgmsetrain = 0.0
+        #print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2")
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
+ 
+        for v in vset:
+            if vmap_toreal[v] == 40:
+                train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
+            
+                model = cm.build_model_GP_3D (train_x, train_y, nuval=nu)
+                
+                ofptest = open("vremoved_GP_"+str(vmap_toreal[v])+"_test.csv", "w")
+                print (" v , w , T , y , y_pred ", file=ofptest)
+                test_x_sp = scalerx.inverse_transform(test_x)
+                pred_y = model.predict(test_x)
+                pred_y_sb = scalery.inverse_transform(pred_y)
+                test_y_sb = scalery.inverse_transform(test_y)
+                for i, yt in enumerate(test_y_sb):
+                     print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(test_x_sp[i,0], 
+                                                         test_x_sp[i,1],
+                                                         test_x_sp[i,2],
+                                                         yt,
+                                                         pred_y_sb[i]), file=ofptest, flush=True)
+                #plt.scatter(test_y_sb, pred_y_sb)
+                #plt.show()
+                testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
+                testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+                ofptest.close()
+            
+                ofptrain = open("vremoved_GP_"+str(vmap_toreal[v])+"_train.csv", "w")
+                print (" v , w , T , y , y_pred  ", file=ofptrain)
+                pred_y = model.predict(train_x)
+                pred_y_sb = scalery.inverse_transform(pred_y)
+                train_y_sb = scalery.inverse_transform(train_y)
+                train_x_sp = scalerx.inverse_transform(train_x)
+                for i, yt in enumerate(train_y_sb):
+                     print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(train_x_sp[i,0], 
+                                                         train_x_sp[i,1],
+                                                         train_x_sp[i,2],
+                                                         yt,
+                                                         pred_y_sb[i]), file=ofptrain, flush=True)
+                #plt.scatter(train_y_sb, pred_y_sb)
+                #plt.show()
+                trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
+                trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+                ofptrain.close()
+                
+                #print("%3d , %10.6e , %10.6f , %10.6e , %10.6f"%(vmap_toreal[v], testmse, testr2, \
+                #                                                   trainmse,  trainr2))
+                
+                print("%3d , %10.6e , %10.6f , %10.6e , %10.6f"%(vmap_toreal[v], testmse, testr2, \
+                                                                   trainmse,  trainr2), file=ofp)
+                avgmsetest += testmse
+                avgr2test += testr2
+                avgmsetrain += trainmse
+                avgr2train += trainr2
+        ofp.close()
+        print(nu, avgmsetest/len(vset), avgr2test/len(vset), avgmsetrain/len(vset), avgr2train/len(vset))
+    vlist = list(vset)
 
+    exit()
 
-    ofp = open("perc_GP.csv", "w")
-
-    print (" Perc. Split , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
-    print (" Perc. Split , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
-    for perc in [0.05, 0.10, 0.25, 0.30, 0.50]:
-        train_x, test_x, train_y, test_y = train_test_split(x_s, y_s, \
-                        test_size=perc, random_state=42)
-
-        modelshape = [64, 64, 64]
-        epochs = 20
-        batch_size = 50
-
+    vset_torm = []
+    
+    vtoremove = []
+    for i in range(1,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+    
+    vtoremove = []
+    for i in range(0,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+    
+    vtoremove = []
+    for i in range(1,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+    
+    vtoremove = []
+    for i in range(0,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+    
+    vtoremove = []
+    for i in range(1,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+    
+    vtoremove = []
+    for i in range(0,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+    
+    ofp = open("vsetremoved_GP.csv", "w")
+    
+    print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2")
+    print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
+    for setid, v in enumerate(vset_torm):
+    
+        train_x, test_x, train_y, test_y = cm.test_train_split (0, v, x_s, y_s)
+    
+        v_sp = []
+        for val in v:
+            v_sp.append(vmap_toreal[val]) 
+        
         model = cm.build_model_GP_3D (train_x, train_y)
+    
+        ofptest = open("vsetremoved_GP_set"+str(setid+1)+"_test.csv", "w")
+        print (" v , w , T , y , y_pred", file=ofptest)
         pred_y = model.predict(test_x)
-        #to scale back y
-        #pred_y_sb = scalery.inverse_transform(pred_y)
-        #y_sb = scalery.inverse_transform(test_y)
-        #plt.scatter(y_sb, pred_y_sb)
+        test_x_sp = scalerx.inverse_transform(test_x)
+        pred_y_sb = scalery.inverse_transform(pred_y)
+        test_y_sb = scalery.inverse_transform(test_y)
+        for i, yt in enumerate(test_y_sb):
+            print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(test_x_sp[i,0], 
+                                                 test_x_sp[i,1],
+                                                 test_x_sp[i,2],
+                                                 yt,
+                                                 pred_y_sb[i]), file=ofptest, flush=True)
+        #plt.scatter(test_y_sb, pred_y_sb)
         #plt.show()
-        testmse = metrics.mean_absolute_error(test_y, pred_y)
-        testr2 = metrics.r2_score(test_y, pred_y)
-
+        testmse = metrics.mean_absolute_error(test_y_sb, pred_y_sb)
+        testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
+        ofptest.close()
+    
+        ofptrain = open("vsetremoved_GP_set"+str(setid+1)+"_train.csv", "w")
+        print (" v , w , T , y , y_pred  ", file=ofptrain)
         pred_y = model.predict(train_x)
-        trainmse = metrics.mean_absolute_error(train_y, pred_y)
-        trainr2 = metrics.r2_score(train_y, pred_y)
-
-        print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(perc, testmse, testr2, \
-                                                        trainmse,  trainr2), flush=True)
-        print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(perc, testmse, testr2, \
-                                                        trainmse,  trainr2), file=ofp)
-        
-    ofp.close()
-
-
-    ofp = open("vremoved_GP.csv", "w")
-
-    thefirst = True
-    print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
-    print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
-    for v in vset:
-        train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
-
-        modelshape = [64, 64, 64]
-        epochs = 20
-        batch_size = 50
-
-        if thefirst:
-            model = cm.buildmodel(modelshape)
-            history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-                verbose=0)
-            thefirst = False
-
-        model = cm.buildmodel(modelshape)
-        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-            verbose=0)
-
-        pred_y = model.predict(test_x)
-        #to scale back y
-        #pred_y_sb = scalery.inverse_transform(pred_y)
-        #y_sb = scalery.inverse_transform(test_y)
-        #plt.scatter(y_sb, pred_y_sb)
+        pred_y_sb = scalery.inverse_transform(pred_y)
+        train_y_sb = scalery.inverse_transform(train_y)
+        train_x_sp = scalerx.inverse_transform(train_x)
+        for i, yt in enumerate(train_y_sb):
+             print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(train_x_sp[i,0], 
+                                                 train_x_sp[i,1],
+                                                 train_x_sp[i,2],
+                                                 yt,
+                                                 pred_y_sb[i]), file=ofptrain, flush=True)
+        #plt.scatter(train_y_sb, pred_y_sb)
         #plt.show()
-        testmse = metrics.mean_absolute_error(test_y, pred_y)
-        testr2 = metrics.r2_score(test_y, pred_y)
-
-        pred_y = model.predict(train_x)
-        trainmse = metrics.mean_absolute_error(train_y, pred_y)
-        trainr2 = metrics.r2_score(train_y, pred_y)
-
-        print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2), flush=True)
-        
-        print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2), file=ofp)
-        
-    ofp.close()
-
-    ofp = open("wremoved_GP.csv", "w")
-
-    thefirst = True
-
-    print (" w Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
-    print (" w Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
-    for w in wset:
-        train_x, test_x, train_y, test_y = cm.test_train_split (1, [w], x_s, y_s)
-
-        modelshape = [64, 64, 64]
-        epochs = 20
-        batch_size = 50
-
-        if thefirst:
-            model = cm.buildmodel(modelshape)
-            history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-                verbose=0)
-            thefirst = False
-
-        model = cm.buildmodel(modelshape)
-        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-            verbose=0)
-
-        pred_y = model.predict(test_x)
-        #to scale back y
-        #pred_y_sb = scalery.inverse_transform(pred_y)
-        #y_sb = scalery.inverse_transform(test_y)
-        #plt.scatter(y_sb, pred_y_sb)
-        #plt.show()
-        testmse = metrics.mean_absolute_error(test_y, pred_y)
-        testr2 = metrics.r2_score(test_y, pred_y)
-
-        pred_y = model.predict(train_x)
-        trainmse = metrics.mean_absolute_error(train_y, pred_y)
-        trainr2 = metrics.r2_score(train_y, pred_y)
-
-        print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(w, testmse, testr2, \
-                                                        trainmse,  trainr2), flush=True)
-        
-        print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(w, testmse, testr2, \
-                                                        trainmse,  trainr2), file=ofp)
-        
-    ofp.close()
-
-    ofp = open("tremoved_GP.csv", "w")
-
-    thefirst = True
-
-    print (" T Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
-    print (" T Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
-    for t in tset:
-        train_x, test_x, train_y, test_y = cm.test_train_split (2, [t], x_s, y_s)
-
-        modelshape = [64, 64, 64]
-        epochs = 20
-        batch_size = 50
-
-        if thefirst:
-            model = cm.buildmodel(modelshape)
-            history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-                verbose=0)
-            thefirst = False
-
-        model = cm.buildmodel(modelshape)
-        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-            verbose=0)
-
-        pred_y = model.predict(test_x)
-        #to scale back y
-        #pred_y_sb = scalery.inverse_transform(pred_y)
-        #y_sb = scalery.inverse_transform(test_y)
-        #plt.scatter(y_sb, pred_y_sb)
-        #plt.show()
-        testmse = metrics.mean_absolute_error(test_y, pred_y)
-        testr2 = metrics.r2_score(test_y, pred_y)
-
-        pred_y = model.predict(train_x)
-        trainmse = metrics.mean_absolute_error(train_y, pred_y)
-        trainr2 = metrics.r2_score(train_y, pred_y)
-
-        print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(t, testmse, testr2, \
-                                                        trainmse,  trainr2), flush=True)
-        print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(t, testmse, testr2, \
-                                                        trainmse,  trainr2), file=ofp)
+        trainmse = metrics.mean_absolute_error(train_y_sb, pred_y_sb)
+        trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
+        ofptrain.close()
+            
+        print("%s , %10.6e , %10.6f , %10.6e , %10.6f"%(str(v_sp).replace(",",";"), testmse, testr2, \
+                                                            trainmse,  trainr2), flush=True)
+        print("%s , %10.6e , %10.6f , %10.6e , %10.6f"%(str(v_sp).replace(",",";"), testmse, testr2, \
+                                                            trainmse,  trainr2), file=ofp, flush=True)
         
     ofp.close()
