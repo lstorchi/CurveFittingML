@@ -512,11 +512,14 @@ if __name__ == "__main__":
         #cm.plotfull3dcurve (1, np.asarray(toplotx), np.asarray(toploty))
 
 
-    modelshape_s = [[128, 128, 128, 128],
-                    [16, 16, 16, 16],
-                    [128, 128, 128],
-                    [128, 128],
-                    [128]]
+    modelshape_s = [
+        [256, 256, 256, 256, 256, 256],
+        [256, 256, 256],
+        [128, 128, 128, 128],
+        [16, 16, 16, 16],
+        [128, 128, 128],
+        [128, 128],
+        [128]]
     batch_size_s = [25, 50, 100]
     epochs_s = [80, 90]
     lossfuns = ['mse', 'mae', 'mape']
