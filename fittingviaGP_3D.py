@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 import commonmodules as cm
 
 from sklearn import metrics
+import time
 
 if __name__ == "__main__":
 
@@ -56,7 +57,8 @@ if __name__ == "__main__":
         avgmsetrain = 0.0
         #print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2")
         print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
- 
+
+        starttime = time.time()
         for v in vset:
             if vmap_toreal[v] == 40:
                 train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
@@ -67,10 +69,13 @@ if __name__ == "__main__":
                                str(nu)+"_"+ \
                                str(vmap_toreal[v])+"_test.csv", "w")
                 print (" v , w , T , y , y_pred ", file=ofptest)
+                print ("Test Shape : ", test_x.shape)
                 test_x_sp = scalerx.inverse_transform(test_x)
                 pred_y = model.predict(test_x)
-                pred_y_sb = scalery.inverse_transform(pred_y)
-                test_y_sb = scalery.inverse_transform(test_y)
+                print ("Pred y Shape ", pred_y.shape)
+                print ("Test y Shape ", test_y.shape)
+                pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
+                test_y_sb = scalery.inverse_transform(test_y.reshape(-1,1))
                 for i, yt in enumerate(test_y_sb):
                      print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(test_x_sp[i,0], 
                                                          test_x_sp[i,1],
@@ -86,8 +91,10 @@ if __name__ == "__main__":
                 ofptrain = open("vremoved_GP_"+str(vmap_toreal[v])+"_train.csv", "w")
                 print (" v , w , T , y , y_pred  ", file=ofptrain)
                 pred_y = model.predict(train_x)
-                pred_y_sb = scalery.inverse_transform(pred_y)
-                train_y_sb = scalery.inverse_transform(train_y)
+                print ("Train y Shape ", train_y.shape)
+                print ("Pred y Shape ", pred_y.shape)
+                pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
+                train_y_sb = scalery.inverse_transform(train_y.reshape(-1,1))
                 train_x_sp = scalerx.inverse_transform(train_x)
                 for i, yt in enumerate(train_y_sb):
                      print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(train_x_sp[i,0], 
@@ -111,6 +118,8 @@ if __name__ == "__main__":
                 avgmsetrain += trainmse
                 avgr2train += trainr2
         ofp.close()
+        endtime = time.time()
+        print("Time taken for nu = %4.2f is %10.6f"%(nu, endtime-starttime))
         print(nu, avgmsetest/len(vset), avgr2test/len(vset), avgmsetrain/len(vset), avgr2train/len(vset))
     vlist = list(vset)
 
