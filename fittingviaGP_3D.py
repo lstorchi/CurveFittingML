@@ -47,7 +47,7 @@ if __name__ == "__main__":
         for i, xs in enumerate(x_s):
             print(xs, x[i])
      
-    for nu in [2.0]:
+    for nu in [1.0]:
         ofp = open("vremoved_GP_"+str(nu)+".csv", "w")
     
         avgr2test = 0.0
