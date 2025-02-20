@@ -194,8 +194,8 @@ if __name__ == "__main__":
             print (" v , w , T , y , y_pred", file=ofptest, flush=True)
             pred_y = model.predict(test_x)
             test_x_sp = scalerx.inverse_transform(test_x)
-            pred_y_sb = scalery.inverse_transform(pred_y)
-            test_y_sb = scalery.inverse_transform(test_y)
+            pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
+            test_y_sb = scalery.inverse_transform(test_y.reshape(-1, 1))
             for i, yt in enumerate(test_y_sb):
                 print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(test_x_sp[i,0], 
                                                      test_x_sp[i,1],
@@ -211,8 +211,8 @@ if __name__ == "__main__":
             ofptrain = open("vsetremoved_GP_set"+str(setid+1)+"_train.csv", "w")
             print (" v , w , T , y , y_pred  ", file=ofptrain)
             pred_y = model.predict(train_x)
-            pred_y_sb = scalery.inverse_transform(pred_y)
-            train_y_sb = scalery.inverse_transform(train_y)
+            pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
+            train_y_sb = scalery.inverse_transform(train_y.reshape(-1, 1))
             train_x_sp = scalerx.inverse_transform(train_x)
             for i, yt in enumerate(train_y_sb):
                  print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(train_x_sp[i,0], 
