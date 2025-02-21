@@ -95,241 +95,7 @@ def build_perc_split (modelshape, batch_size, epochs, \
 
     return avgr2_train/num, avgmse_train/num, avgr2_test/num, avgmse_test/num
 
-#######################################################################
-
-def build_v_split (vset, modelshape, batch_size, epochs, \
-                   lossfun, optimizer, activation, \
-                   modelfname="", verbose=False):
-
-    ofp = None
-    if modelfname != "":
-        ofp = open(modelfname, "w")
-
-    avgr2_test = 0.0
-    avgr2_train = 0.0
-    avgmse_test = 0.0
-    avgmse_train = 0.0
-
-    num = 0.0
-    basename = "" 
-    if modelfname != "":
-        basename = modelfname.split(".csv")[0]
-
-    #early_stopping = keras.callbacks.EarlyStopping(
-    #    monitor='val_loss',
-    #    patience=10,
-    #    min_delta=0.00001,
-    #    mode='min',
-    #    verbose=1
-    #)
-
-    thefirst = True
-    if verbose:
-        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
-    if modelfname != "":
-        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, flush=True)
-    for v in vset:
-
-        if FIXEDSEED:
-            # to fix seed
-            np.random.seed(42)
-            tf.random.set_seed(42)
-            random.seed(42)
-
-        train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
-
-        if thefirst:
-            model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
-                                    activationf=activation)
-            history = model.fit(train_x, train_y, epochs=int(epochs*0.10),\
-                batch_size=batch_size, verbose=0)
-            thefirst = False
-
-        model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
-                                    activationf=activation)
-        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-            verbose=0)
-        with open(basename + "_" + \
-                  str(v) + "_training_history.pkl", 'wb') as f:
-            pickle.dump(history.history, f)
-
-        pred_y = model.predict(test_x, verbose=0)
-        try:
-            testmse = metrics.mean_absolute_error(test_y, pred_y)
-            testr2 = metrics.r2_score(test_y, pred_y)
-        except:
-            testmse = float('inf')
-            testr2 = 0.0
-
-        avgr2_test += testr2
-        avgmse_test += testmse
-
-        pred_y = model.predict(train_x, verbose=0)
-
-        try:
-            trainmse = metrics.mean_absolute_error(train_y, pred_y)
-            trainr2 = metrics.r2_score(train_y, pred_y)
-        except:
-            trainmse = float('inf')
-            trainr2 = 0.0
-
-        avgr2_train += trainr2
-        avgmse_train += trainmse
-
-        num += 1.0
-        
-        if verbose:
-            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2), flush=True)
-        
-        if modelfname != "":
-            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2), file=ofp, flush=True)
-    
-    if modelfname != "":
-        ofp.close()
-
-    return avgr2_train/num, avgmse_train/num, avgr2_test/num, avgmse_test/num
-
-#######################################################################
-
-def build_vsets_split (vlist, modelshape, batch_size, epochs, \
-                     lossfun, optimizer, activation, \
-                   modelfname="", verbose=False):
-
-    ofp = None
-    if modelfname != "":
-        ofp = open(modelfname, "w")
-
-    basename = "" 
-    if modelfname != "":
-        basename = modelfname.split(".csv")[0]
-
-    avgr2_test = 0.0
-    avgr2_train = 0.0
-    avgmse_test = 0.0
-    avgmse_train = 0.0
-
-    num = 0.0
-
-    thefirst = True
-    if verbose:
-        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
-    if modelfname != "":
-        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, flush=True)
-
-    vset_torm = []
-
-    vtoremove = []
-    for i in range(1,len(vlist),2):
-        vtoremove.append(vlist[i])
-    vset_torm.append(vtoremove)
-
-    vtoremove = []
-    for i in range(0,len(vlist),2):
-        vtoremove.append(vlist[i])
-    vset_torm.append(vtoremove)
-
-    vtoremove = []
-    for i in range(1,len(vlist),3):
-        vtoremove.append(vlist[i])
-        if (i+1 < len(vlist)):
-            vtoremove.append(vlist[i+1])
-    vset_torm.append(vtoremove)
-
-    vtoremove = []
-    for i in range(0,len(vlist),3):
-        vtoremove.append(vlist[i])
-        if (i+1 < len(vlist)):
-            vtoremove.append(vlist[i+1])
-    vset_torm.append(vtoremove)
-
-    vtoremove = []
-    for i in range(1,len(vlist),4):
-        vtoremove.append(vlist[i])
-        if (i+1 < len(vlist)):
-            vtoremove.append(vlist[i+1])
-        if (i+2 < len(vlist)):
-            vtoremove.append(vlist[i+2])
-    vset_torm.append(vtoremove)
-
-    vtoremove = []
-    for i in range(0,len(vlist),4):
-        vtoremove.append(vlist[i])
-        if (i+1 < len(vlist)):
-            vtoremove.append(vlist[i+1])
-        if (i+2 < len(vlist)):
-            vtoremove.append(vlist[i+2])
-    vset_torm.append(vtoremove)
-
-    #print(len(vlist))
-    #for v in vset_torm:
-    #    print(len(v), v)
-
-    for v in vset_torm:
-
-        if FIXEDSEED:
-            # to fix seed
-            np.random.seed(42)
-            tf.random.set_seed(42)
-            random.seed(42)
-
-        train_x, test_x, train_y, test_y = cm.test_train_split (0, v, x_s, y_s)
-
-        if thefirst:
-            model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
-                                    activationf=activation)
-            history = model.fit(train_x, train_y, epochs=int(epochs*0.10),  batch_size=batch_size, \
-                verbose=0)
-            thefirst = False
-
-        model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
-                                    activationf=activation)
-        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-            verbose=0)
-        with open(basename + "_" + \
-                  str(v) + "_training_history.pkl", 'wb') as f:
-            pickle.dump(history.history, f)
-
-        pred_y = model.predict(test_x, verbose=0)
-        try:
-            testmse = metrics.mean_absolute_error(test_y, pred_y)
-            testr2 = metrics.r2_score(test_y, pred_y)
-        except:
-            testmse = float('inf')
-            testr2 = 0.0
-
-        avgr2_test += testr2
-        avgmse_test += testmse
-
-        pred_y = model.predict(train_x, verbose=0)
-        try:
-            trainmse = metrics.mean_absolute_error(train_y, pred_y)
-            trainr2 = metrics.r2_score(train_y, pred_y)
-        except:
-            trainmse = float('inf')
-            trainr2 = 0.0
-
-        avgr2_train += trainr2
-        avgmse_train += trainmse
-
-        num += 1.0
-        
-        if verbose:
-            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2), flush=True)
-        
-        if modelfname != "":
-            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
-                                                        trainmse,  trainr2), file=ofp, flush=True)
-    
-    if modelfname != "":
-        ofp.close()
-
-
-    return avgr2_train/num, avgmse_train/num, avgr2_test/num, avgmse_test/num
-
-#######################################################################
+####################################################################################
 
 def build_w_split (wset, modelshape, batch_size, epochs, \
                    modelfname="", verbose=False):
@@ -473,6 +239,240 @@ def build_t_split (tset, modelshape, batch_size, epochs, \
 
 #######################################################################
 
+def build_v_split (vset, modelshape, batch_size, epochs, \
+                   lossfun, optimizer, activation, \
+                   modelfname="", verbose=False):
+
+    ofp = None
+    if modelfname != "":
+        ofp = open(modelfname, "w")
+
+    avgr2_test = 0.0
+    avgr2_train = 0.0
+    avgmse_test = 0.0
+    avgmse_train = 0.0
+
+    num = 0.0
+    basename = "" 
+    if modelfname != "":
+        basename = modelfname.split(".csv")[0]
+
+    #early_stopping = keras.callbacks.EarlyStopping(
+    #    monitor='val_loss',
+    #    patience=10,
+    #    min_delta=0.00001,
+    #    mode='min',
+    #    verbose=1
+    #)
+
+    thefirst = True
+    if verbose:
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
+    if modelfname != "":
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, flush=True)
+    for v in vset:
+
+        if FIXEDSEED:
+            # to fix seed
+            np.random.seed(42)
+            tf.random.set_seed(42)
+            random.seed(42)
+
+        train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
+
+        if thefirst:
+            model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
+            history = model.fit(train_x, train_y, epochs=10,\
+                batch_size=batch_size, verbose=0)
+            thefirst = False
+
+        model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
+        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+            verbose=0)
+        with open(basename + "_" + \
+                  str(v) + "_training_history.pkl", 'wb') as f:
+            pickle.dump(history.history, f)
+
+        pred_y = model.predict(test_x, verbose=0)
+        try:
+            testmse = metrics.mean_absolute_error(test_y, pred_y)
+            testr2 = metrics.r2_score(test_y, pred_y)
+        except:
+            testmse = float('inf')
+            testr2 = 0.0
+
+        avgr2_test += testr2
+        avgmse_test += testmse
+
+        pred_y = model.predict(train_x, verbose=0)
+
+        try:
+            trainmse = metrics.mean_absolute_error(train_y, pred_y)
+            trainr2 = metrics.r2_score(train_y, pred_y)
+        except:
+            trainmse = float('inf')
+            trainr2 = 0.0
+
+        avgr2_train += trainr2
+        avgmse_train += trainmse
+
+        num += 1.0
+        
+        if verbose:
+            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+                                                        trainmse,  trainr2), flush=True)
+        
+        if modelfname != "":
+            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+                                                        trainmse,  trainr2), file=ofp, flush=True)
+    
+    if modelfname != "":
+        ofp.close()
+
+    return avgr2_train/num, avgmse_train/num, avgr2_test/num, avgmse_test/num
+
+#######################################################################
+
+def build_vsets_split (vlist, modelshape, batch_size, epochs, \
+                     lossfun, optimizer, activation, \
+                   modelfname="", verbose=False):
+
+    ofp = None
+    if modelfname != "":
+        ofp = open(modelfname, "w")
+
+    basename = "" 
+    if modelfname != "":
+        basename = modelfname.split(".csv")[0]
+
+    avgr2_test = 0.0
+    avgr2_train = 0.0
+    avgmse_test = 0.0
+    avgmse_train = 0.0
+
+    num = 0.0
+
+    thefirst = True
+    if verbose:
+        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
+    if modelfname != "":
+        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, flush=True)
+
+    vset_torm = []
+
+    vtoremove = []
+    for i in range(1,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),2):
+        vtoremove.append(vlist[i])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(1,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),3):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(1,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+
+    vtoremove = []
+    for i in range(0,len(vlist),4):
+        vtoremove.append(vlist[i])
+        if (i+1 < len(vlist)):
+            vtoremove.append(vlist[i+1])
+        if (i+2 < len(vlist)):
+            vtoremove.append(vlist[i+2])
+    vset_torm.append(vtoremove)
+
+    #print(len(vlist))
+    #for v in vset_torm:
+    #    print(len(v), v)
+
+    for v in vset_torm:
+
+        if FIXEDSEED:
+            # to fix seed
+            np.random.seed(42)
+            tf.random.set_seed(42)
+            random.seed(42)
+
+        train_x, test_x, train_y, test_y = cm.test_train_split (0, v, x_s, y_s)
+
+        if thefirst:
+            model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
+            history = model.fit(train_x, train_y, epochs=10,  batch_size=batch_size, \
+                verbose=0)
+            thefirst = False
+
+        model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
+        history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+            verbose=0)
+        with open(basename + "_" + \
+                  str(v) + "_training_history.pkl", 'wb') as f:
+            pickle.dump(history.history, f)
+
+        pred_y = model.predict(test_x, verbose=0)
+        try:
+            testmse = metrics.mean_absolute_error(test_y, pred_y)
+            testr2 = metrics.r2_score(test_y, pred_y)
+        except:
+            testmse = float('inf')
+            testr2 = 0.0
+
+        avgr2_test += testr2
+        avgmse_test += testmse
+
+        pred_y = model.predict(train_x, verbose=0)
+        try:
+            trainmse = metrics.mean_absolute_error(train_y, pred_y)
+            trainr2 = metrics.r2_score(train_y, pred_y)
+        except:
+            trainmse = float('inf')
+            trainr2 = 0.0
+
+        avgr2_train += trainr2
+        avgmse_train += trainmse
+
+        num += 1.0
+        
+        if verbose:
+            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+                                                        trainmse,  trainr2), flush=True)
+        
+        if modelfname != "":
+            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+                                                        trainmse,  trainr2), file=ofp, flush=True)
+    
+    if modelfname != "":
+        ofp.close()
+
+
+    return avgr2_train/num, avgmse_train/num, avgr2_test/num, avgmse_test/num
+
+#######################################################################
+
 if __name__ == "__main__":
 
     # so all the models should start from the same point
@@ -493,6 +493,15 @@ if __name__ == "__main__":
     scalerx = MinMaxScaler()
     scalerx.fit(x)
     x_s = scalerx.transform(x)
+
+    vmap_toreal = {}
+
+    for i, vn in enumerate(x_s[:,0]):
+        vmap_toreal[vn] = x[i,0]
+
+    print("V map: ")
+    for a in vmap_toreal:
+        print("%4.2f --> %3d"%(a, vmap_toreal[a]))
 
     vset = set(x_s[:,0])
     wset = set(x_s[:,1])
