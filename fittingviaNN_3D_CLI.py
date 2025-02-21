@@ -111,6 +111,14 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
 
     num = 0.0
 
+    #early_stopping = keras.callbacks.EarlyStopping(
+    #    monitor='val_loss',
+    #    patience=10,
+    #    min_delta=0.00001,
+    #    mode='min',
+    #    verbose=1
+    #)
+
     thefirst = True
     if verbose:
         print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
@@ -137,6 +145,7 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
                                     activationf=activation)
         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
             verbose=0)
+        print(history)
 
         pred_y = model.predict(test_x, verbose=0)
         try:
@@ -515,16 +524,12 @@ if __name__ == "__main__":
     modelshape_s = [
         [256, 256, 256, 256, 256, 256],
         [256, 256, 256],
-        [128, 128, 128, 128],
-        [16, 16, 16, 16],
-        [128, 128, 128],
-        [128, 128],
-        [128]]
-    batch_size_s = [25, 50, 100]
-    epochs_s = [80, 90]
+        [128, 128, 128]]
+    batch_size_s = [12, 25, 100, 256]
+    epochs_s = [1000]
     lossfuns = ['mse', 'mae']
-    optimizers = ['adam', 'sgd', 'rmsprop']
-    activations = ['relu', 'tanh', 'sigmoid']
+    optimizers = ['adam']
+    activations = ['relu']
 
     # run a grid search
     totalnum = len(modelshape_s)*\
