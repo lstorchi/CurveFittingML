@@ -130,26 +130,26 @@ if __name__ == "__main__":
     vtoremove = []
     for i in range(1,len(vlist),2):
         vtoremove.append(vlist[i])
-    #vset_torm.append(vtoremove)
+    vset_torm.append(vtoremove)
     
     vtoremove = []
     for i in range(0,len(vlist),2):
         vtoremove.append(vlist[i])
-    #vset_torm.append(vtoremove)
+    vset_torm.append(vtoremove)
     
     vtoremove = []
     for i in range(1,len(vlist),3):
         vtoremove.append(vlist[i])
         if (i+1 < len(vlist)):
             vtoremove.append(vlist[i+1])
-    #vset_torm.append(vtoremove)
+    vset_torm.append(vtoremove)
     
     vtoremove = []
     for i in range(0,len(vlist),3):
         vtoremove.append(vlist[i])
         if (i+1 < len(vlist)):
             vtoremove.append(vlist[i+1])
-    #vset_torm.append(vtoremove)
+    vset_torm.append(vtoremove)
     
     vtoremove = []
     for i in range(1,len(vlist),4):
@@ -167,14 +167,15 @@ if __name__ == "__main__":
             vtoremove.append(vlist[i+1])
         if (i+2 < len(vlist)):
             vtoremove.append(vlist[i+2])
-    #vset_torm.append(vtoremove)
+    vset_torm.append(vtoremove)
  
 
-    for nu in [1.0/2.0, 1.0, 2.0, 5.0/2.0, 3.0 ]:
+    for nu in [1.0]:
         ofp = open("vsetremoved_GP"+str(nu)+".csv", "w")
     
-        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2")
-        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
+        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
+        print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, \
+            flush=True)
         for setid, v in enumerate(vset_torm):
             print("SetID: ", setid)
             for vsetvalue in v:
@@ -208,7 +209,8 @@ if __name__ == "__main__":
             testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
             ofptest.close()
         
-            ofptrain = open("vsetremoved_GP_set"+str(setid+1)+"_train.csv", "w")
+            ofptrain = open("vsetremoved_GP_set"+str(setid+1)+\
+                "_" + str(nu) + "_train.csv", "w")
             print (" v , w , T , y , y_pred  ", file=ofptrain)
             pred_y = model.predict(train_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
