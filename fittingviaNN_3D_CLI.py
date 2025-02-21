@@ -113,7 +113,7 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
     num = 0.0
     basename = "" 
     if modelfname != "":
-        basename = modelfname.split*(".csv")[0]
+        basename = modelfname.split(".csv")[0]
 
     #early_stopping = keras.callbacks.EarlyStopping(
     #    monitor='val_loss',
@@ -201,6 +201,10 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
     if modelfname != "":
         ofp = open(modelfname, "w")
 
+    basename = "" 
+    if modelfname != "":
+        basename = modelfname.split(".csv")[0]
+
     avgr2_test = 0.0
     avgr2_train = 0.0
     avgmse_test = 0.0
@@ -275,7 +279,7 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
         if thefirst:
             model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
                                     activationf=activation)
-            history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
+            history = model.fit(train_x, train_y, epochs=int(epochs*0.10),  batch_size=batch_size, \
                 verbose=0)
             thefirst = False
 
@@ -283,6 +287,9 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
                                     activationf=activation)
         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
             verbose=0)
+        with open(basename + "_" + \
+                  str(v) + "_training_history.pkl", 'wb') as f:
+            pickle.dump(history.history, f)
 
         pred_y = model.predict(test_x, verbose=0)
         try:
