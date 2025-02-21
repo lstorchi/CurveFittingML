@@ -1,4 +1,5 @@
 import random 
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -110,6 +111,9 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
     avgmse_train = 0.0
 
     num = 0.0
+    basename = "" 
+    if modelfname != "":
+        basename = modelfname.split*(".csv")[0]
 
     #early_stopping = keras.callbacks.EarlyStopping(
     #    monitor='val_loss',
@@ -137,15 +141,17 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
         if thefirst:
             model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
                                     activationf=activation)
-            history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
-                verbose=0)
+            history = model.fit(train_x, train_y, epochs=int(epochs*0.10),\
+                batch_size=batch_size, verbose=0)
             thefirst = False
 
         model = cm.buildmodel(modelshape, lossf=lossfun, optimizerf=optimizer, \
                                     activationf=activation)
         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
             verbose=0)
-        print(history)
+        with open(basename + "_" + \
+                  str(v) + "_training_history.pkl", 'wb') as f:
+            pickle.dump(history.history, f)
 
         pred_y = model.predict(test_x, verbose=0)
         try:
