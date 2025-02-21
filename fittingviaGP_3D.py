@@ -47,7 +47,6 @@ if __name__ == "__main__":
         for i, xs in enumerate(x_s):
             print(xs, x[i])
      
-    """
     for nu in [1.0]:
         ofp = open("vremoved_GP_"+str(nu)+".csv", "w")
     
@@ -55,7 +54,7 @@ if __name__ == "__main__":
         avgmsetest = 0.0
         avgr2train = 0.0
         avgmsetrain = 0.0
-        #print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2")
+        print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2")
         print (" v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
 
         starttime = time.time()
@@ -88,11 +87,13 @@ if __name__ == "__main__":
             testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
             ofptest.close()
             
-            ofptrain = open("vremoved_GP_"+str(vmap_toreal[v])+"_train.csv", "w")
+            ofptrain = open("vremoved_GP_"+\
+                str(nu)+"_"+ \
+                str(vmap_toreal[v])+"_train.csv", "w")
             print (" v , w , T , y , y_pred  ", file=ofptrain)
             pred_y = model.predict(train_x)
-            print ("Train y Shape ", train_y.shape)
-            print ("Pred y Shape ", pred_y.shape)
+            #print ("Train y Shape ", train_y.shape)
+            #print ("Pred y Shape ", pred_y.shape)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
             train_y_sb = scalery.inverse_transform(train_y.reshape(-1,1))
             train_x_sp = scalerx.inverse_transform(train_x)
@@ -108,8 +109,8 @@ if __name__ == "__main__":
             trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
             ofptrain.close()
             
-            #print("%3d , %10.6e , %10.6f , %10.6e , %10.6f"%(vmap_toreal[v], testmse, testr2, \
-            #                                                   trainmse,  trainr2))
+            print("%3d , %10.6e , %10.6f , %10.6e , %10.6f"%(vmap_toreal[v], testmse, testr2, \
+                                                               trainmse,  trainr2))
             
             print("%3d , %10.6e , %10.6f , %10.6e , %10.6f"%(vmap_toreal[v], testmse, testr2, \
                                                                trainmse,  trainr2), file=ofp)
@@ -121,58 +122,56 @@ if __name__ == "__main__":
         endtime = time.time()
         print("Time taken for nu = %4.2f is %10.6f"%(nu, endtime-starttime))
         print(nu, avgmsetest/len(vset), avgr2test/len(vset), avgmsetrain/len(vset), avgr2train/len(vset))
-    """
 
-    vlist = list(vset)
-
-    vset_torm = []
+        vlist = list(vset)
     
-    vtoremove = []
-    for i in range(1,len(vlist),2):
-        vtoremove.append(vlist[i])
-    vset_torm.append(vtoremove)
-    
-    vtoremove = []
-    for i in range(0,len(vlist),2):
-        vtoremove.append(vlist[i])
-    vset_torm.append(vtoremove)
-    
-    vtoremove = []
-    for i in range(1,len(vlist),3):
-        vtoremove.append(vlist[i])
-        if (i+1 < len(vlist)):
-            vtoremove.append(vlist[i+1])
-    vset_torm.append(vtoremove)
-    
-    vtoremove = []
-    for i in range(0,len(vlist),3):
-        vtoremove.append(vlist[i])
-        if (i+1 < len(vlist)):
-            vtoremove.append(vlist[i+1])
-    vset_torm.append(vtoremove)
-    
-    vtoremove = []
-    for i in range(1,len(vlist),4):
-        vtoremove.append(vlist[i])
-        if (i+1 < len(vlist)):
-            vtoremove.append(vlist[i+1])
-        if (i+2 < len(vlist)):
-            vtoremove.append(vlist[i+2])
-    vset_torm.append(vtoremove)
-    
-    vtoremove = []
-    for i in range(0,len(vlist),4):
-        vtoremove.append(vlist[i])
-        if (i+1 < len(vlist)):
-            vtoremove.append(vlist[i+1])
-        if (i+2 < len(vlist)):
-            vtoremove.append(vlist[i+2])
-    vset_torm.append(vtoremove)
+        vset_torm = []
+        
+        vtoremove = []
+        for i in range(1,len(vlist),2):
+            vtoremove.append(vlist[i])
+        vset_torm.append(vtoremove)
+        
+        vtoremove = []
+        for i in range(0,len(vlist),2):
+            vtoremove.append(vlist[i])
+        vset_torm.append(vtoremove)
+        
+        vtoremove = []
+        for i in range(1,len(vlist),3):
+            vtoremove.append(vlist[i])
+            if (i+1 < len(vlist)):
+                vtoremove.append(vlist[i+1])
+        vset_torm.append(vtoremove)
+        
+        vtoremove = []
+        for i in range(0,len(vlist),3):
+            vtoremove.append(vlist[i])
+            if (i+1 < len(vlist)):
+                vtoremove.append(vlist[i+1])
+        vset_torm.append(vtoremove)
+        
+        vtoremove = []
+        for i in range(1,len(vlist),4):
+            vtoremove.append(vlist[i])
+            if (i+1 < len(vlist)):
+                vtoremove.append(vlist[i+1])
+            if (i+2 < len(vlist)):
+                vtoremove.append(vlist[i+2])
+        vset_torm.append(vtoremove)
+        
+        vtoremove = []
+        for i in range(0,len(vlist),4):
+            vtoremove.append(vlist[i])
+            if (i+1 < len(vlist)):
+                vtoremove.append(vlist[i+1])
+            if (i+2 < len(vlist)):
+                vtoremove.append(vlist[i+2])
+        vset_torm.append(vtoremove)
  
 
-    for nu in [1.0]:
         ofp = open("vsetremoved_GP_"+str(nu)+".csv", "w")
-    
+        starttime = time.time()
         print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
         print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, \
             flush=True)
@@ -234,3 +233,5 @@ if __name__ == "__main__":
                                                                 trainmse,  trainr2), file=ofp, flush=True)
             
         ofp.close()
+        endtime =  time.time()
+        print("Time taken for nu = %4.2f is %10.6f"%(nu, endtime-starttime))
