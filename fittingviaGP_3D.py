@@ -171,7 +171,7 @@ if __name__ == "__main__":
  
 
     for nu in [1.0]:
-        ofp = open("vsetremoved_GP"+str(nu)+".csv", "w")
+        ofp = open("vsetremoved_GP_"+str(nu)+".csv", "w")
     
         print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", flush=True)
         print (" vset Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp, \
