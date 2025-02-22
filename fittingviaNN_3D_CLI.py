@@ -314,9 +314,11 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
 
         pred_y = model.predict(train_x, verbose=0)
         trainfile = basename + "_" + str(vmap_toreal[v]) + "_train.csv"
-        for ix, xval in enumerate(train_x):
-            with open(trainfile, "a") as f:
-                print("%10.5e, %10.5e"%(xval, pred_y[ix]), file=f)
+        with open(trainfile, "a") as f:
+            for ix, xval in enumerate(train_x):
+                for xx in xval:
+                    print("%10.5e, "%xx, end="", file=f)
+                print("%10.5e"%(pred_y[ix]), file=f)
         try:
             trainmse = metrics.mean_absolute_error(train_y, pred_y)
             trainr2 = metrics.r2_score(train_y, pred_y)
