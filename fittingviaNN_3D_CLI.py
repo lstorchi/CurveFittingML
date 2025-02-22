@@ -597,7 +597,7 @@ if __name__ == "__main__":
                                 r2test_vsets_split, msetest_vsets_split = \
                                 build_vsets_split (vlist, modelshape, batch_size, epochs, \
                                                 lossfun, optimizer, activation, \
-                                                vmap_torealm modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
+                                                vmap_toreal, modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
                             
                             print("v split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
                                 modelnum, r2test_v_split, msetest_v_split, \
