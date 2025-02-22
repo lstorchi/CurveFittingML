@@ -240,8 +240,8 @@ def build_t_split (tset, modelshape, batch_size, epochs, \
 #######################################################################
 
 def build_v_split (vset, modelshape, batch_size, epochs, \
-                   lossfun, optimizer, activation, \
-                   modelfname="", verbose=False):
+                lossfun, optimizer, activation, \
+                vmap_toreal, modelfname="", verbose=False):
 
     ofp = None
     if modelfname != "":
@@ -292,10 +292,14 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
             verbose=0)
         with open(basename + "_" + \
-                  str(v) + "_training_history.pkl", 'wb') as f:
+                  str(vmap_toreal[v]) + "_training_history.pkl", 'wb') as f:
             pickle.dump(history.history, f)
 
         pred_y = model.predict(test_x, verbose=0)
+        testfile = basename + "_" + str(vmap_toreal[v]) + "_test.csv"
+        for ix, xval in enumerate(test_x):
+            with open(testfile, "a") as f:
+                print("%10.5e, %10.5e"%(xval, pred_y[ix]), file=f)
         try:
             testmse = metrics.mean_absolute_error(test_y, pred_y)
             testr2 = metrics.r2_score(test_y, pred_y)
@@ -307,7 +311,10 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
         avgmse_test += testmse
 
         pred_y = model.predict(train_x, verbose=0)
-
+        trainfile = basename + "_" + str(vmap_toreal[v]) + "_train.csv"
+        for ix, xval in enumerate(train_x):
+            with open(trainfile, "a") as f:
+                print("%10.5e, %10.5e"%(xval, pred_y[ix]), file=f)
         try:
             trainmse = metrics.mean_absolute_error(train_y, pred_y)
             trainr2 = metrics.r2_score(train_y, pred_y)
@@ -321,11 +328,11 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
         num += 1.0
         
         if verbose:
-            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+            print("%5d , %10.6f , %10.6f , %10.6f , %10.6f"%(vmap_toreal[v], testmse, testr2, \
                                                         trainmse,  trainr2), flush=True)
         
         if modelfname != "":
-            print("%5.2f , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+            print("%5d , %10.6f , %10.6f , %10.6f , %10.6f"%(vmap_toreal[v], testmse, testr2, \
                                                         trainmse,  trainr2), file=ofp, flush=True)
     
     if modelfname != "":
@@ -336,8 +343,8 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
 #######################################################################
 
 def build_vsets_split (vlist, modelshape, batch_size, epochs, \
-                     lossfun, optimizer, activation, \
-                   modelfname="", verbose=False):
+                    lossfun, optimizer, activation, \
+                    vmap_toreal, modelfname="", verbose=False):
 
     ofp = None
     if modelfname != "":
@@ -429,8 +436,11 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
                                     activationf=activation)
         history = model.fit(train_x, train_y, epochs=epochs,  batch_size=batch_size, \
             verbose=0)
+        valuetoprint = ""
+        for val in v:
+            valuetoprint += str(vmap_toreal[val]) + "_"
         with open(basename + "_" + \
-                  str(v) + "_training_history.pkl", 'wb') as f:
+                  valuetoprint + "training_history.pkl", 'wb') as f:
             pickle.dump(history.history, f)
 
         pred_y = model.predict(test_x, verbose=0)
@@ -458,11 +468,10 @@ def build_vsets_split (vlist, modelshape, batch_size, epochs, \
         num += 1.0
         
         if verbose:
-            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(valuetoprint, testmse, testr2, \
                                                         trainmse,  trainr2), flush=True)
-        
         if modelfname != "":
-            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(v, testmse, testr2, \
+            print("%s , %10.6f , %10.6f , %10.6f , %10.6f"%(valuetoprint, testmse, testr2, \
                                                         trainmse,  trainr2), file=ofp, flush=True)
     
     if modelfname != "":
@@ -581,14 +590,14 @@ if __name__ == "__main__":
 
                             r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
                                 build_v_split (vset, modelshape, batch_size, epochs, \
-                                                lossfun, optimizer, activation, \
-                                               modelfname="vsplitmodel_"+str(modelnum)+".csv")
+                                            lossfun, optimizer, activation, \
+                                            vmap_toreal, modelfname="vsplitmodel_"+str(modelnum)+".csv")
                             
                             r2train_vsets_split, msetrain_vsets_split, \
                                 r2test_vsets_split, msetest_vsets_split = \
                                 build_vsets_split (vlist, modelshape, batch_size, epochs, \
-                                                   lossfun, optimizer, activation, \
-                                                   modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
+                                                lossfun, optimizer, activation, \
+                                                vmap_torealm modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
                             
                             print("v split , Model metrics %3d , %10.5f , %10.5f , %10.5f , %10.5f"%( \
                                 modelnum, r2test_v_split, msetest_v_split, \
