@@ -28,7 +28,7 @@ FIXEDSEED = True
 
 #######################################################################
 
-def build_perc_split (modelshape, batch_size, epochs, \
+def build_perc_split (x_s, y_s, modelshape, batch_size, epochs, \
                       modelfname="", verbose=False):
 
     ofp = None 
@@ -97,7 +97,7 @@ def build_perc_split (modelshape, batch_size, epochs, \
 
 ####################################################################################
 
-def build_w_split (wset, modelshape, batch_size, epochs, \
+def build_w_split (x_s, y_s, wset, modelshape, batch_size, epochs, \
                    modelfname="", verbose=False):
     ofp = None
     if modelfname != "":
@@ -166,7 +166,7 @@ def build_w_split (wset, modelshape, batch_size, epochs, \
 
 #######################################################################
 
-def build_t_split (tset, modelshape, batch_size, epochs, \
+def build_t_split (x_s, y_s, tset, modelshape, batch_size, epochs, \
                    modelfname="", verbose=False):
     ofp = None
     if modelfname != "":
@@ -239,7 +239,7 @@ def build_t_split (tset, modelshape, batch_size, epochs, \
 
 #######################################################################
 
-def build_v_split (vset, modelshape, batch_size, epochs, \
+def build_v_split (x_s, y_s, vset, modelshape, batch_size, epochs, \
                 lossfun, optimizer, activation, \
                 vmap_toreal, modelfname="", verbose=False):
 
@@ -346,7 +346,7 @@ def build_v_split (vset, modelshape, batch_size, epochs, \
 
 #######################################################################
 
-def build_vsets_split (vlist, modelshape, batch_size, epochs, \
+def build_vsets_split (x_s, y_s, vlist, modelshape, batch_size, epochs, \
                     lossfun, optimizer, activation, \
                     vmap_toreal, modelfname="", verbose=False):
 
@@ -593,13 +593,13 @@ if __name__ == "__main__":
                             timestart = time.time()
 
                             r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
-                                build_v_split (vset, modelshape, batch_size, epochs, \
+                                build_v_split (x_s, y_s, vset, modelshape, batch_size, epochs, \
                                             lossfun, optimizer, activation, \
                                             vmap_toreal, modelfname="vsplitmodel_"+str(modelnum)+".csv")
                             
                             r2train_vsets_split, msetrain_vsets_split, \
                                 r2test_vsets_split, msetest_vsets_split = \
-                                build_vsets_split (vlist, modelshape, batch_size, epochs, \
+                                build_vsets_split (x_s, y_s, vlist, modelshape, batch_size, epochs, \
                                                 lossfun, optimizer, activation, \
                                                 vmap_toreal, modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
                             
