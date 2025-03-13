@@ -12,13 +12,12 @@ import time
 
 if __name__ == "__main__":
 
-    filename = "N2H2_3D.xlsx"
-    df = pd.read_excel(filename)
+    filename = "N2H2_2D_VT_process.xlsx"
+    df = pd.read_excel(filename, sheet_name="dv=1")
     debug = False
 
-    x = df[['v', 'w', 'T(K)']].values
-    #y = df[['k(cm^3/s)']].values
-    y = np.log10(df[['k(cm^3/s)']].values)
+    x = df[['v', 'dE', 'cE']].values
+    y = np.log10(df[['cS']].values)
 
     scalerx = MinMaxScaler()
     scalerx.fit(x)
