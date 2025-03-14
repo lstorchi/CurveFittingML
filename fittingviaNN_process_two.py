@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     x = df[['v', 'dE', 'cE']].values
     #y = df[['k(cm^3/s)']].values
-    y = np.log10(df[['Cs']].values)
+    y = np.log10(df[['cS']].values)
     scalery = MinMaxScaler()
     scalery.fit(y)
     y_s = scalery.transform(y)
