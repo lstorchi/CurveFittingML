@@ -412,14 +412,14 @@ if __name__ == "__main__":
                             timestart = time.time()
 
                             r2train_v_split, msetrain_v_split, r2test_v_split, msetest_v_split = \
-                                f3d.build_v_split (x_s, y_s, scalery, scalerx, False, vset, modelshape, \
+                                build_v_split (x_s, y_s, scalery, scalerx, False, vset, modelshape, \
                                             batch_size, epochs, \
                                             lossfun, optimizer, activation, \
                                             vmap_toreal, modelfname="vsplitmodel_"+str(modelnum)+".csv")
 
                             r2train_vsets_split, msetrain_vsets_split, \
                                 r2test_vsets_split, msetest_vsets_split = \
-                                f3d.build_vsets_split (x_s, y_s, scalery, scalerx, False, vlist, modelshape, \
+                                build_vsets_split (x_s, y_s, scalery, scalerx, False, vlist, modelshape, \
                                                 batch_size, epochs, \
                                                 lossfun, optimizer, activation, \
                                                 vmap_toreal, modelfname="vsetsplitmodel_"+str(modelnum)+".csv")
