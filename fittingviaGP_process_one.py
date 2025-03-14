@@ -16,9 +16,12 @@ if __name__ == "__main__":
     df = pd.read_excel(filename)
     debug = False
 
-    x = df[['v', 'w', 'T(K)']].values
+    x = df[['v', 'w', 'T']].values
     #y = df[['k(cm^3/s)']].values
-    y = np.log10(df[['k(cm^3/s)']].values)
+    y = np.log10(df[['RC']].values)
+    scalery = MinMaxScaler()
+    scalery.fit(y)
+    y_s = scalery.transform(y)
 
     scalerx = MinMaxScaler()
     scalerx.fit(x)
@@ -37,17 +40,13 @@ if __name__ == "__main__":
     wset = set(x_s[:,1])
     tset = set(x_s[:,2])
 
-    scalery = MinMaxScaler()
-    scalery.fit(y)
-    y_s = scalery.transform(y)
-
     if debug:
         for i, ys in enumerate(y_s):
             print(ys, y[i])
         for i, xs in enumerate(x_s):
             print(xs, x[i])
      
-    for nu in [1.0]:
+    for nu in [1.0, 5/2]:
         ofp = open("vremoved_GP_"+str(nu)+".csv", "w")
     
         avgr2test = 0.0
