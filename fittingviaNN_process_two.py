@@ -12,13 +12,13 @@ import time
 
 if __name__ == "__main__":
 
-    filename = "N2H2_3D.xlsx"
-    df = pd.read_excel(filename)
+    filename = "N2H2_VT_process.xlsx"
+    df = pd.read_excel(filename, sheet_name="dv=1")
     debug = False
 
-    x = df[['v', 'w', 'T']].values
+    x = df[['v', 'dE', 'cE']].values
     #y = df[['k(cm^3/s)']].values
-    y = np.log10(df[['RC']].values)
+    y = np.log10(df[['Cs']].values)
     scalery = MinMaxScaler()
     scalery.fit(y)
     y_s = scalery.transform(y)
