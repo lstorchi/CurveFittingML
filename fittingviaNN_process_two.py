@@ -1,5 +1,5 @@
-
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -341,7 +341,14 @@ def build_vsets_split (x_s, y_s, scalery, scalerx, alsolog10, vlist, modelshape,
 if __name__ == "__main__":
 
     filename = "N2H2_VT_process.xlsx"
-    df = pd.read_excel(filename, sheet_name="dv=1")
+    sheetname = "dv=1"
+    if len(sys.argv) == 3:
+        filename = sys.argv[1]
+        sheetname = sys.argv[2]
+    elif len(sys.argv) == 2:
+        sheetname = sys.argv[1]
+
+    df = pd.read_excel(filename, sheet_name=sheetname)
     debug = False
 
     x = df[['v', 'dE', 'cE']].values
