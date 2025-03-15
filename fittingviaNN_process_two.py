@@ -311,7 +311,7 @@ def build_vsets_split (x_s, y_s, scalery, scalerx, alsolog10, vlist, modelshape,
             trainr2 = 0.0
         trainfile = basename + "_" + valuetoprint + "_test.csv"
         with open(trainfile, "a") as f:
-            for ix, xval in enumerate(test_x):
+            for ix, xval in enumerate(train_x):
                 xval_orig = scalerx.inverse_transform(xval.reshape(1,-1))
                 for xx in xval_orig[0]:
                     print("%10.5e, "%xx, end="", file=f)
