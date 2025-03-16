@@ -13,7 +13,7 @@ import time
 
 if __name__ == "__main__":
 
-    filename = "N2H2_2D_VT_process.xlsx"
+    filename = "N2H2_VT_process.xlsx"
     sheetname = "dv=1"
     if len(sys.argv) == 3:
         filename = sys.argv[1]
