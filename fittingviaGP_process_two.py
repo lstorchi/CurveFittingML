@@ -13,11 +13,22 @@ import time
 if __name__ == "__main__":
 
     filename = "N2H2_2D_VT_process.xlsx"
-    df = pd.read_excel(filename, sheet_name="dv=1")
+    sheetname = "dv=1"
+    if len(sys.argv) == 3:
+        filename = sys.argv[1]
+        sheetname = sys.argv[2]
+    elif len(sys.argv) == 2:
+        sheetname = sys.argv[1]
+
+    df = pd.read_excel(filename, sheet_name=sheetname)
     debug = False
 
     x = df[['v', 'dE', 'cE']].values
     y = np.log10(df[['cS']].values)
+
+    scalery = MinMaxScaler()
+    scalery.fit(y)
+    y_s = scalery.transform(y)
 
     scalerx = MinMaxScaler()
     scalerx.fit(x)
@@ -36,17 +47,13 @@ if __name__ == "__main__":
     wset = set(x_s[:,1])
     tset = set(x_s[:,2])
 
-    scalery = MinMaxScaler()
-    scalery.fit(y)
-    y_s = scalery.transform(y)
-
     if debug:
         for i, ys in enumerate(y_s):
             print(ys, y[i])
         for i, xs in enumerate(x_s):
             print(xs, x[i])
      
-    for nu in [1.0]:
+    for nu in [1.0, 2.5]:
         ofp = open("vremoved_GP_"+str(nu)+".csv", "w")
     
         avgr2test = 0.0
@@ -66,7 +73,7 @@ if __name__ == "__main__":
             ofptest = open("vremoved_GP_"+\
                            str(nu)+"_"+ \
                            str(vmap_toreal[v])+"_test.csv", "w")
-            print (" v , w , T , y , y_pred ", file=ofptest)
+            print (" v , dE , cE , y , y_pred ", file=ofptest)
             print ("Test Shape : ", test_x.shape)
             test_x_sp = scalerx.inverse_transform(test_x)
             pred_y = model.predict(test_x)
@@ -89,7 +96,7 @@ if __name__ == "__main__":
             ofptrain = open("vremoved_GP_"+\
                 str(nu)+"_"+ \
                 str(vmap_toreal[v])+"_train.csv", "w")
-            print (" v , w , T , y , y_pred  ", file=ofptrain)
+            print (" v , dE , cE , y , y_pred  ", file=ofptrain)
             pred_y = model.predict(train_x)
             #print ("Train y Shape ", train_y.shape)
             #print ("Pred y Shape ", pred_y.shape)
@@ -190,7 +197,7 @@ if __name__ == "__main__":
         
             ofptest = open("vsetremoved_GP_set"+str(setid+1)+\
                 "_" + str(nu) + "_test.csv", "w")
-            print (" v , w , T , y , y_pred", file=ofptest, flush=True)
+            print (" v , dE , cE , y , y_pred", file=ofptest, flush=True)
             pred_y = model.predict(test_x)
             test_x_sp = scalerx.inverse_transform(test_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
@@ -209,7 +216,7 @@ if __name__ == "__main__":
         
             ofptrain = open("vsetremoved_GP_set"+str(setid+1)+\
                 "_" + str(nu) + "_train.csv", "w")
-            print (" v , w , T , y , y_pred  ", file=ofptrain)
+            print (" v , dE , cE , y , y_pred  ", file=ofptrain)
             pred_y = model.predict(train_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
             train_y_sb = scalery.inverse_transform(train_y.reshape(-1, 1))
