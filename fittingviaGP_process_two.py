@@ -128,7 +128,8 @@ if __name__ == "__main__":
         ofp.close()
         endtime = time.time()
         print("Time taken for nu = %4.2f is %10.6f"%(nu, endtime-starttime))
-        print(nu, avgmsetest/len(vset), avgr2test/len(vset), avgmsetrain/len(vset), avgr2train/len(vset))
+        print("v split " nu, avgmsetest/len(vset), avgr2test/len(vset), \
+              avgmsetrain/len(vset), avgr2train/len(vset))
 
         vlist = list(vset)
     
@@ -176,6 +177,10 @@ if __name__ == "__main__":
                 vtoremove.append(vlist[i+2])
         vset_torm.append(vtoremove)
  
+        avgr2test = 0.0
+        avgmsetest = 0.0
+        avgr2train = 0.0
+        avgmsetrain = 0.0
 
         ofp = open("vsetremoved_GP_"+str(nu)+".csv", "w")
         starttime = time.time()
@@ -239,6 +244,13 @@ if __name__ == "__main__":
             print("%s , %10.6e , %10.6f , %10.6e , %10.6f"%(str(v_sp).replace(",",";"), testmse, testr2, \
                                                                 trainmse,  trainr2), file=ofp, flush=True)
             
+            avgmsetest += testmse
+            avgr2test += testr2
+            avgmsetrain += trainmse
+            avgr2train += trainr2
+
         ofp.close()
         endtime =  time.time()
         print("Time taken for nu = %4.2f is %10.6f"%(nu, endtime-starttime))
+        print("vset split ", nu, avgmsetest/len(vset_torm), avgr2test/len(vset_torm), \
+              avgmsetrain/len(vset_torm), avgr2train/len(vset_torm))
