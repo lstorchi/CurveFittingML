@@ -372,8 +372,6 @@ if __name__ == "__main__":
 
     vset = set(x_s[:,0])
     wset = set(x_s[:,1])
-    tset = set(x_s[:,2])
-    vlist = list(vset)
     vlist = list(vset)
 
     import time
