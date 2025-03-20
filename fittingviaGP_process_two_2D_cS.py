@@ -125,7 +125,7 @@ if __name__ == "__main__":
         ofp.close()
         endtime = time.time()
         print("Time taken for nu = %4.2f is %10.6f"%(nu, endtime-starttime))
-        print("v split " nu, avgmsetest/len(vset), avgr2test/len(vset), \
+        print("v split ", nu, avgmsetest/len(vset), avgr2test/len(vset), \
               avgmsetrain/len(vset), avgr2train/len(vset))
 
         vlist = list(vset)
