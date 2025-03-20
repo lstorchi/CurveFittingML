@@ -74,7 +74,8 @@ def build_v_split (x_s, y_s, scalery, scalerx, alsolog10, vset, \
         train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
         inshape = train_x.shape[1]
 
-        model = cm.buildmodel(modelshape, inputshape=inshape, lossf=lossfun, optimizerf=optimizer, \
+        model = cm.buildmodel(modelshape, inputshape=inshape, \
+                              lossf=lossfun, optimizerf=optimizer, \
                                     activationf=activation)
         
         filepath = 'model_epoch_{epoch}.keras' 
@@ -254,7 +255,8 @@ def build_vsets_split (x_s, y_s, scalery, scalerx, alsolog10, vlist, modelshape,
         inshape = train_x.shape[1]
 
         if thefirst:
-            model = cm.buildmodel(modelshape, inputshape=inshape lossf=lossfun, optimizerf=optimizer, \
+            model = cm.buildmodel(modelshape, inputshape=inshape, \
+                                   lossf=lossfun, optimizerf=optimizer, \
                                     activationf=activation)
             history = model.fit(train_x, train_y, epochs=10,  batch_size=batch_size, \
                 verbose=0)
