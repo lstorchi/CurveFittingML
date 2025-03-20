@@ -76,16 +76,16 @@ if __name__ == "__main__":
                            str(vmap_toreal[v])+"_test.csv", "w")
             print (" v , dE , cE , y , y_pred ", file=ofptest)
             print ("Test Shape : ", test_x.shape)
-            test_x_sp = scalerx.inverse_transform(test_x)
+            test_x_sb = scalerx.inverse_transform(test_x)
             pred_y = model.predict(test_x)
             print ("Pred y Shape ", pred_y.shape)
             print ("Test y Shape ", test_y.shape)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
             test_y_sb = scalery.inverse_transform(test_y.reshape(-1,1))
             for i, yt in enumerate(test_y_sb):
-                 print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(test_x_sp[i,0], 
-                                                     test_x_sp[i,1],
-                                                     test_x_sp[i,2],
+                 print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(test_x_sb[i,0], 
+                                                     test_x_sb[i,1],
+                                                     test_x_sb[i,2],
                                                      yt,
                                                      pred_y_sb[i]), file=ofptest, flush=True)
             #plt.scatter(test_y_sb, pred_y_sb)
@@ -103,11 +103,11 @@ if __name__ == "__main__":
             #print ("Pred y Shape ", pred_y.shape)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
             train_y_sb = scalery.inverse_transform(train_y.reshape(-1,1))
-            train_x_sp = scalerx.inverse_transform(train_x)
+            train_x_sb = scalerx.inverse_transform(train_x)
             for i, yt in enumerate(train_y_sb):
-                 print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(train_x_sp[i,0], 
-                                                     train_x_sp[i,1],
-                                                     train_x_sp[i,2],
+                 print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(train_x_sb[i,0], 
+                                                     train_x_sb[i,1],
+                                                     train_x_sb[i,2],
                                                      yt,
                                                      pred_y_sb[i]), file=ofptrain, flush=True)
             #plt.scatter(train_y_sb, pred_y_sb)
@@ -205,13 +205,13 @@ if __name__ == "__main__":
                 "_" + str(nu) + "_test.csv", "w")
             print (" v , dE , cE , y , y_pred", file=ofptest, flush=True)
             pred_y = model.predict(test_x)
-            test_x_sp = scalerx.inverse_transform(test_x)
+            test_x_sb = scalerx.inverse_transform(test_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
             test_y_sb = scalery.inverse_transform(test_y.reshape(-1, 1))
             for i, yt in enumerate(test_y_sb):
-                print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(test_x_sp[i,0], 
-                                                     test_x_sp[i,1],
-                                                     test_x_sp[i,2],
+                print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(test_x_sb[i,0], 
+                                                     test_x_sb[i,1],
+                                                     test_x_sb[i,2],
                                                      yt,
                                                      pred_y_sb[i]), file=ofptest, flush=True)
             #plt.scatter(test_y_sb, pred_y_sb)
@@ -226,11 +226,11 @@ if __name__ == "__main__":
             pred_y = model.predict(train_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
             train_y_sb = scalery.inverse_transform(train_y.reshape(-1, 1))
-            train_x_sp = scalerx.inverse_transform(train_x)
+            train_x_sb = scalerx.inverse_transform(train_x)
             for i, yt in enumerate(train_y_sb):
-                 print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(train_x_sp[i,0], 
-                                                     train_x_sp[i,1],
-                                                     train_x_sp[i,2],
+                 print (" %3d , %3d , %6d , %10.8e , %10.8e  "%(train_x_sb[i,0], 
+                                                     train_x_sb[i,1],
+                                                     train_x_sb[i,2],
                                                      yt,
                                                      pred_y_sb[i]), file=ofptrain, flush=True)
             #plt.scatter(train_y_sb, pred_y_sb)
