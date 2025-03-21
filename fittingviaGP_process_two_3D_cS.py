@@ -74,7 +74,7 @@ if __name__ == "__main__":
             pred_y = model.predict(test_x)
             test_x_sb = scalerx.inverse_transform(test_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
-            test_y_sb = scalery.inverse_transform(test_y.reshape(-1,1))
+            test_y_sb = scalery.inverse_transform(test_y)
             with open("vremoved_GP_"+ str(nu)+"_"+ \
                         str(vmap_toreal[v])+"_test.csv", "w") as ofptest:
                 for ix, xval in enumerate(test_x_sb):
@@ -87,7 +87,7 @@ if __name__ == "__main__":
             
             pred_y = model.predict(train_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
-            train_y_sb = scalery.inverse_transform(train_y.reshape(-1,1))
+            train_y_sb = scalery.inverse_transform(train_y)
             train_x_sb = scalerx.inverse_transform(train_x)
             with open("vremoved_GP_"+ str(nu)+"_"+ \
                         str(vmap_toreal[v])+"_train.csv", "w") as ofptrain:
@@ -189,7 +189,7 @@ if __name__ == "__main__":
             pred_y = model.predict(test_x)
             test_x_sb = scalerx.inverse_transform(test_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
-            test_y_sb = scalery.inverse_transform(test_y.reshape(-1, 1))
+            test_y_sb = scalery.inverse_transform(test_y)
             with open("vsetremoved_GP_set"+str(setid+1)+\
                         "_" + str(nu) + "_test.csv", "w") as ofptest:
                 for ix, xval in enumerate(test_x_sb):
@@ -203,7 +203,7 @@ if __name__ == "__main__":
         
             pred_y = model.predict(train_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
-            train_y_sb = scalery.inverse_transform(train_y.reshape(-1, 1))
+            train_y_sb = scalery.inverse_transform(train_y)
             train_x_sb = scalerx.inverse_transform(train_x)
             with open("vsetremoved_GP_set"+str(setid+1)+\
                         "_" + str(nu) + "_train.csv", "w") as ofptrain:
