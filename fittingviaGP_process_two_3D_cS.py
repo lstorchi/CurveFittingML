@@ -68,10 +68,10 @@ if __name__ == "__main__":
         for v in vset:
             
             train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
-            
-            model = cm.build_model_GP_3D (train_x, train_y, nuval=nu)
 
+            model = cm.build_model_GP_3D (train_x, train_y, nuval=nu)
             pred_y = model.predict(test_x)
+
             test_x_sb = scalerx.inverse_transform(test_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
             test_y_sb = scalery.inverse_transform(test_y)
