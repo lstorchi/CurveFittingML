@@ -40,9 +40,10 @@ if __name__ == "__main__":
     for i, vn in enumerate(x_s[:,0]):
         vmap_toreal[vn] = x[i,0]
 
-    print("V map: ")
-    for a in vmap_toreal:
-        print("%4.2f --> %3d"%(a, vmap_toreal[a]))
+    if debug:
+        print("V map: ")
+        for a in vmap_toreal:
+            print("%4.2f --> %3d"%(a, vmap_toreal[a]))
 
     vset = set(x_s[:,0])
     wset = set(x_s[:,1])
@@ -68,13 +69,23 @@ if __name__ == "__main__":
         for v in vset:
             
             train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
-
+            #print("test_y: ", test_y.shape)
+            #print("test_y: ", test_y[0][0], test_y[-1][0])
+            test_y_sb = scalery.inverse_transform(test_y)
+            #print("test_y_sb: ", test_y_sb.shape)
+            #print("test_y_sb: ", test_y_sb[0][0], test_y_sb[-1][0])
             model = cm.build_model_GP_3D (train_x, train_y, nuval=nu)
             pred_y = model.predict(test_x)
-
+            #print("pred_y: ", pred_y.shape)
+            #print("pred_y: ", pred_y[0], pred_y[-1])
             test_x_sb = scalerx.inverse_transform(test_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
             test_y_sb = scalery.inverse_transform(test_y)
+            #print("test_y_sb: ", test_y_sb.shape)
+            #print("test_y_sb: ", test_y_sb[0][0], test_y_sb[-1][0])
+            #print("pred_y_sb: ", pred_y_sb.shape)
+            #print("pred_y_sb: ", pred_y_sb[0][0], pred_y_sb[-1][0])
+            #exit(1)
             with open("vremoved_GP_"+ str(nu)+"_"+ \
                         str(vmap_toreal[v])+"_test.csv", "w") as ofptest:
                 for ix, xval in enumerate(test_x_sb):
@@ -188,7 +199,7 @@ if __name__ == "__main__":
                 "_" + str(nu) + "_test.csv", "w")
             pred_y = model.predict(test_x)
             test_x_sb = scalerx.inverse_transform(test_x)
-            pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
+            pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
             test_y_sb = scalery.inverse_transform(test_y)
             with open("vsetremoved_GP_set"+str(setid+1)+\
                         "_" + str(nu) + "_test.csv", "w") as ofptest:
@@ -202,7 +213,7 @@ if __name__ == "__main__":
             testr2 = metrics.r2_score(test_y_sb, pred_y_sb)
         
             pred_y = model.predict(train_x)
-            pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1, 1))
+            pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
             train_y_sb = scalery.inverse_transform(train_y)
             train_x_sb = scalerx.inverse_transform(train_x)
             with open("vsetremoved_GP_set"+str(setid+1)+\
