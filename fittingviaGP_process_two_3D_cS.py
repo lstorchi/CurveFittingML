@@ -25,8 +25,8 @@ if __name__ == "__main__":
     debug = False
 
     x = df[['v', 'dE', 'cE']].values
-    y = np.log10(df[['cS']].values)
-
+    #y = np.log10(df[['cS']].values)
+    y = df[['cS']].values
     scalery = MinMaxScaler()
     scalery.fit(y)
     y_s = scalery.transform(y)
