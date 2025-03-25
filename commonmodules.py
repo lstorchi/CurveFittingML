@@ -140,9 +140,8 @@ def build_model_GP_3 (train_x, train_y, nuval = 5.0/2.0):
 
 ##########################################################################################################3
 
-def build_model_GP_2D (train_x, train_y):
+def build_model_GP_2D (train_x, train_y, nuval=5.0/2.0):
     #kernel = gp.kernels.ConstantKernel(1.0, (1e-5, 1e5))* gp.kernels.RBF(length_scale=1)
-    nuval = 5.0/2.0
     kernel = 1.0 * gp.kernels.Matern(length_scale=1.0, nu=nuval)
     model = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
         normalize_y=False)
