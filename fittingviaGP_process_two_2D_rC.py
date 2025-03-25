@@ -89,7 +89,7 @@ if __name__ == "__main__":
             
             pred_y = model.predict(train_x)
             pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
-            train_y_sb = scalery.inverse_transform(train_y))
+            train_y_sb = scalery.inverse_transform(train_y)
             train_x_sb = scalerx.inverse_transform(train_x)
             with open("vremoved_GP_"+\
                         str(nu)+"_"+ \
