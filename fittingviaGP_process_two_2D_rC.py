@@ -25,7 +25,7 @@ if __name__ == "__main__":
     debug = False
 
     x = df[['v', 'T']].values
-    y = np.log10(df[['rateC']].values)
+    y = np.log10(df[['RateC']].values)
 
     scalery = MinMaxScaler()
     scalery.fit(y)
