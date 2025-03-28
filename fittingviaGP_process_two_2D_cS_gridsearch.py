@@ -86,6 +86,30 @@ if __name__ == "__main__":
     gpr_matern = gp.GaussianProcessRegressor(kernel=kernel_matern, alpha=0.1, n_restarts_optimizer=10)
     models.append(gpr_matern)
 
+    # 5. Using RBF Kernel
+    kernel_rbf = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
+        RBF(length_scale=1.0)
+    gpr_rbf = gp.GaussianProcessRegressor(kernel=kernel_rbf, alpha=0.1, n_restarts_optimizer=10)
+    models.append(gpr_rbf)
+
+    # 6. Using Matern Kernel (nu=2.5)
+    kernel = 1.0 * Matern(length_scale=1.0, nu=0.5)
+    matn_gp = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
+        normalize_y=False)
+    models.append(matn_gp)
+
+    # 7. Using Matern Kernel (nu=0.5)
+    kernel = 1.0 * Matern(length_scale=1.0, nu=0.5)
+    matn_gp = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
+        normalize_y=False)
+    models.append(matn_gp)
+
+    # 8. Using Matern Kernel (nu=1.0)
+    kernel = 1.0 * Matern(length_scale=1.0, nu=1.0)
+    matn_gp = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
+        normalize_y=False)
+    models.append(matn_gp)
+
     modelnum = 1     
     for model in models:
         starttime = time.time()
