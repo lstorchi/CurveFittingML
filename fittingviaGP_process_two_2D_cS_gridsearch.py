@@ -79,9 +79,7 @@ if __name__ == "__main__":
         starttime = time.time()
     
         test_y_sb = scalery.inverse_transform(test_y)
-
         model.fit(train_x, train_y)
-
         test_x_sb = scalerx.inverse_transform(test_x)
         pred_y = model.predict(test_x)
         pred_y_sb = scalery.inverse_transform(pred_y.reshape(-1,1))
