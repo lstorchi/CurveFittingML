@@ -66,7 +66,7 @@ if __name__ == "__main__":
     # Gaussian Process Regression
     for nu in [0.1, 0.2, 0.25, 0.6, 0.4, 0.5, \
                0.6, 0.8, 1.0, 1.5, 2.0, 2.5]:
-        for scale in [0.001. 0.01, 0.1, 0.8, 1.0, 10.0, 100.0]:
+        for scale in [0.001, 0.01, 0.1, 0.8, 1.0, 10.0, 100.0]:
             kernel = scale * Matern(length_scale=scale, nu=nu)
             matn_gp = gp.GaussianProcessRegressor(kernel=kernel, \
                 n_restarts_optimizer=50, \
