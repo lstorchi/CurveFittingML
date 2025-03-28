@@ -142,5 +142,5 @@ if __name__ == "__main__":
         
         ofp.close()
         endtime = time.time()
-        print("Time taken for nu = %4.2f is %10.6f"%(nu, endtime-starttime))
+        print("Time taken for model = %d is %10.6f"%(modelnum, endtime-starttime))
         modelnum += 1
