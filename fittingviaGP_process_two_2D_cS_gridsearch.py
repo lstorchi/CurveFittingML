@@ -9,7 +9,8 @@ from sklearn.model_selection import train_test_split
 
 import commonmodules as cm
 import sklearn.gaussian_process as gp
-from sklearn.gaussian_process.kernels import RationalQuadratic, Matern, RBF, ConstantKernel, LinearKernel
+from sklearn.gaussian_process.kernels import RationalQuadratic, \
+    Matern, RBF, ConstantKernel, DotProduct
 
 import time
 
@@ -75,7 +76,7 @@ if __name__ == "__main__":
 
     # 3. Using a combination (RQ + Linear)
     kernel_combined = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-        RationalQuadratic(length_scale=1.0, alpha=0.1) + LinearKernel(gradient=1.0)
+        RationalQuadratic(length_scale=1.0, alpha=0.1) + DotProduct(sigma_0=0.0)
     gpr_combined = gp.GaussianProcessRegressor(kernel=kernel_combined, alpha=0.1, n_restarts_optimizer=10)
     models.append(gpr_combined)
 
