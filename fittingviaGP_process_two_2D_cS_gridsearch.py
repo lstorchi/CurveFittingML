@@ -59,56 +59,16 @@ if __name__ == "__main__":
     train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
 
     models = []
-
+    models_names = []
     # Gaussian Process Regression
-
-    # 1. Using Rational Quadratic Kernel
-    kernel_rq = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-          RationalQuadratic(length_scale=1.0, alpha=0.1)
-    gpr_rq = gp.GaussianProcessRegressor(kernel=kernel_rq, alpha=0.1, n_restarts_optimizer=10)
-    models.append(gpr_rq)
-
-    # 2. Using Matern Kernel (nu=1.5)
-    kernel_matern = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-        Matern(length_scale=1.0, nu=1.5)
-    gpr_matern = gp.GaussianProcessRegressor(kernel=kernel_matern, alpha=0.1, n_restarts_optimizer=10)
-    models.append(gpr_matern)
-
-    # 3. Using a combination (RQ + Linear)
-    kernel_combined = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-        RationalQuadratic(length_scale=1.0, alpha=0.1) + DotProduct(sigma_0=0.0)
-    gpr_combined = gp.GaussianProcessRegressor(kernel=kernel_combined, alpha=0.1, n_restarts_optimizer=10)
-    models.append(gpr_combined)
-
-    # 4. Using Matern Kernel (nu=0.5)
-    kernel_matern = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-        Matern(length_scale=1.0, nu=0.5)
-    gpr_matern = gp.GaussianProcessRegressor(kernel=kernel_matern, alpha=0.1, n_restarts_optimizer=10)
-    models.append(gpr_matern)
-
-    # 5. Using RBF Kernel
-    kernel_rbf = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-        RBF(length_scale=1.0)
-    gpr_rbf = gp.GaussianProcessRegressor(kernel=kernel_rbf, alpha=0.1, n_restarts_optimizer=10)
-    models.append(gpr_rbf)
-
-    # 6. Using Matern Kernel (nu=2.5)
-    kernel = 1.0 * Matern(length_scale=1.0, nu=0.5)
-    matn_gp = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
-        normalize_y=False)
-    models.append(matn_gp)
-
-    # 7. Using Matern Kernel (nu=0.5)
-    kernel = 1.0 * Matern(length_scale=1.0, nu=0.5)
-    matn_gp = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
-        normalize_y=False)
-    models.append(matn_gp)
-
-    # 8. Using Matern Kernel (nu=1.0)
-    kernel = 1.0 * Matern(length_scale=1.0, nu=1.0)
-    matn_gp = gp.GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=50, \
-        normalize_y=False)
-    models.append(matn_gp)
+    for nu in [0.1, 0.2, 0.25, 0.5, 0.8, 1.0, 1.5, 2.0, 2.5]:
+        for scale in [0.1, 0.5, 0.8, 1.0]:
+            kernel = scale * Matern(length_scale=scale, nu=nu)
+            matn_gp = gp.GaussianProcessRegressor(kernel=kernel, \
+                n_restarts_optimizer=50, \
+                normalize_y=False)
+            models.append(matn_gp)
+            models_names.append("Matern, nu=%4.2f, scale=%4.2f"%(nu, scale))
 
     modelnum = 1     
     ofp = open("vremoved_GP.csv", "w")
@@ -162,6 +122,7 @@ if __name__ == "__main__":
         
         endtime = time.time()
         print("Time taken for model = %d is %10.6f"%(modelnum, endtime-starttime))
+        print("Modelnum = %d is %s"%(modelnum, models_names[modelnum-1]), flush=True)
         modelnum += 1
 
     ofp.close()
