@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 
 import commonmodules as cm
 import sklearn.gaussian_process as gp
+from sklearn.gaussian_process.kernels import RationalQuadratic, Matern, RBF, ConstantKernel, LinearKernel
 
 import time
 
@@ -61,26 +62,26 @@ if __name__ == "__main__":
     # Gaussian Process Regression
 
     # 1. Using Rational Quadratic Kernel
-    kernel_rq = gp.ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-          gp.RationalQuadratic(length_scale=1.0, alpha=0.1)
+    kernel_rq = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
+          RationalQuadratic(length_scale=1.0, alpha=0.1)
     gpr_rq = gp.GaussianProcessRegressor(kernel=kernel_rq, alpha=0.1, n_restarts_optimizer=10)
     models.append(gpr_rq)
 
     # 2. Using Matern Kernel (nu=1.5)
-    kernel_matern = gp.ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-        gp.Matern(length_scale=1.0, nu=1.5)
+    kernel_matern = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
+        Matern(length_scale=1.0, nu=1.5)
     gpr_matern = gp.GaussianProcessRegressor(kernel=kernel_matern, alpha=0.1, n_restarts_optimizer=10)
     models.append(gpr_matern)
 
     # 3. Using a combination (RQ + Linear)
-    kernel_combined = gp.ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-        gp.RationalQuadratic(length_scale=1.0, alpha=0.1) + LinearKernel(gradient=1.0)
+    kernel_combined = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
+        RationalQuadratic(length_scale=1.0, alpha=0.1) + LinearKernel(gradient=1.0)
     gpr_combined = gp.GaussianProcessRegressor(kernel=kernel_combined, alpha=0.1, n_restarts_optimizer=10)
     models.append(gpr_combined)
 
     # 4. Using Matern Kernel (nu=0.5)
-    kernel_matern = gp.ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
-        gp.Matern(length_scale=1.0, nu=0.5)
+    kernel_matern = ConstantKernel(constant_value=1.0, constant_value_bounds="fixed") * \
+        Matern(length_scale=1.0, nu=0.5)
     gpr_matern = gp.GaussianProcessRegressor(kernel=kernel_matern, alpha=0.1, n_restarts_optimizer=10)
     models.append(gpr_matern)
 
