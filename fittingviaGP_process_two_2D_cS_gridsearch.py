@@ -111,17 +111,13 @@ if __name__ == "__main__":
     models.append(matn_gp)
 
     modelnum = 1     
+    ofp = open("vremoved_GP.csv", "w")
+    print ("Modelnum , v Removed , Test MSE , Test R2 , Train MSE , Train R2", \
+           flush=True)
+    print ("Modelnum , v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
     for model in models:
         starttime = time.time()
-        ofp = open("vremoved_GP_"+str(modelnum)+".csv", "w")
     
-        avgr2test = 0.0
-        avgmsetest = 0.0
-        avgr2train = 0.0
-        avgmsetrain = 0.0
-        print ("Modelnum , v Removed , Test MSE , Test R2 , Train MSE , Train R2")
-        print ("Modelnum , v Removed , Test MSE , Test R2 , Train MSE , Train R2", file=ofp)
-
         test_y_sb = scalery.inverse_transform(test_y)
 
         model.fit(train_x, train_y)
@@ -158,13 +154,14 @@ if __name__ == "__main__":
         
         print("%3d , %3d , %10.6e , %10.6f , %10.6e , %10.6f"%(\
             modelnum, vmap_toreal[v], testmse, testr2, \
-            trainmse,  trainr2))
+            trainmse,  trainr2), flush=True)
         
         print("%3d , %3d , %10.6e , %10.6f , %10.6e , %10.6f"%(\
             modelnum, vmap_toreal[v], testmse, testr2, \
             trainmse,  trainr2), file=ofp)
         
-        ofp.close()
         endtime = time.time()
         print("Time taken for model = %d is %10.6f"%(modelnum, endtime-starttime))
         modelnum += 1
+
+    ofp.close()
