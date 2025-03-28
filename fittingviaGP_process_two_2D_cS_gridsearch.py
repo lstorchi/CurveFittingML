@@ -57,12 +57,16 @@ if __name__ == "__main__":
 
     print("v in test = ", vmap_toreal[v])
     train_x, test_x, train_y, test_y = cm.test_train_split (0, [v], x_s, y_s)
+    print("Range of x and y ", min(train_x[:,0]), max(train_x[:,0]), \
+        min(train_x[:,1]), max(train_x[:,1]), \
+        min(train_y), max(train_y), flush=True)
 
     models = []
     models_names = []
     # Gaussian Process Regression
-    for nu in [0.1, 0.2, 0.25, 0.5, 0.8, 1.0, 1.5, 2.0, 2.5]:
-        for scale in [0.1, 0.5, 0.8, 1.0]:
+    for nu in [0.1, 0.2, 0.25, 0.6, 0.4, 0.5, \
+               0.6, 0.8, 1.0, 1.5, 2.0, 2.5]:
+        for scale in [0.001. 0.01, 0.1, 0.8, 1.0, 10.0, 100.0]:
             kernel = scale * Matern(length_scale=scale, nu=nu)
             matn_gp = gp.GaussianProcessRegressor(kernel=kernel, \
                 n_restarts_optimizer=50, \
