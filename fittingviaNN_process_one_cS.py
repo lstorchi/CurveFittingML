@@ -339,7 +339,7 @@ def build_vsets_split (x_s, y_s, scalery, scalerx, alsolog10, vlist, modelshape,
 #######################################################################
 
 if __name__ == "__main__":
-    filename = "N2H2_VV_process.xlsx"
+    filename = "N2H2_VV_process_CS.xlsx"
     
     if len(sys.argv) == 2:
         filename = sys.argv[1]
