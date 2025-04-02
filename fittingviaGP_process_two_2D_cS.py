@@ -28,7 +28,7 @@ if __name__ == "__main__":
     df = pd.read_excel(filename, sheet_name=sheetname)
     debug = False
 
-    x = df[['dE', 'cE']].values
+    x = df[['v', 'cE']].values
     y = np.log10(df[['cS']].values)
 
     scalery = MinMaxScaler()
