@@ -114,10 +114,10 @@ if __name__ == "__main__":
                 trainr2 = metrics.r2_score(train_y_sb, pred_y_sb)
                 
                 print("%3d , %10.6e , %10.6f , %10.6e , %10.6f"%(vmap_toreal[v], testmse, testr2, \
-                                                                   trainmse,  trainr2))
+                                                                   trainmse,  trainr2), flush=True)
                 
                 print("%3d , %10.6e , %10.6f , %10.6e , %10.6f"%(vmap_toreal[v], testmse, testr2, \
-                                                                   trainmse,  trainr2), file=ofp)
+                                                                   trainmse,  trainr2), file=ofp, flush=True)
                 avgmsetest += testmse
                 avgr2test += testr2
                 avgmsetrain += trainmse
