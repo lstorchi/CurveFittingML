@@ -23,7 +23,7 @@ if __name__ == "__main__":
     df = pd.read_excel(filename)
     debug = False
 
-    x = df[['v', "dE", 'cE']].values
+    x = df[['v', "w", 'cE']].values
     y = np.log10(df[['cS']].values)
 
     scalery = MinMaxScaler()
