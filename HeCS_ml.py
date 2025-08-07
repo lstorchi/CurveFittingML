@@ -7,7 +7,9 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import sklearn.gaussian_process as gp
 import sklearn.preprocessing as skp
-
+import sklearn.gaussian_process as gp
+from sklearn.gaussian_process.kernels import RationalQuadratic, \
+    Matern, RBF, ConstantKernel, DotProduct
 import commonmodules as cm
 
 if __name__ == "__main__":
@@ -54,48 +56,34 @@ if __name__ == "__main__":
     train_z = np.log(train_z)
     test_z = np.log(test_z)
     # scale values to [0, 1]
-    scaler = skp.MinMaxScaler()
-    train_xy = scaler.fit_transform(train_xy)
-    test_xy = scaler.transform(test_xy)
+    scalerxy = skp.MinMaxScaler()
+    train_xy = scalerxy.fit_transform(train_xy)
+    test_xy = scalerxy.transform(test_xy)
     # same for z
-    train_z = scaler.fit_transform(train_z.reshape(-1, 1))
-    test_z = scaler.transform(test_z.reshape(-1, 1))
+    scalerz = skp.MinMaxScaler()
+    train_z = scalerz.fit_transform(train_z.reshape(-1, 1))
+    test_z = scalerz.transform(test_z.reshape(-1, 1))
 
-    model = cm.build_model_GP_1 (train_xy, train_z)
+    for nu in [0.5, 1.0, 1.5, 2.0]:
+        print("Using nu:", nu)
+        scale = 1.0
+        kernel = scale * Matern(length_scale=scale, nu=nu)
 
-    z_pred, std = model.predict(train_xy, return_std=True)
-    trainmse = 0.0
-    cont = 0.0
-    for i in range(train_z.shape[0]):
-        x = train_xy[i,0]
-        y = train_xy[i,1]
-        z = train_z[i]
-        zpred = z_pred[i]
-        zstd = std[i]
+        matn_gp = gp.GaussianProcessRegressor(kernel=kernel, \
+            n_restarts_optimizer=50, \
+            normalize_y=False)
+        print("Starting fit...")
+        matn_gp.fit(train_xy, train_z)
+        print("Fit completed.")
 
-        trainmse += (zpred-z)**2
-        cont += 1.0
+        z_pred, std = matn_gp.predict(train_xy, return_std=True)
+        z_pred_sb = scalerz.inverse_transform(z_pred.reshape(-1, 1))
+        train_z_sb = scalerz.inverse_transform(train_z.reshape(-1, 1))
+        trainmse = np.mean((z_pred_sb - train_z_sb) ** 2)
+        print("Train MSE:", trainmse)
 
-        print("Train, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
-
-    trainmse = trainmse/cont
-
-    z_pred, std = model.predict(test_xy, return_std=True)
-    mse = 0.0
-    cont = 0.0
-    for i in range(test_z.shape[0]):
-        x = test_xy[i,0]
-        y = test_xy[i,1]
-        z = test_z[i]
-        zpred = z_pred[i]
-        zstd = std[i]
-
-        mse += (zpred-z)**2
-        cont += 1.0
-
-        print("Test, %10.7f , %10.7f , %10.7f , %10.7f , %10.7f"%(z, y, z, zpred, zstd))
-
-    mse = mse/cont
-
-    print("MSE ", mse, " , TrainMSE ,", trainmse, flush=True)
-
+        z_pred = matn_gp.predict(test_xy)
+        z_pred_sb = scalerz.inverse_transform(z_pred.reshape(-1, 1))
+        test_z_sb = scalerz.inverse_transform(test_z.reshape(-1, 1))
+        mse = np.mean((z_pred_sb - test_z_sb) ** 2)
+        print("Test MSE:", mse)
