@@ -11,6 +11,17 @@ import sklearn.gaussian_process as gp
 from sklearn.gaussian_process.kernels import RationalQuadratic, \
     Matern, RBF, ConstantKernel, DotProduct
 import commonmodules as cm
+from fittingviaNN_process_two_2D_cS import SaveModelEpoch
+import tensorflow as tf
+
+#import keras
+from tensorflow import keras
+
+import keras.optimizers as tko
+import keras.activations as tka
+import keras.losses as tkl
+from keras.layers import Input, Dense
+from keras.models import Model
 
 if __name__ == "__main__":
     filename = "HeCS.xlsx"
@@ -63,37 +74,76 @@ if __name__ == "__main__":
     train_z = scalerz.fit_transform(train_z.reshape(-1, 1))
     test_z = scalerz.transform(test_z.reshape(-1, 1))
 
-    for nu in [0.5, 1.0, 1.5, 2.0]:
-        print("Using nu:", nu)
-        scale = 1.0
-        kernel = scale * Matern(length_scale=scale, nu=nu)
+    modelshape_s = [
+            [64, 64, 64],
+            [128, 128, 128, 128], 
+            [256, 256, 256], 
+            [256, 256, 256, 256, 256, 256]]
+    batch_size_s = [10, 50, 256]
+    epochs_s = [1000]
+    lossfuns = ['mse']
+    optimizers = ['adam']
+    activations = ['relu']
 
-        matn_gp = gp.GaussianProcessRegressor(kernel=kernel, \
-            n_restarts_optimizer=50, \
-            normalize_y=False)
-        print("Starting fit...")
-        matn_gp.fit(train_xy, train_z)
-        print("Fit completed.")
+    totalnum = len(modelshape_s)*\
+            len(batch_size_s)*len(epochs_s)*\
+            len(lossfuns)*len(optimizers)*len(activations)
+    print("Total number of models to run: ", totalnum)
+    modelnum = 0
+    
+    for modelshape in modelshape_s:
+        for batch_size in batch_size_s:
+            for epochs  in epochs_s:
+                for lossfun in lossfuns:
+                    for optimizer in optimizers:
+                        for activation in activations:
+                            modelnum += 1
+                            inshape = train_xy.shape[1]
 
-        pred_z, std = matn_gp.predict(train_xy, return_std=True)
-        pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
-        train_z_sb = scalerz.inverse_transform(train_z.reshape(-1, 1))
-        trainmse = np.mean((pred_z_sb - train_z_sb) ** 2)
-        print("Train MSE:", trainmse)
-        train_xy_sb = scalerxy.inverse_transform(train_xy.reshape(-1, 2))
-        fp = open(f"train_predictions_nu_{nu}.txt", "w")
-        for i in range(len(train_z_sb)):
-            fp.write(f"{train_xy_sb[i][0]} , {train_xy_sb[i][1]}")
-            fp.write(f"{train_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
-        fp.close()
+                            model = cm.buildmodel(modelshape, inputshape=inshape, \
+                                    lossf=lossfun, optimizerf=optimizer, \
+                                    activationf=activation)
 
-        pred_z = matn_gp.predict(test_xy)
-        pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
-        test_z_sb = scalerz.inverse_transform(test_z.reshape(-1, 1))
-        mse = np.mean((pred_z_sb - test_z_sb) ** 2)
-        print("Test MSE:", mse)
-        fp = open(f"test_predictions_nu_{nu}.txt", "w")
-        for i in range(len(test_z_sb)):
-            fp.write(f"{test_xy[i][0]} , {test_xy[i][1]}")
-            fp.write(f"{test_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
-        fp.close()
+                            filepath = 'model_epoch_{epoch}.keras' 
+                            save_model_callback = SaveModelEpoch(filepath)
+
+                            history = model.fit(train_xy, train_z, \
+                                epochs=epochs,  \
+                                batch_size=batch_size, \
+                                callbacks=[save_model_callback], \
+                                verbose=0)
+                            minmse = min(history.history[lossfun])
+                            minepoch = np.argmin(history.history[lossfun])
+                            epoch_str = '{:04d}'.format(minepoch + 1)  # Format epoch number
+                            filename = filepath.format(epoch=epoch_str)
+                            model = keras.models.load_model(filename)
+
+                            try:
+                                epoch_str = '{:04d}'.format(i + 1)  # Format epoch number
+                                filename = filepath.format(epoch=epoch_str)
+                                os.remove(filename)
+                            except:
+                                print("error in removing file: ", filepath.format(epoch=i))
+
+                            pred_z, std = model.predict(train_xy)
+                            pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
+                            train_z_sb = scalerz.inverse_transform(train_z.reshape(-1, 1))
+                            trainmse = np.mean((pred_z_sb - train_z_sb) ** 2)
+                            print("Train MSE:", trainmse)
+                            train_xy_sb = scalerxy.inverse_transform(train_xy.reshape(-1, 2))
+                            fp = open(f"train_predictions_model_{modelnum}.txt", "w")
+                            for i in range(len(train_z_sb)):
+                                fp.write(f"{train_xy_sb[i][0]} , {train_xy_sb[i][1]}")
+                                fp.write(f"{train_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
+                            fp.close()
+
+                            pred_z = model.predict(test_xy)
+                            pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
+                            test_z_sb = scalerz.inverse_transform(test_z.reshape(-1, 1))
+                            mse = np.mean((pred_z_sb - test_z_sb) ** 2)
+                            print("Test MSE:", mse)
+                            fp = open(f"test_predictions_model_{modelnum}.txt", "w")
+                            for i in range(len(test_z_sb)):
+                                fp.write(f"{test_xy[i][0]} , {test_xy[i][1]}")
+                                fp.write(f"{test_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
+                            fp.close()
