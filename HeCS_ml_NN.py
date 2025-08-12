@@ -125,7 +125,7 @@ if __name__ == "__main__":
                             except:
                                 print("error in removing file: ", filepath.format(epoch=i))
 
-                            pred_z, std = model.predict(train_xy)
+                            pred_z = model.predict(train_xy)
                             pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
                             train_z_sb = scalerz.inverse_transform(train_z.reshape(-1, 1))
                             trainmse = np.mean((pred_z_sb - train_z_sb) ** 2)
