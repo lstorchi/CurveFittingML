@@ -98,6 +98,13 @@ if __name__ == "__main__":
                     for optimizer in optimizers:
                         for activation in activations:
                             modelnum += 1
+                            print(f"Running model {modelnum} of {totalnum}")
+                            print("Model shape:", modelshape)
+                            print("Batch size:", batch_size)
+                            print("Epochs:", epochs)
+                            print("Loss function:", lossfun)
+                            print("Optimizer:", optimizer)
+                            print("Activation function:", activation)
                             inshape = train_xy.shape[1]
 
                             model = cm.buildmodel(modelshape, inputshape=inshape, \
