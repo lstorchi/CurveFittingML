@@ -51,7 +51,6 @@ if __name__ == "__main__":
     print("Test X shape:", test_xy.shape)
     print("Test Y shape:", test_z.shape)        
 
-
     # log scale for Y
     train_z = np.log(train_z)
     test_z = np.log(test_z)
@@ -76,14 +75,25 @@ if __name__ == "__main__":
         matn_gp.fit(train_xy, train_z)
         print("Fit completed.")
 
-        z_pred, std = matn_gp.predict(train_xy, return_std=True)
-        z_pred_sb = scalerz.inverse_transform(z_pred.reshape(-1, 1))
+        pred_z, std = matn_gp.predict(train_xy, return_std=True)
+        pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
         train_z_sb = scalerz.inverse_transform(train_z.reshape(-1, 1))
-        trainmse = np.mean((z_pred_sb - train_z_sb) ** 2)
+        trainmse = np.mean((pred_z_sb - train_z_sb) ** 2)
         print("Train MSE:", trainmse)
+        train_xy_sb = scalerxy.inverse_transform(train_xy.reshape(-1, 2))
+        fp = open(f"train_predictions_nu_{nu}.txt", "w")
+        for i in range(len(train_z_sb)):
+            fp.write(f"{train_xy_sb[i][0]} , {train_xy_sb[i][1]}")
+            fp.write(f"{train_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
+        fp.close()
 
-        z_pred = matn_gp.predict(test_xy)
-        z_pred_sb = scalerz.inverse_transform(z_pred.reshape(-1, 1))
+        pred_z = matn_gp.predict(test_xy)
+        pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
         test_z_sb = scalerz.inverse_transform(test_z.reshape(-1, 1))
-        mse = np.mean((z_pred_sb - test_z_sb) ** 2)
+        mse = np.mean((pred_z_sb - test_z_sb) ** 2)
         print("Test MSE:", mse)
+        fp = open(f"test_predictions_nu_{nu}.txt", "w")
+        for i in range(len(test_z_sb)):
+            fp.write(f"{test_xy[i][0]} , {test_xy[i][1]}")
+            fp.write(f"{test_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
+        fp.close()
