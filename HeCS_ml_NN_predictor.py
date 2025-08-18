@@ -44,7 +44,7 @@ if __name__ == "__main__":
     for i in range(X.shape[0]):
         train_xy.append(X[i])
         train_z.append(Y[i])
-    for v in range(1,max(df[['v']].values)+1):
+    for v in range(1,max(vib_values)+1):
         if v not in vib_values:
             for T in temp_values:
                 test_xy.append([v, T])
