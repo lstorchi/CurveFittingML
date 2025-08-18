@@ -140,7 +140,7 @@ if __name__ == "__main__":
                             train_xy_sb = scalerxy.inverse_transform(train_xy.reshape(-1, 2))
                             fp = open(f"train_predictions_model_{modelnum}.txt", "w")
                             for i in range(len(train_z_sb)):
-                                fp.write(f"{train_xy_sb[i][0]} , {train_xy_sb[i][1]} ,")
+                                fp.write(f"{train_xy_sb[i][0]} , {train_xy_sb[i][1]} , ")
                                 fp.write(f"{train_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
                             fp.close()
 
@@ -151,6 +151,6 @@ if __name__ == "__main__":
                             print("Test MSE:", mse)
                             fp = open(f"test_predictions_model_{modelnum}.txt", "w")
                             for i in range(len(test_z_sb)):
-                                fp.write(f"{test_xy[i][0]} , {test_xy[i][1]}")
+                                fp.write(f"{test_xy[i][0]} , {test_xy[i][1]} , ")
                                 fp.write(f"{test_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
                             fp.close()
