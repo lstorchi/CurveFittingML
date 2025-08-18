@@ -57,7 +57,6 @@ if __name__ == "__main__":
 
     # log scale for Y
     train_z = np.log(train_z)
-    test_z = np.log(test_z)
     # scale values to [0, 1]
     scalerxy = skp.MinMaxScaler()
     train_xy = scalerxy.fit_transform(train_xy)
@@ -127,17 +126,18 @@ if __name__ == "__main__":
                             train_z_sb = scalerz.inverse_transform(train_z.reshape(-1, 1))
                             trainmse = np.mean((pred_z_sb - train_z_sb) ** 2)
                             print("Train MSE:", trainmse)
-                            train_xy_sb = scalerxy.inverse_transform(train_xy.reshape(-1, 2))
                             fp = open(f"train_predictions_model_{modelnum}.txt", "w")
+                            train_xy_sb = scalerxy.inverse_transform(train_xy.reshape(-1, 2))
                             for i in range(len(train_z_sb)):
-                                fp.write(f"{train_xy_sb[i][0]} , {train_xy_sb[i][1]} , ")
-                                fp.write(f"{train_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
+                                fp.write(f"{train_xy_sb[i][0]} , {train_xy_sb[i][1]} , "+
+                                         f"{train_z_sb[i][0]} \n")
                             fp.close()
 
                             pred_z = model.predict(test_xy)
                             pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
                             fp = open(f"test_predictions_model_{modelnum}.txt", "w")
-                            for i in range(len(test_z_sb)):
-                                fp.write(f"{test_xy[i][0]} , {test_xy[i][1]} , ")
-                                fp.write(f"{test_z_sb[i][0]} , {pred_z_sb[i][0]}\n")
+                            test_xy_sb = scalerxy.inverse_transform(test_xy.reshape(-1, 2))
+                            for i in range(len(pred_z_sb)):
+                                fp.write(f"{test_xy_sb[i][0]} , {test_xy_sb[i][1]} , " +
+                                         f"{pred_z_sb[i][0]}\n")
                             fp.close()
