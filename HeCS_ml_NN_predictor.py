@@ -1,6 +1,7 @@
 import os
 import math
 import sys
+import glob
 
 import numpy as np
 import pandas as pd
@@ -125,11 +126,12 @@ if __name__ == "__main__":
                             model = keras.models.load_model(filename)
 
                             try:
-                                os.remove("model_epoch_*.keras")
+                                for filename in glob.glob("model_epoch_*.keras"):
+                                    os.remove(filename)
                             except:
                                 print("error in removing file: model_epoch_*.keras")
 
-                            model.save("model_{modelnum}.keras")
+                            model.save(f"model_{modelnum}.keras")
 
                             pred_z = model.predict(train_xy)
                             pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
