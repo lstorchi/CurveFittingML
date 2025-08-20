@@ -86,8 +86,6 @@ if __name__ == "__main__":
     df1 = pd.read_csv(filename1)
     df2 = pd.read_csv(filename2)
     # add header
-    df2.columns = ['v', 'T', 'RC']
-    df1.columns = ['v', 'T', 'RC']
     x1 = df1[['v', 'T']].values
     y1 = df1['RC'].values
     X1 = np.array(x1)
@@ -157,6 +155,12 @@ if __name__ == "__main__":
             y = float(v)
             if df1[(df1['v'] == v) & (df1['T'] == t)]['RC'].empty:
                 print(f"Warning: No data for v={v}, T={t}")
+
+                if df1[(df1['v'] == v)].empty:
+                    print(f"Warning: No data for v={v}")
+                if df1[(df1['T'] == t)].empty:
+                    print(f"Warning: No data for T={t}")
+
                 continue
             z = df1[(df1['v'] == v) & (df1['T'] == t)]['RC'].values[0]
             ax.scatter(x, y, z, marker="o", color="b")
@@ -169,6 +173,12 @@ if __name__ == "__main__":
             y = float(v)
             if df2[(df2['v'] == v) & (df2['T'] == t)]['RC'].empty:
                 print(f"Warning: No data for v={v}, T={t}")
+
+                if df2[(df2['v'] == v)].empty:
+                    print(f"Warning: No data for v={v}")
+                if df2[(df2['T'] == t)].empty:
+                    print(f"Warning: No data for T={t}")
+
                 continue
             z = df2[(df2['v'] == v) & (df2['T'] == t)]['RC'].values[0]
             ax.scatter(x, y, z, marker="o", color="r")  

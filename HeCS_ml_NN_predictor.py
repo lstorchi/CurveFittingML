@@ -1,5 +1,6 @@
 import os
 import math
+import sys
 
 import numpy as np
 import pandas as pd
@@ -24,8 +25,16 @@ from keras.layers import Input, Dense
 from keras.models import Model
 
 if __name__ == "__main__":
+
+    sheetname = "dv1"
+    if len(sys.argv) != 2:
+        print("ERROR: Usage ", sys.argv[0], " sheetname")
+        exit(1)
+    else:
+        sheetname = sys.argv[1]
+
     filename = "HeCS.xlsx"
-    df = pd.read_excel(filename, sheet_name="dv1")
+    df = pd.read_excel(filename, sheet_name=sheetname)
     #print(df.head())
     #for cname in df.columns:
     #    print(cname, df[cname].dtype)
@@ -112,14 +121,15 @@ if __name__ == "__main__":
                             minepoch = np.argmin(history.history[lossfun])
                             epoch_str = '{:04d}'.format(minepoch + 1)  # Format epoch number
                             filename = filepath.format(epoch=epoch_str)
+                            print(f"Best epoch: {epoch_str}, MSE: {minmse:.6f}")
                             model = keras.models.load_model(filename)
 
                             try:
-                                epoch_str = '{:04d}'.format(i + 1)  # Format epoch number
-                                filename = filepath.format(epoch=epoch_str)
-                                os.remove(filename)
+                                os.remove("model_epoch_*.keras")
                             except:
-                                print("error in removing file: ", filepath.format(epoch=i))
+                                print("error in removing file: model_epoch_*.keras")
+
+                            model.save("model_{modelnum}.keras")
 
                             pred_z = model.predict(train_xy)
                             pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
@@ -128,6 +138,7 @@ if __name__ == "__main__":
                             print("Train MSE:", trainmse)
                             fp = open(f"train_predictions_model_{modelnum}.txt", "w")
                             train_xy_sb = scalerxy.inverse_transform(train_xy.reshape(-1, 2))
+                            fp.write("v,T,RC\n")
                             for i in range(len(train_z_sb)):
                                 fp.write(f"{train_xy_sb[i][0]} , {train_xy_sb[i][1]} , "+
                                          f"{train_z_sb[i][0]} \n")
@@ -137,6 +148,7 @@ if __name__ == "__main__":
                             pred_z_sb = scalerz.inverse_transform(pred_z.reshape(-1, 1))
                             fp = open(f"test_predictions_model_{modelnum}.txt", "w")
                             test_xy_sb = scalerxy.inverse_transform(test_xy.reshape(-1, 2))
+                            fp.write("v,T,RC\n")
                             for i in range(len(pred_z_sb)):
                                 fp.write(f"{test_xy_sb[i][0]} , {test_xy_sb[i][1]} , " +
                                          f"{pred_z_sb[i][0]}\n")
