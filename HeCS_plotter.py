@@ -1,4 +1,5 @@
 import os
+import sys
 import math
 
 import numpy as np
@@ -80,9 +81,16 @@ def evaluate_surface_smoothness(xy_coords, z_values,
 
 if __name__ == "__main__":
 
-    # dv1 best is 5
-    filename1 = "dv1/train_predictions_model_5.txt"
-    filename2 = "dv1/test_predictions_model_5.txt"
+    # dv1 best is 3
+    # dv2 best is 3
+    # dv3 best is 3
+    filename1 = "dv3/train_predictions_model_5.txt"
+    filename2 = "dv3/test_predictions_model_5.txt"
+    
+    if len(sys.argv) == 3:
+        filename1 = sys.argv[1]
+        filename2 = sys.argv[2] 
+
     df1 = pd.read_csv(filename1)
     df2 = pd.read_csv(filename2)
     # add header
